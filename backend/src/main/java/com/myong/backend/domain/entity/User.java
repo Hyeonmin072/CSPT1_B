@@ -3,6 +3,7 @@ package com.myong.backend.domain.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,11 +11,12 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class User {
 
     @Id
     @Column(name = "u_id")
-    private String id = UUID.randomUUID().toString(); // 유저 고유 키 
+    private String id; // 유저 고유 키
 
     @Column(nullable = false,  name = "u_name")
     private String name; // 이름
@@ -41,5 +43,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별
 
-
+    public User(String name, String email, String pwd, String tel, LocalDateTime createDate, LocalDateTime birth, Gender gender) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.email = email;
+        this.pwd = pwd;
+        this.tel = tel;
+        this.createDate = createDate;
+        this.birth = birth;
+        this.gender = gender;
+    }
 }

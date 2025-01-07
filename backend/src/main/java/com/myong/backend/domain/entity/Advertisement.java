@@ -10,11 +10,12 @@ import java.util.UUID;
 
 @Getter
 @Entity
+@NoArgsConstructor
 public class Advertisement {
     //광고 고유키
     @Column(name = "ad_id")
     @Id
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     //이미지 경로
     @Column(nullable = false, name = "ad_image")
@@ -22,6 +23,11 @@ public class Advertisement {
 
     //기한
     @Column(updatable = false, nullable = false, name = "ad_expires")
-    //갱신시간일 경우 updatable은 false로 변경
     private LocalDateTime expires;
+
+    public Advertisement(String image, LocalDateTime expires) {
+        this.id = UUID.randomUUID().toString();
+        this.image = image;
+        this.expires = expires;
+    }
 }

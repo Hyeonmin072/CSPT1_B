@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +14,12 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Shop {
 
     @Id
     @Column(name = "s_id")
-    private String id = UUID.randomUUID().toString(); // 가게 고유 키
+    private String id; // 가게 고유 키
 
     @Column(name = "s_name", nullable = false)
     private String name; //이름
@@ -62,6 +64,16 @@ public class Shop {
     private Long category; // 카테고리코드
 
     @OneToMany(mappedBy = "shop")
-    private List<Designer> designer = new ArrayList<>();
+    private List<Designer> designers = new ArrayList<>();
 
+    public Shop(String name, String pwd, String address, String tel, Double rating, String bizId, Long post) {
+        this.id = UUID.randomUUID().toString();
+        this.name = name;
+        this.pwd = pwd;
+        this.address = address;
+        this.tel = tel;
+        this.rating = rating;
+        this.bizId = bizId;
+        this.post = post;
+    }
 }

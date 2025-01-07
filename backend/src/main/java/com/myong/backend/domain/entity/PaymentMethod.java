@@ -1,5 +1,5 @@
 package com.myong.backend.domain.entity;
 
-public enum ReservationPayment {
+public enum PaymentMethod {
     CASH,CARD;
 }

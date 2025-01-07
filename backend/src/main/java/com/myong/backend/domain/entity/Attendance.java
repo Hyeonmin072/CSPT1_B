@@ -2,13 +2,15 @@ package com.myong.backend.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Entity
-
+@NoArgsConstructor
 public class Attendance {
     //근태아이디
     @Id
@@ -39,4 +41,10 @@ public class Attendance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
     private Designer designer;
+
+    public Attendance(Status status, LocalDateTime date) {
+        this.id = UUID.randomUUID().toString();
+        this.status = status;
+        this.date = date;
+    }
 }

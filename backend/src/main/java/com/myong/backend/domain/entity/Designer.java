@@ -2,6 +2,7 @@ package com.myong.backend.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,11 +11,12 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Designer {
 
     @Id
     @Column(name = "d_id")
-    private String id = UUID.randomUUID().toString(); // 고유 키
+    private String id; // 고유 키
 
 
     @Column(name = "d_name", nullable = false)
@@ -62,6 +64,17 @@ public class Designer {
     private Shop shop;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
-    private List<Attendance> attendance = new ArrayList<>();
+    private List<Attendance> attendances = new ArrayList<>();
 
+    public Designer(String name, String email, String pwd, String tel, LocalDateTime createDate, Long post, Long exp, Long birth, Gender gender) {
+        this.name = name;
+        this.email = email;
+        this.pwd = pwd;
+        this.tel = tel;
+        this.createDate = createDate;
+        this.post = post;
+        this.exp = exp;
+        this.birth = birth;
+        this.gender = gender;
+    }
 }
