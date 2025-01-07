@@ -18,7 +18,7 @@ public class Attendance {
     //근무 상태
     @Column(nullable = false, name = "at_status")
     @Enumerated(EnumType.STRING)
-    Status status = Status.NO;
+    private Status status = Status.NO;
 
     //출근일시
     @Column(name = "at_in")
@@ -38,5 +38,5 @@ public class Attendance {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
-    Designer designer;
+    private Designer designer;
 }

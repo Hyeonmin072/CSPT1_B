@@ -30,12 +30,12 @@ public class Menu {
     @Column(name = "m_discount")
     private String discount;
 
-//    가게고유키
+    //가게고유키
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")
     private Shop shop;
 
-// 디자이너 고유키
+    //디자이너 고유키
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
     private Designer designer;

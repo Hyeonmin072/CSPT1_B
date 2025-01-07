@@ -20,7 +20,7 @@ public class Reservation {
 
     @Column(name = "r_status")
     @Enumerated(EnumType.STRING)
-    ReservationStatus status = ReservationStatus.RECEIPT;
+    private ReservationStatus status = ReservationStatus.RECEIPT;
 
     @Column(name = "r_createdate")
     private LocalDateTime createDate;
@@ -30,30 +30,30 @@ public class Reservation {
 
     @Column(name = "r_payment")
     @Enumerated(EnumType.STRING)
-    ReservationPayment payment;
+    private ReservationPayment payment;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "m_id")
-//    Menu menu;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "m_id")
+    private Menu menu;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "c_id")
-//    Coupon coupon
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "c_id")
+    private Coupon coupon;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "s_id")
-//    Shop shop
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "s_id")
+    private Shop shop;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "d_id")
-//    Designer designer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "d_id")
+    private Designer designer;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "u_id")
-//    User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "u_id")
+    private User user;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
-    List<Payment> paymentList = new ArrayList<>();
+    private List<Payment> paymentList = new ArrayList<>();
 
     public Reservation(){
 

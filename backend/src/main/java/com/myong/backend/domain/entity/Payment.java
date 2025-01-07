@@ -21,18 +21,18 @@ public class Payment {
 
     @Column(name = "p_status")
     @Enumerated(EnumType.STRING)
-    PayStatus status = PayStatus.INCOMPLETE;
+    private PayStatus status = PayStatus.INCOMPLETE;
 
     @Column(name = "p_paydate")
     private LocalDateTime paydate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "r_id")
-    Reservation reservation;
+    private Reservation reservation;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "s_id")
-//    Shop shop
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "s_id")
+    private Shop shop;
 
 
     public Payment(){}

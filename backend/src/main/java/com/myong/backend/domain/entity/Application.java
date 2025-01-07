@@ -17,9 +17,9 @@ public class Application {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
-    Designer designer;
+    private Designer designer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jp_id")
-    JobPost jobPost;
+    private JobPost jobPost;
 }

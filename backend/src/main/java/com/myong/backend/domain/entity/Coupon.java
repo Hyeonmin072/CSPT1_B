@@ -17,7 +17,7 @@ public class Coupon {
 
     @Column(name = "c_status")
     @Enumerated(EnumType.STRING)
-    CouponStatus status = CouponStatus.USE;
+    private CouponStatus status = CouponStatus.USE;
 
     @Column(name = "c_name")
     private String name;
@@ -32,9 +32,9 @@ public class Coupon {
     @Column(name = "c_expire")
     private LocalDateTime expire;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "u_id")
-//    User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "u_id")
+    private User user;
 
     public Coupon(){}
 }

@@ -32,15 +32,15 @@ public class Message {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cr_id")
-    ChatRoom chatRoom;
+    private ChatRoom chatRoom;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "s_id")
-//    Shop shop;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "u_id")
-//    User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "s_id")
+    private Shop shop;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "u_id")
+    private User user;
 
     public Message(){}
 }

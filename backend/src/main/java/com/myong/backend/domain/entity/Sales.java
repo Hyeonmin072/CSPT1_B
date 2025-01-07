@@ -11,11 +11,11 @@ public class Sales {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_id")
-    Payment payment;
+    private Payment payment;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "d_id")
-//    Designer designer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "d_id")
+    private Designer designer;
 
     @Column(name = "amount")
     private Long amount;
