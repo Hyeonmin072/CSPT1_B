@@ -1,13 +1,16 @@
-package com.myong.backend.domain.entity;
+package com.myong.backend.domain.entity.business;
 
 
+import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.shop.Menu;
+import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.user.Coupon;
+import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity

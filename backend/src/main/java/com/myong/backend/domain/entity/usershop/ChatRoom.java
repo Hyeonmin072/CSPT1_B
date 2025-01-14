@@ -1,4 +1,4 @@
-package com.myong.backend.domain.entity;
+package com.myong.backend.domain.entity.usershop;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

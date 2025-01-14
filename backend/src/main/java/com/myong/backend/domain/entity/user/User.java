@@ -1,11 +1,10 @@
-package com.myong.backend.domain.entity;
+package com.myong.backend.domain.entity.user;
 
+import com.myong.backend.domain.entity.Gender;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

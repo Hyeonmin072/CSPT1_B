@@ -1,5 +1,7 @@
-package com.myong.backend.domain.entity;
+package com.myong.backend.domain.entity.designer;
 
+import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Getter

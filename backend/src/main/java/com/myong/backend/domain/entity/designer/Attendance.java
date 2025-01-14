@@ -1,11 +1,9 @@
-package com.myong.backend.domain.entity;
+package com.myong.backend.domain.entity.designer;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
