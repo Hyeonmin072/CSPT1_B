@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
 @Entity
-@NoArgsConstructor
 public class Attendance {
     //근태아이디
     @Id
@@ -20,31 +20,32 @@ public class Attendance {
     //근무 상태
     @Column(nullable = false, name = "at_status")
     @Enumerated(EnumType.STRING)
-    private Status status = Status.NO;
+    private Status status;
 
     //출근일시
     @Column(name = "at_in")
-    private LocalDateTime in;
+    private LocalTime in;
 
     //퇴근일시
     @Column(name = "at_out")
-    private LocalDateTime out;
+    private LocalTime out;
 
     //근무 시간
     @Column(name = "at_times")
-    private LocalDate times;
+    private LocalTime times;
 
     //근무 날짜
-    @Column(nullable = false ,name = "at_date")
-    private LocalDateTime date;
+    @Column(nullable = false, name = "at_date")
+    private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
     private Designer designer;
 
-    public Attendance(Status status, LocalDateTime date) {
+    public Attendance() {
         this.id = UUID.randomUUID().toString();
-        this.status = status;
-        this.date = date;
+        this.status = Status.NO;
+        this.date = LocalDate.now();
     }
+
 }

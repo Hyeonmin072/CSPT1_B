@@ -15,28 +15,28 @@ public class JobPost {
     //구인게시물고유키
     @Id
     @Column(name = "jp_id")
-    private String id;
+    private String id; // 구인 게시물 고유 키
 
     //제목
     @Column(name = "jp_title", nullable = false)
-    private String title;
+    private String title; // 제목
 
     //내용
     @Column(name = "jp_content")
-    private String content;
+    private String content; // 내용
 
     //요구 경력
     @Column(name = "jp_exp")
-    private long exp;
+    private Long exp; // 요구 경력
 
     // 근무 형태
     @Column(name = "jp_work",nullable = false)
     @Enumerated(EnumType.STRING)
-    private Work work = Work.FULLTIME; //정규직 디폴트
+    private Work work; // 근무 형태
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
-    private Shop shop;
+    private Shop shop; // 가게 고유 키
 
     @OneToMany(mappedBy = "jobPost", cascade = CascadeType.ALL)
     private List<JobApplication> JobApplications = new ArrayList<>();

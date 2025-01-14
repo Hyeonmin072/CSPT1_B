@@ -33,24 +33,24 @@ public class User {
     @Column(name = "u_location")
     private String location; // 위치
 
-    @Column(nullable = false, name = "u_createdate", updatable = false)
+    @Column(nullable = false, name = "u_create_date", updatable = false)
     private LocalDateTime createDate = LocalDateTime.now(); // 가입일
 
-    @Column(nullable = false, name = "u_birth")
-    private LocalDateTime birth = LocalDateTime.now(); // 생년월일
+    @Column(nullable = false, name = "u_birth_date")
+    private LocalDateTime birthDate = LocalDateTime.now(); // 생년월일
 
     @Column(nullable = false, name = "u_gender")
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별
 
-    public User(String name, String email, String pwd, String tel, LocalDateTime createDate, LocalDateTime birth, Gender gender) {
+    public User(String name, String email, String pwd, String tel, LocalDateTime createDate, LocalDateTime birthDate, Gender gender) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.email = email;
         this.pwd = pwd;
         this.tel = tel;
         this.createDate = createDate;
-        this.birth = birth;
+        this.birthDate = birthDate;
         this.gender = gender;
     }
 }

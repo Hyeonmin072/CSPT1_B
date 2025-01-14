@@ -13,17 +13,18 @@ public class Sales {
     @Id
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_id", nullable = false)
-    private Payment payment;
+    private Payment payment; // 결제 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false)
-    private Designer designer;
+    private Designer designer; // 디자이너 고유 키
 
-    @Column(name = "amount")
-    private Long amount;
+    @Column(name = "s_amount", nullable = false)
+    private Long amount; // 금액
 
-    public Sales(Payment payment, Designer designer) {
+    public Sales(Payment payment, Designer designer, Long amount) {
         this.payment = payment;
         this.designer = designer;
+        this.amount = amount;
     }
 }

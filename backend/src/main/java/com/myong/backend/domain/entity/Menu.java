@@ -10,36 +10,30 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class Menu {
-    //메뉴아이디
+
     @Id
     @Column(name = "m_id")
-    private String id;
+    private String id; // 메뉴 고유 키
 
-    //메뉴 이름
     @Column(nullable = false, name = "m_name")
-    private String name;
+    private String name; // 이름
 
-    //메뉴 설명
     @Column(nullable = false, name = "m_desc")
-    private String desc;
+    private String desc; // 설명
 
-    //메뉴 금액
     @Column(name = "m_price")
-    private String price;
+    private Long price; // 금액
 
-    //메뉴 할인
     @Column(name = "m_discount")
-    private String discount;
+    private String discount; // 할인
 
-    //가게고유키
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
-    private Shop shop;
+    private Shop shop; // 가게 고유 키
 
-    //디자이너 고유키
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false )
-    private Designer designer;
+    private Designer designer; // 디자이너 고유 키
 
 
     public Menu(String name, String desc, Shop shop, Designer designer) {

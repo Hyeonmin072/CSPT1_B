@@ -8,22 +8,24 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class JobApplication {
-   //구직 지원서 고유키
+ 
     @Id
     @Column(name ="ap_id")
-    private String id;
+    private String id; // 구직 지원서 고유 키
 
-    //희망 근무요일
     @Column(name = "ap_wantday", nullable = false)
-    private String wantDay;
+    private String wantDay; // 희망 근무요일
+
+    @Column(name = "ap_content")
+    private String content; // 내용
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false)
-    private Designer designer;
+    private Designer designer; // 디자이너 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jp_id", nullable = false)
-    private JobPost jobPost;
+    private JobPost jobPost; // 구인 게시물 고유 키
 
     public JobApplication(String id, String wantDay, Designer designer, JobPost jobPost) {
      this.id = id;

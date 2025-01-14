@@ -17,10 +17,11 @@ public class ChatRoom {
     @Column(name = "cr_id")
     private String id;
 
-    @Column(name = "cr_name")
+    @Column(name = "cr_name", nullable = false)
     private String name;
 
-    public ChatRoom(String id) {
+    public ChatRoom(String id, String name) {
         this.id = UUID.randomUUID().toString();
+        this.name = name;
     }
 }

@@ -22,12 +22,12 @@ public class Advertisement {
     private String image;
 
     //기한
-    @Column(updatable = false, nullable = false, name = "ad_expires")
-    private LocalDateTime expires;
+    @Column(updatable = false, nullable = false, name = "ad_expire_date")
+    private LocalDateTime expireDate;
 
-    public Advertisement(String image, LocalDateTime expires) {
+    public Advertisement(String image, LocalDateTime expireDate) {
         this.id = UUID.randomUUID().toString();
         this.image = image;
-        this.expires = expires;
+        this.expireDate = expireDate;
     }
 }

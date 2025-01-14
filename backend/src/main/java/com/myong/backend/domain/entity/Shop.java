@@ -7,6 +7,8 @@ import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,10 +24,7 @@ public class Shop {
     private String id; // 가게 고유 키
 
     @Column(name = "s_name", nullable = false)
-    private String name; //이름
-
-    @Column(name = "s_pwd", nullable = false)
-    private String pwd; //비밀번호
+    private String name; // 이름
 
     @Column(name = "s_address", nullable = false)
     private String address; // 상세주소
@@ -34,7 +33,7 @@ public class Shop {
     private String tel; // 연락처
 
     @Column(name = "s_rating", nullable = false)
-    private Double rating = 0.0; // 평점
+    private Double rating; // 평점
 
     @Column(name = "s_desc")
     private String desc; // 소개
@@ -42,38 +41,38 @@ public class Shop {
     @Column(name = "s_biz_id", nullable = false)
     private String bizId; // 사업자번호
 
+    @Column(name = "s_pwd", nullable = false)
+    private String pwd; // 비밀번호
+
     @Column(name = "s_longitude")
     private Double longitude; // 경도
 
     @Column(name = "s_latitude")
     private Double latitude; // 위도
 
-    @Column(name = "s_opentime")
-    private String openTime; // 오픈시간
+    @Column(name = "s_open_time")
+    private LocalTime openTime; // 오픈시간
 
-    @Column(name = "s_closetime")
-    private String closeTime; // 마감시간
+    @Column(name = "s_close_time")
+    private LocalTime closeTime; // 마감시간
 
-    @Column(name = "s_close_day")
-    private Double closeDay; // 휴무일
+    @Column(name = "s_close_date")
+    private String closeDate; // 휴무일(월, 수..)
 
     @Column(name = "s_post", nullable = false)
     private Long post; // 우편번호
 
-    @Column(name = "s_category")
-    private Long category; // 카테고리코드
-
     @OneToMany(mappedBy = "shop")
-    private List<Designer> designers = new ArrayList<>();
+    private List<Designer> designers = new ArrayList<>(); // 소속 디자이너들
 
-    public Shop(String name, String pwd, String address, String tel, Double rating, String bizId, Long post) {
+    public Shop(String name, String pwd, String address, String tel, String bizId, Long post) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
-        this.pwd = pwd;
         this.address = address;
         this.tel = tel;
-        this.rating = rating;
+        this.rating = 0.0;
         this.bizId = bizId;
+        this.pwd = pwd;
         this.post = post;
     }
 }
