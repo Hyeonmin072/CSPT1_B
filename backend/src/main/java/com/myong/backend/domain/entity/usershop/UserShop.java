@@ -4,6 +4,7 @@ import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,6 +37,7 @@ public class UserShop {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     /**
      *  복합키(직렬화 사용)
      */

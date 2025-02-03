@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -32,24 +33,24 @@ public class User {
     @Column(name = "u_location")
     private String location; // 위치
 
-    @Column(nullable = false, name = "u_create_date", updatable = false)
-    private LocalDateTime createDate = LocalDateTime.now(); // 가입일
-
     @Column(nullable = false, name = "u_birth_date")
-    private LocalDateTime birthDate = LocalDateTime.now(); // 생년월일
+    private LocalDate birthDate = LocalDate.now(); // 생년월일
 
     @Column(nullable = false, name = "u_gender")
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별
 
-    public User(String name, String email, String pwd, String tel, LocalDateTime createDate, LocalDateTime birthDate, Gender gender) {
+    @Column(nullable = false, name = "u_address")
+    private String address; // 거주지
+
+    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.email = email;
         this.pwd = pwd;
         this.tel = tel;
-        this.createDate = createDate;
         this.birthDate = birthDate;
         this.gender = gender;
+        this.address = address;
     }
 }

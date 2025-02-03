@@ -30,7 +30,7 @@ public class Reservation {
     private LocalDateTime createDate; // 예약을 접수한 날짜
 
     @Column(name = "r_service_date", nullable = false)
-    private LocalDateTime serviceDate; // 헤어 서비스를 받을 날짜
+    private LocalDateTime serviceDate; // 서비스를 받을 날짜
 
     @Column(name = "r_pay_method")
     @Enumerated(EnumType.STRING)

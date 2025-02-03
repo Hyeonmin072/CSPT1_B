@@ -1,5 +1,6 @@
 package com.myong.backend.domain.entity.usershop;
 
+import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
@@ -25,8 +26,8 @@ public class Message {
     @Column(name = "me_content", nullable = false)
     private String content; // 텍스트 내용, 메시지 타입에 따라 일반 텍스트인지, 클라우드URL인지 구분되다
 
-    @Column(name = "me_create_date", nullable = false)
-    private LocalDateTime createDate; // 전송 시간
+    @Column(name = "me_send_date", nullable = false)
+    private LocalDateTime sendDate; // 전송 시간
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cr_id", nullable = false)
@@ -34,19 +35,19 @@ public class Message {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
-    private Shop shop; // 가게 고유 키
+    private Designer designer; // 가게 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "u_id", nullable = false)
     private User user; // 유저 고유 키
 
-    public Message(MessageType type, String content, LocalDateTime createDate, ChatRoom chatRoom, Shop shop, User user) {
+    public Message(MessageType type, String content, LocalDateTime sendDate, ChatRoom chatRoom, Designer designer, User user) {
         this.id = UUID.randomUUID().toString();
         this.messageType = type;
         this.content = content;
-        this.createDate = createDate;
+        this.sendDate = sendDate;
         this.chatRoom = chatRoom;
-        this.shop = shop;
+        this.designer = designer;
         this.user = user;
     }
 }
