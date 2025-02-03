@@ -34,8 +34,8 @@ public class Coupon {
     @Column(name = "c_expire_date", nullable = false)
     private LocalDateTime expireDate; // 사용 기한
 
-    @OneToMany(mappedBy = "coupon")
-    private List<UserCoupon> userCoupons;
+    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
+    private List<UserCoupon> userCoupons; // 받은 유저들
 
     public Coupon(String name, Long fixedAmount, LocalDateTime expireDate) { // 고정금액 할인 쿠폰
         this.id = UUID.randomUUID().toString();

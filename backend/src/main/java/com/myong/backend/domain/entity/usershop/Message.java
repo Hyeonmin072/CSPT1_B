@@ -29,7 +29,7 @@ public class Message {
     @Column(name = "me_send_date", nullable = false)
     private LocalDateTime sendDate; // 전송 시간
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cr_id", nullable = false)
     private ChatRoom chatRoom; // 채팅방 고유 키
 

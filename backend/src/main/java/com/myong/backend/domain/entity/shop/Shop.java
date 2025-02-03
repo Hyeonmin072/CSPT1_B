@@ -1,10 +1,8 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.designer.Designer;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.myong.backend.domain.entity.usershop.UserShop;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -61,8 +59,11 @@ public class Shop {
     @Column(name = "s_post", nullable = false)
     private Long post; // 우편번호
 
-    @OneToMany(mappedBy = "shop")
+    @OneToMany(mappedBy = "shop", cascade =  CascadeType.ALL)
     private List<Designer> designers = new ArrayList<>(); // 소속 디자이너들
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<UserShop> users = new ArrayList<>(); // 예약한 손님들
 
     public Shop(String name, String pwd, String address, String tel, String bizId, Long post) {
         this.id = UUID.randomUUID().toString();
