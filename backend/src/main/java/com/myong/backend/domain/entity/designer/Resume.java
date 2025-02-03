@@ -13,7 +13,7 @@ import java.util.UUID;
 public class Resume {
     //구직 지원서 고유키
     @Id
-    @Column(name ="re_id")
+    @Column(name ="re_id", nullable = false)
     private String id = UUID.randomUUID().toString();
 
     //희망 근무요일
@@ -25,7 +25,7 @@ public class Resume {
     private String content;
 
     //경력여부
-    @Column(name = "re_exp")
+    @Column(name = "re_exp",nullable = false)
     private String exp;
 
     //포트폴리오

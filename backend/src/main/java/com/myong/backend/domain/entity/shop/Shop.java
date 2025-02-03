@@ -17,7 +17,7 @@ import java.util.UUID;
 public class Shop {
 
     @Id
-    @Column(name = "s_id")
+    @Column(name = "s_id",nullable = false)
     private String id; // 가게 고유 키
 
     @Column(name = "s_name", nullable = false)

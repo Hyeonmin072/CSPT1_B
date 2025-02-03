@@ -17,7 +17,7 @@ public class Application {
     private String id = UUID.randomUUID().toString();
 
     //신청한 날짜
-    @Column(name = "a_create_date")
+    @Column(name = "a_create_date", nullable = false)
     private LocalDateTime createDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

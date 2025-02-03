@@ -11,15 +11,15 @@ import java.util.UUID;
 public class PreviousJob {
 
     @Id
-    @Column(name = "pj_id")
+    @Column(name = "pj_id",nullable = false)
     private String id = UUID.randomUUID().toString();
 
     //근무지 명
-    @Column(name = "pj_name")
+    @Column(name = "pj_name",nullable = false)
     private String name;
 
     //입사일
-    @Column(name = "pj_joinDate")
+    @Column(name = "pj_joinDate",nullable = false)
     private LocalDate joinDate;
 
     @ManyToOne(fetch = FetchType.LAZY)

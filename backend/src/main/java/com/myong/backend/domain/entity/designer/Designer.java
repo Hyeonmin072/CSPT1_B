@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Designer {
 
     @Id
-    @Column(name = "d_id")
+    @Column(name = "d_id", nullable = false)
     private String id = UUID.randomUUID().toString(); // 고유 키
 
     @Column(name = "d_name", nullable = false)
