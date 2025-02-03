@@ -1,10 +1,8 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.designer.Designer;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.myong.backend.domain.entity.designer.JobPost;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -55,14 +53,20 @@ public class Shop {
     @Column(name = "s_close_time")
     private LocalTime closeTime; // 마감시간
 
-    @Column(name = "s_close_date")
-    private String closeDate; // 휴무일(월, 수..)
-
     @Column(name = "s_post", nullable = false)
     private Long post; // 우편번호
 
     @OneToMany(mappedBy = "shop")
     private List<Designer> designers = new ArrayList<>(); // 소속 디자이너들
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<ShopHoliday> holidays = new ArrayList<>();  // 휴무일 (LocalDate)
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<ShopRegularHoliday> regularHolidays = new ArrayList<>(); //정기휴무요일(요일)
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<JobPost> jobPosts = new ArrayList<>();
 
     public Shop(String name, String pwd, String address, String tel, String bizId, Long post) {
         this.id = UUID.randomUUID().toString();

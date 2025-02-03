@@ -4,24 +4,26 @@ import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Getter
-@NoArgsConstructor
 public class Designer {
 
     @Id
     @Column(name = "d_id")
-    private String id; // 디자이너 고유 키
+    private String id = UUID.randomUUID().toString(); // 고유 키
 
     @Column(name = "d_name", nullable = false)
     private String name; // 이름
+
+    @Column(name = "d_nickname", nullable = false)
+    private String nickname;  //닉네임
 
     @Column(name = "d_desc")
     private String desc; // 소개글
@@ -35,51 +37,33 @@ public class Designer {
     @Column(name = "d_tel", nullable = false)
     private String tel; // 연락처
 
-    @Column(name = "d_create_date", nullable = false, updatable = false)
-    private LocalDateTime createDate; // 가입일
-
     @Column(name = "d_image")
     private String image; // 사진
 
-    @Column(name = "d_post", nullable = false)
-    private Long post; // 우편번호
-
-    @Column(name = "d_exp", nullable = false)
-    private Long exp; // 경력
-
-    @Column(name = "d_edu")
-    private String edu; // 학력
-
-    @Column(name = "d_certification")
-    private String certification; // 자격증
- 
-    @Column(name = "d_birth_day", nullable = false)
-    private LocalDate birthDay; // 생년월일
+    @Column(name = "d_birth_date", nullable = false)
+    private LocalDate birth; // 생년월일
 
     @Column(name = "d_gender", nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender gender; //성별
 
-    @Column(name="d_like", nullable = false)
-    private Long like; // 좋아요
+    @Column(name = "d_like")
+    private Long like; //좋아요
+
+    @Column(name = "d_rating" ,nullable = false)
+    private Double rating = 0.0; // 평점
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")
-    private Shop shop; // 가게 고유 키
+    private Shop shop;   // 소속된 가게
+
+    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
+    private List<DesignerHoliday> holidays = new ArrayList<>();  // 휴무일(LocalDate)
+
+    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
+    private List<DesignerRegularHoliday> regularHolidays = new ArrayList<>(); //정기휴무일(요일)
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
-    private List<Attendance> attendances = new ArrayList<>();
+    private List<Attendance> attendance = new ArrayList<>();
 
-    public Designer(String name, String email, String pwd, String tel, Long post, Long exp, LocalDate birthDay, Gender gender) {
-        this.name = name;
-        this.email = email;
-        this.pwd = pwd;
-        this.tel = tel;
-        this.createDate = LocalDateTime.now();
-        this.post = post;
-        this.exp = exp;
-        this.birthDay = birthDay;
-        this.gender = gender;
-        this.like = 0L;
-    }
 }
