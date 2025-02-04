@@ -28,6 +28,10 @@ public class Menu {
     @Column(name = "m_discount")
     private String discount; // 할인
 
+    //메뉴 할인방식
+    @Column(name = "m_discount_type")
+    private String discountType;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
     private Shop shop; // 가게 고유 키
