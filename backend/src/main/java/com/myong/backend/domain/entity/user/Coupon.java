@@ -16,14 +16,14 @@ public class Coupon {
 
     @Id
     @Column(name = "c_id")
-    private String id; // 쿠폰 고유 키
+    private UUID id = UUID.randomUUID(); // 쿠폰 고유 키
 
     @Column(name = "c_name", nullable = false)
     private String name; // 이름
 
     @Column(name = "c_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private CouponType type; // 할인방식
+    private DiscountType type; // 할인방식
 
     @Column(name = "c_fixed_amount")
     private Long fixedAmount; // 할인 고정금액
@@ -37,18 +37,16 @@ public class Coupon {
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
     private List<UserCoupon> userCoupons; // 받은 유저들
 
-    public Coupon(String name, Long fixedAmount, LocalDateTime expireDate) { // 고정금액 할인 쿠폰
-        this.id = UUID.randomUUID().toString();
+    public Coupon(String name, DiscountType type, Long fixedAmount, LocalDateTime expireDate) { // 고정금액 할인 쿠폰
         this.name = name;
-        this.type = CouponType.FIXED;
+        this.type = type;
         this.fixedAmount = fixedAmount;
         this.expireDate = expireDate;
     }
 
-    public Coupon(String name, Double percentAmount, LocalDateTime expireDate) { // 퍼센트 할인 쿠폰
-        this.id = UUID.randomUUID().toString();
+    public Coupon(String name, DiscountType type, Double percentAmount, LocalDateTime expireDate) { // 퍼센트 할인 쿠폰
         this.name = name;
-        this.type = CouponType.PERCENT;
+        this.type = type;
         this.percentAmount = percentAmount;
         this.expireDate = expireDate;
     }

@@ -3,10 +3,12 @@ package com.myong.backend.domain.entity.user;
 import com.myong.backend.domain.entity.designer.Designer;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,11 +18,11 @@ public class Like {
     @EmbeddedId
     private LikeId id; // 좋아요 아이디 
 
-    @JoinColumn(nullable = false, name = "u_id")
+    @JoinColumn(name = "u_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private User user; // 유저 고유 키
 
-    @JoinColumn(nullable = false, name = "d_id")
+    @JoinColumn(name = "d_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private Designer designer; // 디자이너 고유 키
 
@@ -34,11 +36,12 @@ public class Like {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     /**
      * 복합키(직렬화 사용)
      */
     private static class LikeId implements Serializable {
-        private String userId;
-        private String designerId;
+        private UUID userId;
+        private UUID designerId;
     }
 }

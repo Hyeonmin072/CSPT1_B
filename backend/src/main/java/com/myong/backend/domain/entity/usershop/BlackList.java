@@ -15,9 +15,9 @@ public class BlackList {
 
     @Id
     @Column(name = "b_id")
-    private String id; // 고유 키
+    private UUID id = UUID.randomUUID(); // 고유 키
 
-    @Column(nullable = false, updatable = false, name = "b_reason")
+    @Column(name = "b_reason", nullable = false, updatable = false)
     private String reason; // 차단 사유
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,7 +29,6 @@ public class BlackList {
     private Shop shop; // 가게 고유 키
 
     public BlackList(String reason,User user, Shop shop) {
-        this.id = UUID.randomUUID().toString();
         this.reason = reason;
         this.user = user;
         this.shop = shop;

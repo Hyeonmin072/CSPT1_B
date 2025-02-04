@@ -13,9 +13,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Payment {
 
-    @Id
-    @Column(name = "p_id", nullable = false)
-    private String id; // 결제 고유 키
+    @Id()
+    @Column(name = "p_id")
+    private UUID id = UUID.randomUUID(); // 결제 고유 키
 
     @Column(name = "p_url", nullable = false)
     private String url; // 결제 URL
@@ -25,7 +25,7 @@ public class Payment {
 
     @Column(name = "p_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PayStatus status; // 결제 상태
+    private PayStatus status = PayStatus.INCOMPLETE; // 결제 상태
 
     @Column(name = "p_pay_date")
     private LocalDateTime payDate; // 결제완료 날짜
@@ -39,10 +39,8 @@ public class Payment {
     private Shop shop; // 가게 고유 키
 
     public Payment(String url, Long amount, Reservation reservation, Shop shop) {
-        this.id = UUID.randomUUID().toString();
         this.url = url;
         this.amount = amount;
-        this.status = PayStatus.INCOMPLETE;
         this.reservation = reservation;
         this.shop = shop;
     }

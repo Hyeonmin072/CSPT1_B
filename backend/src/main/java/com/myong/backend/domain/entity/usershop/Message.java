@@ -17,7 +17,7 @@ public class Message {
 
     @Id
     @Column(name = "me_id")
-    private String id; // 메시지 고유 키
+    private UUID id = UUID.randomUUID(); // 메시지 고유 키
 
     @Column(name = "me_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -42,7 +42,6 @@ public class Message {
     private User user; // 유저 고유 키
 
     public Message(MessageType type, String content, LocalDateTime sendDate, ChatRoom chatRoom, Designer designer, User user) {
-        this.id = UUID.randomUUID().toString();
         this.messageType = type;
         this.content = content;
         this.sendDate = sendDate;

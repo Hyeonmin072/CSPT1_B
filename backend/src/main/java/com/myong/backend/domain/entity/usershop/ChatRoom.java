@@ -14,16 +14,15 @@ public class ChatRoom {
 
     @Id
     @Column(name = "cr_id")
-    private String id;
+    private UUID id = UUID.randomUUID(); // 채팅방 고유 키
 
     @Column(name = "cr_name", nullable = false)
-    private String name;
+    private String name; // 채팅방 이름
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
-    private List<Message> messages;
+    private List<Message> messages; // 채팅방의 메시지들
 
-    public ChatRoom(String id, String name) {
-        this.id = UUID.randomUUID().toString();
+    public ChatRoom(String name) {
         this.name = name;
     }
 }

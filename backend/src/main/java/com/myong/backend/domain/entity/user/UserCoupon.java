@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -35,8 +36,8 @@ public class UserCoupon {
      *  복합키(직렬화 사용)
      */
     private static class UserCouponId implements Serializable {
-        private String userId;
-        private String couponId;
+        private UUID userId;
+        private UUID couponId;
     }
 
 

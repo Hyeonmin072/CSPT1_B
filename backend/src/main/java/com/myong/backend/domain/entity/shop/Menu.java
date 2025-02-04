@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.user.DiscountType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,12 +15,12 @@ public class Menu {
 
     @Id
     @Column(name = "m_id")
-    private String id; // 메뉴 고유 키
+    private UUID id = UUID.randomUUID(); // 메뉴 고유 키
 
-    @Column(nullable = false, name = "m_name")
+    @Column(name = "m_name", nullable = false)
     private String name; // 이름
 
-    @Column(nullable = false, name = "m_desc")
+    @Column(name = "m_desc", nullable = false)
     private String desc; // 설명
 
     @Column(name = "m_price")
@@ -28,9 +29,8 @@ public class Menu {
     @Column(name = "m_discount")
     private String discount; // 할인
 
-    //메뉴 할인방식
     @Column(name = "m_discount_type")
-    private String discountType;
+    private DiscountType discountType; // 할인방식
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
@@ -42,7 +42,6 @@ public class Menu {
 
 
     public Menu(String name, String desc, Shop shop, Designer designer) {
-        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.desc = desc;
         this.shop = shop;

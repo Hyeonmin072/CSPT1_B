@@ -42,8 +42,8 @@ public class UserShop {
      *  복합키(직렬화 사용)
      */
     private static class UserShopId implements Serializable {
-        private String userId;
-        private String shopId;
+        private UUID userId;
+        private UUID shopId;
     }
 
 }
