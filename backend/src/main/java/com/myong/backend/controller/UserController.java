@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/singin")
+    @PostMapping("/signin")
     public TokenInfo login(@RequestBody UserLoginRequestDto userLoginRequestDto){
         String email = userLoginRequestDto.getEmail();
         String password = userLoginRequestDto.getPassword();
