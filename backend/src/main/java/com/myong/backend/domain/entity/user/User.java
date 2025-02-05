@@ -25,32 +25,32 @@ import java.util.stream.Collectors;
 public class User implements UserDetails {
 
     @Id
-    @Column(name = "u_id",nullable = false)
-    private String id; // 유저 고유 키
+    @Column(name = "u_id")
+    private UUID id = UUID.randomUUID(); // 유저 고유 키
 
-    @Column(nullable = false,  name = "u_name")
+    @Column(name = "u_name",  nullable = false)
     private String name; // 이름
 
-    @Column(nullable = false, name = "u_email")
+    @Column(name = "u_email", nullable = false)
     private String email; // 이메일
 
-    @Column(nullable = false, name = "u_pwd")
+    @Column(name = "u_pwd", nullable = false)
     private String pwd; // 비밀번호
 
-    @Column(nullable = false, name = "u_tel")
+    @Column(name = "u_tel", nullable = false)
     private String tel; // 연락처
 
     @Column(name = "u_location")
     private String location; // 위치
 
-    @Column(nullable = false, name = "u_birth_date")
+    @Column(name = "u_birth_date", nullable = false)
     private LocalDate birthDate = LocalDate.now(); // 생년월일
 
-    @Column(nullable = false, name = "u_gender")
+    @Column(name = "u_gender", nullable = false)
     @Enumerated(EnumType.STRING)
     private Gender gender; // 성별
 
-    @Column(nullable = false, name = "u_address")
+    @Column(name = "u_address", nullable = false)
     private String address; // 거주지
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -65,7 +65,6 @@ public class User implements UserDetails {
 
 
     public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address) {
-        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.email = email;
         this.pwd = pwd;

@@ -19,12 +19,12 @@ import java.util.UUID;
 public class Reservation {
 
     @Id
-    @Column(name = "r_id", nullable = false)
-    private String id; // 예약 고유 키
+    @Column(name = "r_id")
+    private UUID id = UUID.randomUUID(); // 예약 고유 키
 
     @Column(name = "r_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ReservationStatus status; // 예약 상태
+    private ReservationStatus status = ReservationStatus.WAIT; // 예약 상태
 
     @Column(name = "r_create_date", nullable = false)
     private LocalDateTime createDate; // 예약을 접수한 날짜
@@ -57,8 +57,6 @@ public class Reservation {
     private User user; // 유저 고유 키
 
     public Reservation(LocalDateTime createDate, LocalDateTime serviceDate, Menu menu, Shop shop, Designer designer, User user) {
-        this.id = UUID.randomUUID().toString();
-        this.status = ReservationStatus.WAIT;
         this.createDate = createDate;
         this.serviceDate = serviceDate;
         this.menu = menu;

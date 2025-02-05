@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class Shop {
 
     @Id
     @Column(name = "s_id")
-    private String id; // 가게 고유 키
+    private UUID id = UUID.randomUUID(); // 가게 고유 키
 
     @Column(name = "s_name", nullable = false)
     private String name; // 이름
@@ -30,7 +31,7 @@ public class Shop {
     private String tel; // 연락처
 
     @Column(name = "s_rating", nullable = false)
-    private Double rating; // 평점
+    private Double rating = 0.0; // 평점
 
     @Column(name = "s_desc")
     private String desc; // 소개
@@ -53,9 +54,6 @@ public class Shop {
     @Column(name = "s_close_time")
     private LocalTime closeTime; // 마감시간
 
-    @Column(name = "s_close_date")
-    private String closeDate; // 휴무일(월, 수..)
-
     @Column(name = "s_post", nullable = false)
     private Long post; // 우편번호
 
@@ -65,12 +63,17 @@ public class Shop {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<UserShop> users = new ArrayList<>(); // 예약한 손님들
 
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<ShopHoliday> holidays = new ArrayList<>(); // 휴무일(LocalDate)
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<ShopRegularHoliday> regularHolidays = new ArrayList<>(); // 정기 휴무일(DayOfWeek)
+    
+
     public Shop(String name, String pwd, String address, String tel, String bizId, Long post) {
-        this.id = UUID.randomUUID().toString();
         this.name = name;
         this.address = address;
         this.tel = tel;
-        this.rating = 0.0;
         this.bizId = bizId;
         this.pwd = pwd;
         this.post = post;

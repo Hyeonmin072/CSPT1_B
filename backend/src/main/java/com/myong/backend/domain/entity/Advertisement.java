@@ -13,20 +13,19 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Advertisement {
     //광고 고유키
-    @Column(name = "ad_id")
     @Id
-    private String id;
+    @Column(name = "ad_id")
+    private UUID id = UUID.randomUUID();
 
     //이미지 경로
-    @Column(nullable = false, name = "ad_image")
+    @Column(name = "ad_image", nullable = false)
     private String image;
 
     //기한
-    @Column(updatable = false, nullable = false, name = "ad_expire_date")
+    @Column(name = "ad_expire_date", nullable = false, updatable = false)
     private LocalDateTime expireDate;
 
     public Advertisement(String image, LocalDateTime expireDate) {
-        this.id = UUID.randomUUID().toString();
         this.image = image;
         this.expireDate = expireDate;
     }

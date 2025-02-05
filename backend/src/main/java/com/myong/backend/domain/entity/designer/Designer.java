@@ -4,6 +4,7 @@ import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,17 +14,18 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Designer {
 
     @Id
-    @Column(name = "d_id", nullable = false)
-    private String id = UUID.randomUUID().toString(); // 고유 키
+    @Column(name = "d_id")
+    private UUID id = UUID.randomUUID(); // 고유 키
 
     @Column(name = "d_name", nullable = false)
     private String name; // 이름
 
     @Column(name = "d_nickname", nullable = false)
-    private String nickname;  //닉네임
+    private String nickName;  //닉네임
 
     @Column(name = "d_desc")
     private String desc; // 소개글
@@ -48,7 +50,7 @@ public class Designer {
     private Gender gender; //성별
 
     @Column(name = "d_like")
-    private Long like; //좋아요
+    private Long like = 0L; //좋아요
 
     @Column(name = "d_rating" ,nullable = false)
     private Double rating = 0.0; // 평점
@@ -61,9 +63,20 @@ public class Designer {
     private List<DesignerHoliday> holidays = new ArrayList<>();  // 휴무일(LocalDate)
 
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
-    private List<DesignerRegularHoliday> regularHolidays = new ArrayList<>(); //정기휴무일(요일)
+    private List<DesignerRegularHoliday> regularHolidays = new ArrayList<>(); //정기 휴무일(DayOfWeek)
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
     private List<Attendance> attendance = new ArrayList<>();
+
+    public Designer(String name, String nickName, String email, String pwd, String tel, LocalDate birth, Gender gender) {
+        this.name = name;
+        this.nickName = nickName;
+        this.email = email;
+        this.pwd = pwd;
+        this.tel = tel;
+        this.birth = birth;
+        this.gender = gender;
+    }
+
 
 }
