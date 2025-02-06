@@ -1,6 +1,6 @@
 package com.myong.backend.controller;
 
-import com.myong.backend.domain.dto.*;
+import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

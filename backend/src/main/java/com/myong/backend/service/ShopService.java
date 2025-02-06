@@ -1,6 +1,6 @@
 package com.myong.backend.service;
 
-import com.myong.backend.domain.dto.*;
+import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
