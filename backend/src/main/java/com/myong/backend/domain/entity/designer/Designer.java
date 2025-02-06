@@ -3,6 +3,8 @@ package com.myong.backend.domain.entity.designer;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,8 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class Designer {
 
@@ -77,6 +81,5 @@ public class Designer {
         this.birth = birth;
         this.gender = gender;
     }
-
 
 }
