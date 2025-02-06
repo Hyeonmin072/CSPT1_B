@@ -1,20 +1,13 @@
 package com.myong.backend.controller;
 
-import com.myong.backend.domain.dto.ShopSignUpRequestDto;
-import com.myong.backend.domain.dto.ShopTelRequestDto;
+import com.myong.backend.domain.dto.*;
 import com.myong.backend.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
-import net.nurigo.sdk.message.service.DefaultMessageService;
-import net.nurigo.sdk.message.service.MessageService;
-import org.apache.juli.VerbatimFormatter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Random;
 
 @RestController
 @RequestMapping("/shop")
@@ -22,44 +15,61 @@ import java.util.Random;
 @Slf4j
 public class ShopController {
     private final ShopService shopService;
-    private final DefaultMessageService messageService;
 
 
     /**
      * 사업자 회원가입
      */
     @PostMapping("/signup")
-    public void shopSignUp(@RequestBody ShopSignUpRequestDto request) {
-        shopService.shopSignUp(request);
+    public ResponseEntity<String> shopSignUp(@RequestBody ShopSignUpRequestDto request) {
+        HttpStatus status = shopService.shopSignUp(request);
+
+        if (status == HttpStatus.OK) return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        else return ResponseEntity.ok("회원가입 처리 중 오류가 발생했습니다.");
     }
 
 
     /**
      * 사업자 전화번호 인증코드 보내기
      */
-    @PostMapping("/send-one")
-    public SingleMessageSentResponse sendOne() {
-        Message message = new Message();
-        message.setFrom("01033791271");
-        message.setTo("01086465788");
-
-        Random random = new Random();
-        int verifyCode = 100000 + random.nextInt(900000);
-
-        message.setText("이 바보야 : " + verifyCode);
-
-        SingleMessageSentResponse response = this.messageService.sendOne(new SingleMessageSendingRequest(message));
-
-        return response;
+    @PostMapping("/sendverifycode")
+    public SingleMessageSentResponse sendVerifyCode(@RequestBody ShopTelRequestDto request) {
+        return shopService.sendOne(request);
     }
 
     /**
      * 사업자 전화번호 인증코드 확인하기
      */
+    @GetMapping("/verifycodecheck")
+    public ResponseEntity<String> verifyCode(@RequestBody ShopVerifyCodeRequestDto request) {
+        HttpStatus status = shopService.checkVerifyCode(request);
 
+        if (status == HttpStatus.OK) return ResponseEntity.ok("인증이 완료되었습니다.");
+        else if (status == HttpStatus.UNAUTHORIZED) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증코드가 일치하지 않습니다.");
+        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("인증코드 확인 중 오류가 발생했습니다.");
+    }
 
     /**
      * 사업자번호 인증
      */
+    @GetMapping("/checkbiz")
+    public ResponseEntity<String> checkBiz(@RequestBody ShopBizRequestDto request) {
+        HttpStatus status = shopService.checkBiz(request);
+
+        if (status == HttpStatus.OK) return ResponseEntity.ok("사업자 정보가 확인되었습니다.");
+        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("사업자 정보 확인 중 오류가 발생했습니다.");
+    }
+
+    /**
+     * 사업자 이메일 중복 확인
+     */
+    @GetMapping("/checkemail")
+    public ResponseEntity<String> checkEmail(@RequestBody ShopEmailRequestDto request) {
+        HttpStatus status = shopService.checkEmail(request);
+
+        if (status == HttpStatus.OK) return ResponseEntity.ok("사용가능한 이메일입니다.");
+        else if (status == HttpStatus.CONFLICT) return ResponseEntity.status(HttpStatus.CONFLICT).body("이미 사용중인 이메일 입니다.");
+        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이메일 중복 확인 중 오류가 발생했습니다.");
+    }
 
 }

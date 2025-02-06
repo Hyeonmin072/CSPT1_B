@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,9 @@ public class Shop {
 
     @Column(name = "s_name", nullable = false)
     private String name; // 이름
+    
+    @Column(name = "s_email", nullable = false)
+    private String email; // 이메일
 
     @Column(name = "s_address", nullable = false)
     private String address; // 상세주소
