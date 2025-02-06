@@ -32,10 +32,11 @@ public class ShopService {
         try {
             Shop shop = new Shop(
                     request.getName(),
-                    request.getPassword(),
                     request.getAddress(),
+                    request.getEmail(),
                     request.getTel(),
                     request.getBizId(),
+                    request.getPassword(),
                     request.getPost()
             ); // 새로운 가게 생성
             shopRepository.save(shop); // 가게를 저장
