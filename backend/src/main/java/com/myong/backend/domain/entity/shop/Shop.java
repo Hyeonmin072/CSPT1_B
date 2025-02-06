@@ -55,7 +55,7 @@ public class Shop {
     private LocalTime closeTime; // 마감시간
 
     @Column(name = "s_post", nullable = false)
-    private Long post; // 우편번호
+    private Integer post; // 우편번호
 
     @OneToMany(mappedBy = "shop", cascade =  CascadeType.ALL)
     private List<Designer> designers = new ArrayList<>(); // 소속 디자이너들
@@ -70,7 +70,7 @@ public class Shop {
     private List<ShopRegularHoliday> regularHolidays = new ArrayList<>(); // 정기 휴무일(DayOfWeek)
     
 
-    public Shop(String name, String pwd, String address, String tel, String bizId, Long post) {
+    public Shop(String name, String pwd, String address, String tel, String bizId, Integer post) {
         this.name = name;
         this.address = address;
         this.tel = tel;

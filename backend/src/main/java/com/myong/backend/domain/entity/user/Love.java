@@ -13,10 +13,10 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Like {
+public class Love {
 
     @EmbeddedId
-    private LikeId id; // 좋아요 아이디 
+    private LoveId id; // 좋아요 아이디
 
     @JoinColumn(name = "u_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -26,8 +26,8 @@ public class Like {
     @ManyToOne(fetch = FetchType.LAZY)
     private Designer designer; // 디자이너 고유 키
 
-    public Like(User user, Designer designer) {
-        this.id = new LikeId(user.getId(), designer.getId());
+    public Love(User user, Designer designer) {
+        this.id = new LoveId(user.getId(), designer.getId());
         this.user = user;
         this.designer = designer;
     }
@@ -40,7 +40,7 @@ public class Like {
     /**
      * 복합키(직렬화 사용)
      */
-    private static class LikeId implements Serializable {
+    private static class LoveId implements Serializable {
         private UUID userId;
         private UUID designerId;
     }
