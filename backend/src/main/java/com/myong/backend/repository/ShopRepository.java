@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, UUID> {
+
+    Shop findByEmail(String email);
 }
