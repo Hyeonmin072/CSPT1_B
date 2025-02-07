@@ -37,5 +37,16 @@ public class DesignerService {
 
         designerRepository.save(designer);
     }
+
+    //이메일 중복검사
+    public Boolean checkEmailDuplication(String email) {
+        return designerRepository.existsByEmail(email);
+    }
+
+
+    //닉네임 중복검사
+    public Boolean checkNicknameDuplication(String nickName) {
+        return designerRepository.existsByNickName(nickName);
+    }
 }
 
