@@ -7,6 +7,7 @@ import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,11 +39,8 @@ public class ShopController {
      * 사업자 전화번호 인증코드 보내기
      */
     @PostMapping("/sendverifycode")
-    public ResponseEntity<String> sendVerifyCode(@RequestBody ShopTelRequestDto request) {
-        HttpStatus status = shopService.sendOne(request);// 서비스 로직 수행결과에 따라 다른 HTTP 상태 값 반환
-
-        if (status == HttpStatus.OK) return new ResponseEntity<>("인증번호를 발송했습니다.", HttpStatus.OK);
-        else return new ResponseEntity<>("인증번호 발송 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    public SingleMessageSentResponse sendVerifyCode(@RequestBody ShopTelRequestDto request) {
+        return shopService.sendOne(request);
     }
 
     /**

@@ -12,6 +12,8 @@ import com.myong.backend.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -61,24 +63,19 @@ public class ShopService {
 
     }
 
-    public HttpStatus sendOne(ShopTelRequestDto request) {
+    public SingleMessageSentResponse sendOne(ShopTelRequestDto request) {
+        Message message = new Message(); // 메시지 객체 생성(외부 라이브러리)
+        message.setFrom("01033791271"); // 보낼 전화번호
+        message.setTo(request.getTel()); // 받을 전화번호 -> Dto에서 꺼냄
 
-        try {
-            Message message = new Message(); // 메시지 객체 생성(외부 라이브러리)
-            message.setFrom("01033791271"); // 보낼 전화번호
-            message.setTo(request.getTel()); // 받을 전화번호 -> Dto에서 꺼냄
+        Random random = new Random(); // 랜덤 인증코드 생성
+        int verifyCode = 100000 + random.nextInt(900000); // 100000 ~ 999999사이 랜덤 코드 생성
 
-            Random random = new Random(); // 랜덤 인증코드 생성
-            int verifyCode = 100000 + random.nextInt(900000); // 100000 ~ 999999사이 랜덤 코드 생성
+        message.setText("[Hairism] 인증코드를 입력해주세요 : " + verifyCode); // 메시지 내용 설정
 
-            message.setText("[Hairism] 인증코드를 입력해주세요 : " + verifyCode); // 메시지 내용 설정
+        redisTemplate.opsForValue().set(request.getTel(), verifyCode, 5, TimeUnit.MINUTES); // redis에 키, 값 각각 전화번호, 인증번호 형태로 저장, 5분 시간제한
 
-            redisTemplate.opsForValue().set(request.getTel(), verifyCode, 5, TimeUnit.MINUTES); // redis에 키, 값 각각 전화번호, 인증번호 형태로 저장, 5분 시간제한
-        } catch (Exception e) { // 예외 발생 시
-            return  HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-
-        return HttpStatus.OK; // 성공적으로 발송 시 ok 반환
+        return messageService.sendOne(new SingleMessageSendingRequest(message)); // 보내고 난 response 반환
     }
 
     public HttpStatus checkVerifyCode(ShopVerifyCodeRequestDto request) {
