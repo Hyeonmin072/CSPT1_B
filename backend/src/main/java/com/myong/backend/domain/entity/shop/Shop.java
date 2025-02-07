@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -70,6 +71,9 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<ShopRegularHoliday> regularHolidays = new ArrayList<>(); // 정기 휴무일(DayOfWeek)
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
     
 
     public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post) {
