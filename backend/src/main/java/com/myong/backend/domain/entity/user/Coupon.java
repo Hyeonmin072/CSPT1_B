@@ -1,11 +1,12 @@
 package com.myong.backend.domain.entity.user;
 
 
+import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,29 +26,28 @@ public class Coupon {
     @Enumerated(EnumType.STRING)
     private DiscountType type; // 할인방식
 
-    @Column(name = "c_fixed_amount")
-    private Long fixedAmount; // 할인 고정금액
+    @Column(name = "c_amount", nullable = false)
+    private Long amount; // 할인값
 
-    @Column(name = "c_percent_amount")
-    private Double percentAmount; // 할인 퍼센트
+    @Column(name = "c_get_date", nullable = false)
+    private Period getDate; // 수령가능한 기간
 
-    @Column(name = "c_expire_date", nullable = false)
-    private LocalDateTime expireDate; // 사용 기한
+    @Column(name = "c_use_date", nullable = false)
+    private Period useDate; // 수령 후 사용 가능 기간
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "s_id", nullable = false)
+    private Shop shop; // 이 쿠폰을 등록한 가게
 
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
     private List<UserCoupon> userCoupons; // 받은 유저들
 
-    public Coupon(String name, DiscountType type, Long fixedAmount, LocalDateTime expireDate) { // 고정금액 할인 쿠폰
+    public Coupon(String name, DiscountType type, Long amount, Period getDate, Period useDate, Shop shop) { // 고정금액 할인 쿠폰
         this.name = name;
         this.type = type;
-        this.fixedAmount = fixedAmount;
-        this.expireDate = expireDate;
-    }
-
-    public Coupon(String name, DiscountType type, Double percentAmount, LocalDateTime expireDate) { // 퍼센트 할인 쿠폰
-        this.name = name;
-        this.type = type;
-        this.percentAmount = percentAmount;
-        this.expireDate = expireDate;
+        this.amount = amount;
+        this.getDate =  getDate;
+        this.useDate = useDate;
+        this.shop = shop;
     }
 }
