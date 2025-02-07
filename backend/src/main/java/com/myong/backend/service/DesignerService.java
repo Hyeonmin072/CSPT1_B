@@ -1,4 +1,4 @@
-package com.myong.backend.service.designer;
+package com.myong.backend.service;
 
 
 import com.myong.backend.domain.dto.designer.SignUpRequest;
@@ -13,12 +13,12 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class SignUpService {
+public class DesignerService {
 
     private final DesignerRepository designerRepository;
 
     @Autowired
-    public SignUpService(DesignerRepository designerRepository) {
+    public DesignerService(DesignerRepository designerRepository) {
         this.designerRepository = designerRepository;
     }
     public void signUp(SignUpRequest request) {

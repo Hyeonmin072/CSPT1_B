@@ -1,9 +1,9 @@
-package com.myong.backend.controller.designer;
+package com.myong.backend.controller;
 
 
 import com.myong.backend.domain.dto.designer.Api;
 import com.myong.backend.domain.dto.designer.SignUpRequest;
-import com.myong.backend.service.designer.SignUpService;
+import com.myong.backend.service.DesignerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/designer")
-public class SignUpController {
+public class DesignerController {
 
-    private final SignUpService signUpService;
+    private final DesignerService signUpService;
 
     @PostMapping("/signup")
     public Api<SignUpRequest>signup(
