@@ -27,13 +27,13 @@ class BackendApplicationTests {
 
 	@Test
 	void insertTestUser(){
-		String name = "테스트1";
-		String email = "gudtjq363636@naver.com";
+		String name = "테스트2";
+		String email = "mild11361@naver.com";
 		String pwd = "aaa1234";
 		String tel = "010-1234-1234";
 		LocalDate birthDate = LocalDate.of(1999,11,27);
 		Gender gender = Gender.MALE;
-		String address = "일단대구";
+		String address = "스울";
 		Optional<User> ou = userRepository.findByEmail(email);
 
 		if(!ou.isPresent()){

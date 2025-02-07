@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -41,7 +42,7 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 86400000);
+        Date accessTokenExpiresIn = new Date(now + 1800000);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -51,6 +52,7 @@ public class JwtTokenProvider {
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
+                .setSubject(authentication.getName())
                 .setExpiration(new Date(now + 86400000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -81,6 +83,36 @@ public class JwtTokenProvider {
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
+
+    //Refresh 토큰 정보를 가져오는 메서드
+    public Authentication getAuthenticationFromRefreshToken(String refreshToken,String accessToken){
+
+        Claims claims = parseClaims(refreshToken);
+        String username = claims.getSubject();
+
+        if(username == null){
+            throw new RuntimeException("Refresh Token 에 사용자 정보가 없습니다");
+        }
+
+        Claims accessClaims = parseClaims(accessToken);
+
+        //권한 가져오는 부분
+        Collection<? extends GrantedAuthority> authorities;
+        if(accessClaims.get("Auth") != null){
+            authorities =
+                    Arrays.stream(claims.get("auth").toString().split(","))
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+        }else {
+            authorities = Collections.singletonList(new SimpleGrantedAuthority("USER"));
+        }
+
+        //UserDetails 객체를 만들어서 Authentication 리턴
+        UserDetails principal = new User(username,"",authorities);
+        return new UsernamePasswordAuthenticationToken(principal,"",principal.getAuthorities());
+
+    }
+
 
     // 토큰 정보를 검증하는 메서드
     public boolean validateToken(String token) {
