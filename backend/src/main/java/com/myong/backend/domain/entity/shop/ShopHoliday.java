@@ -1,0 +1,30 @@
+package com.myong.backend.domain.entity.shop;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Entity
+@Getter
+@NoArgsConstructor
+public class ShopHoliday {
+
+    @Id
+    @Column(name = "sh_id")
+    private UUID id = UUID.randomUUID();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "s_id")
+    private Shop shop;
+
+    @Column(name = "sh_date", nullable = false)
+    private LocalDate date;
+
+    public ShopHoliday(Shop shop, LocalDate date) {
+        this.shop = shop;
+        this.date = date;
+    }
+}
