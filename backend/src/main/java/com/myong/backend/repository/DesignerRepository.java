@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface DesignerRepository extends JpaRepository<Designer, UUID> {
+    Boolean existsByEmail(String email);
+    Boolean existsByNickName(String nickName);
 }
