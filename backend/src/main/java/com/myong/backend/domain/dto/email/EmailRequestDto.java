@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto;
+package com.myong.backend.domain.dto.email;
 
 import lombok.Data;
 

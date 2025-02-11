@@ -1,7 +1,7 @@
 package com.myong.backend.controller;
 
-import com.myong.backend.domain.dto.EmailCheckDto;
-import com.myong.backend.domain.dto.EmailRequestDto;
+import com.myong.backend.domain.dto.email.EmailCheckDto;
+import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.service.EmailSendService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
