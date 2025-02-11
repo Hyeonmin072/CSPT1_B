@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Message {
 
     @Id
@@ -25,7 +27,7 @@ public class Message {
     private String content; // 내용, 메시지 타입에 따라 일반 텍스트인지, 클라우드URL인지 구분되다
 
     @CreatedDate
-    @Column(name = "me_send_date")
+    @Column(name = "me_send_date", updatable = false)
     private LocalDateTime sendDate; // 전송 시간
     
     @Column(name = "me_sender", nullable = false)

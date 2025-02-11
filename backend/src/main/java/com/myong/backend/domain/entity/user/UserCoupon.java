@@ -5,14 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
-import java.util.Objects;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class UserCoupon {
 
     @EmbeddedId
@@ -25,6 +28,10 @@ public class UserCoupon {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "c_id", nullable = false)
     private Coupon coupon; // 쿠폰 고유 키
+
+    @CreatedDate
+    @Column(name = "uc_create_date", updatable = false)
+    private LocalDate createDate; // 생성일 (유저가 쿠폰을 받은 날짜)
 
 
     @Embeddable

@@ -55,7 +55,7 @@ public class Designer {
     @Column(name = "d_like")
     private Long like = 0L; //좋아요
 
-    @Column(name = "d_rating" ,nullable = false)
+    @Column(name = "d_rating" , nullable = false)
     private Double rating = 0.0; // 평점 총 합계
 
     @ManyToOne(fetch = FetchType.LAZY)

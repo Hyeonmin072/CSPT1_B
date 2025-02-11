@@ -66,6 +66,7 @@ public class ShopController {
         else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("사업자 정보 확인 중 오류가 발생했습니다.");
     }
 
+
     /**
      * 사업자 이메일 중복 확인
      */

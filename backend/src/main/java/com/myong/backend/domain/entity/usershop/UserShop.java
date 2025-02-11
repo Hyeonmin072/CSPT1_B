@@ -7,17 +7,21 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class UserShop {
 
     @EmbeddedId
-    private UserShopId id; // 유저 가게 고유 키
+    private UserShopId id; // 유저가게 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "u_id", nullable = false)
@@ -26,6 +30,12 @@ public class UserShop {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
+
+    @CreatedDate
+    @Column(name = "us_create_date", updatable = false)
+    private LocalDate createDate; // 유저가게 생성일
+
+
 
     public UserShop(User user, Shop shop) {
         this.id = new UserShopId(user.getId(), shop.getId());
