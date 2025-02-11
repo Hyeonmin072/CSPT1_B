@@ -32,7 +32,9 @@ public class SecurityConfig {
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults())
+                .anonymous(anonymos -> anonymos.disable())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

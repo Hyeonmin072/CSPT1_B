@@ -66,52 +66,32 @@ public class JwtTokenProvider {
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken) {
-        // 토큰 복호화
-        Claims claims = parseClaims(accessToken);
 
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
+        try{
+            // 토큰 복호화
+            Claims claims = parseClaims(accessToken);
 
-        // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+            if (claims.get("auth") == null) {
+                throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            }
 
-        // UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-    }
-
-    //Refresh 토큰 정보를 가져오는 메서드
-    public Authentication getAuthenticationFromRefreshToken(String refreshToken,String accessToken){
-
-        Claims claims = parseClaims(refreshToken);
-        String username = claims.getSubject();
-
-        if(username == null){
-            throw new RuntimeException("Refresh Token 에 사용자 정보가 없습니다");
-        }
-
-        Claims accessClaims = parseClaims(accessToken);
-
-        //권한 가져오는 부분
-        Collection<? extends GrantedAuthority> authorities;
-        if(accessClaims.get("Auth") != null){
-            authorities =
+            // 클레임에서 권한 정보 가져오기
+            Collection<? extends GrantedAuthority> authorities =
                     Arrays.stream(claims.get("auth").toString().split(","))
                             .map(SimpleGrantedAuthority::new)
                             .collect(Collectors.toList());
-        }else {
-            authorities = Collections.singletonList(new SimpleGrantedAuthority("USER"));
+
+            // UserDetails 객체를 만들어서 Authentication 리턴
+            UserDetails principal = new User(claims.getSubject(), "", authorities);
+            return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        }catch (MalformedJwtException e){
+            throw new RuntimeException("잘못된 토큰 방식입니다.");
+        }catch (Exception e){
+            throw new RuntimeException("토큰 인증 중 오류가 발생했습니다.");
         }
 
-        //UserDetails 객체를 만들어서 Authentication 리턴
-        UserDetails principal = new User(username,"",authorities);
-        return new UsernamePasswordAuthenticationToken(principal,"",principal.getAuthorities());
-
     }
+
 
 
     // 토큰 정보를 검증하는 메서드

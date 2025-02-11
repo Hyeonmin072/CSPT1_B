@@ -72,6 +72,7 @@ public class User implements UserDetails {
         this.birthDate = birthDate;
         this.gender = gender;
         this.address = address;
+        roles = new ArrayList<>();
         this.roles.add("USER");
     }
 

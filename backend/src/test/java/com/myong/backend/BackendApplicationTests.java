@@ -4,6 +4,7 @@ import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.repository.UserRepository;
 import com.myong.backend.service.UserService;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
