@@ -1,13 +1,13 @@
-package com.myong.backend.domain.entity.designer;
+package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.Gender;
-import com.myong.backend.domain.entity.shop.Application;
-import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.shop.Work;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +15,7 @@ import java.util.UUID;
 @Getter
 @Entity
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class JobPost {
     //구인 게시물 고유키
     @Id
@@ -54,6 +55,11 @@ public class JobPost {
     //첨부파일
     @Column(name = "jp_file")
     private String file;
+
+    //생성일
+    @CreatedDate
+    @Column(name = "jp_create_date")
+    private LocalDate createDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)

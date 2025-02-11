@@ -45,7 +45,7 @@ public class Resume {
 
     //이전 근무지
     @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
-    private List<PreviousJob> previousJobs = new ArrayList<>();
+    private List<Career> careers = new ArrayList<>();
 
 
     public Resume(String wantDay, String exp, Designer designer) {

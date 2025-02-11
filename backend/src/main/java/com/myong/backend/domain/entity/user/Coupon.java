@@ -5,7 +5,10 @@ import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.UUID;
@@ -13,6 +16,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Coupon {
 
     @Id
@@ -34,6 +38,10 @@ public class Coupon {
 
     @Column(name = "c_use_date", nullable = false)
     private Period useDate; // 수령 후 사용 가능 기간
+
+    @CreatedDate
+    @Column(name = "c_create_date", updatable = false)
+    private LocalDate createDate; // 생성일
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
