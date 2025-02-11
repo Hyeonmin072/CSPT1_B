@@ -12,8 +12,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -59,7 +61,7 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들
-    
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserShop> shops = new ArrayList<>(); // 예약한 샵들
 
@@ -72,6 +74,8 @@ public class User implements UserDetails {
         this.birthDate = birthDate;
         this.gender = gender;
         this.address = address;
+        roles = new ArrayList<>();
+        this.roles.add("USER");
     }
 
     @Override

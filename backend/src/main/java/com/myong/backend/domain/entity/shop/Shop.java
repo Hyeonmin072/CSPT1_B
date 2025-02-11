@@ -34,7 +34,7 @@ public class Shop {
     private String tel; // 연락처
 
     @Column(name = "s_rating", nullable = false)
-    private Double rating = 0.0; // 평점
+    private Double rating = 0.0; // 평점 총 합계
 
     @Column(name = "s_desc")
     private String desc; // 소개

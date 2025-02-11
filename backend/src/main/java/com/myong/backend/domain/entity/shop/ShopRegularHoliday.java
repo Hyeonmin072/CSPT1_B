@@ -1,7 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
 
-import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

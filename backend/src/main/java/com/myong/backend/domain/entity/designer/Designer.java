@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +56,7 @@ public class Designer {
     private Long like = 0L; //좋아요
 
     @Column(name = "d_rating" ,nullable = false)
-    private Double rating = 0.0; // 평점
+    private Double rating = 0.0; // 평점 총 합계
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")

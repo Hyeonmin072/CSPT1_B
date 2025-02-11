@@ -21,8 +21,12 @@ public class PreviousJob {
     private String name;
 
     //입사일
-    @Column(name = "pj_joinDate",nullable = false)
+    @Column(name = "pj_join_date",nullable = false)
     private LocalDate joinDate;
+
+    //퇴사일
+    @Column(name = "pj_out_date")
+    private LocalDate outDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jp_id", nullable = false)
