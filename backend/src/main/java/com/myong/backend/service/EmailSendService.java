@@ -45,7 +45,7 @@ public class EmailSendService {
         MimeMessage message = javaMailSender.createMimeMessage();
         try{
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
-            helper.setFrom(setForm);  //서비스 이름
+            helper.setFrom("HAIRISM<a3349739@gmail.com>");  //서비스 이름
             helper.setTo(toMail);  //커스텀 이메일
             helper.setSubject(title);  //이메일 타이틀
             helper.setText(content,true); //내용
