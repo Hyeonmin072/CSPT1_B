@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 @Service
@@ -22,6 +24,15 @@ public class DesignerService {
         this.designerRepository = designerRepository;
     }
     public void signUp(SignUpRequest request) {
+
+        LocalDate birthday;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            birthday = LocalDate.parse(request.getBirth(), formatter);
+        }catch (DateTimeParseException e){
+            throw new IllegalArgumentException("invalid birth date format : yyyyMMdd으로 형태를 맞춰주세요");
+        }
+
         Designer designer = Designer.builder()
                 .id(UUID.randomUUID())
                 .name(request.getName())
@@ -30,7 +41,7 @@ public class DesignerService {
                 .email(request.getEmail())
                 .tel(request.getTel())
                 .gender(request.getGender())
-                .birth(LocalDate.parse(request.getBirth()))
+                .birth(birthday)
                 .rating(0.0)
                 .like(0L)
                 .build();
