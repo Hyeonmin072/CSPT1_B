@@ -25,6 +25,7 @@ public class DesignerService {
     }
     public void signUp(SignUpRequest request) {
 
+        //날짜 form을 yyyyMMdd의 형식으로 변환
         LocalDate birthday;
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -33,18 +34,16 @@ public class DesignerService {
             throw new IllegalArgumentException("invalid birth date format : yyyyMMdd으로 형태를 맞춰주세요");
         }
 
-        Designer designer = Designer.builder()
-                .id(UUID.randomUUID())
-                .name(request.getName())
-                .nickName(request.getNickname())
-                .pwd(request.getPwd())
-                .email(request.getEmail())
-                .tel(request.getTel())
-                .gender(request.getGender())
-                .birth(birthday)
-                .rating(0.0)
-                .like(0L)
-                .build();
+        Designer designer = new Designer(
+                request.getName(),
+                request.getNickname(),
+                request.getEmail(),
+                request.getPwd(),
+                request.getTel(),
+                birthday,
+                request.getGender()
+                );
+
 
         designerRepository.save(designer);
     }
