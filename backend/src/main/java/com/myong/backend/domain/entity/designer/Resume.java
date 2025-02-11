@@ -13,6 +13,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 public class Resume {
+
     //구직 지원서 고유키
     @Id
     @Column(name ="re_id")
@@ -43,9 +44,13 @@ public class Resume {
     @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
     private List<Application> applications = new ArrayList<>();
 
-    //이전 근무지
+    // 경력들
     @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
     private List<Career> careers = new ArrayList<>();
+
+    // 자격증들
+    @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
+    private List<Certification> certifications = new ArrayList<>();
 
 
     public Resume(String wantDay, String exp, Designer designer) {
