@@ -1,5 +1,7 @@
 package com.myong.backend.domain.entity.usershop;
 
+import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +18,22 @@ public class ChatRoom {
     @Column(name = "cr_id")
     private UUID id = UUID.randomUUID(); // 채팅방 고유 키
 
-    @Column(name = "cr_name", nullable = false)
-    private String name; // 채팅방 이름
+    @ManyToOne
+    @JoinColumn(name = "d_id", nullable = false)
+    private Designer designer; // 디자이너 고유 키
+
+    @ManyToOne
+    @JoinColumn(name = "u_id", nullable = false)
+    private User user; // 유저 고유 키
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
     private List<Message> messages; // 채팅방의 메시지들
 
-    public ChatRoom(String name) {
-        this.name = name;
+
+    public ChatRoom(Designer designer, User user) {
+        this.designer = designer;
+        this.user = user;
     }
+
+
 }

@@ -1,7 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.designer.Designer;
-import com.myong.backend.domain.entity.user.DiscountType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,11 +25,11 @@ public class Menu {
     @Column(name = "m_price")
     private Long price; // 금액
 
-    @Column(name = "m_discount")
-    private String discount; // 할인
+    @Column(name = "m_estimated_time")
+    private String estimatedTime; // 소요시간
 
-    @Column(name = "m_discount_type")
-    private DiscountType discountType; // 할인방식
+    @Column(name = "m_common", nullable = false)
+    private Boolean common; // 공통여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
@@ -41,9 +40,10 @@ public class Menu {
     private Designer designer; // 디자이너 고유 키
 
 
-    public Menu(String name, String desc, Shop shop, Designer designer) {
+    public Menu(String name, String desc, Boolean common, Shop shop, Designer designer) {
         this.name = name;
         this.desc = desc;
+        this.common = common;
         this.shop = shop;
         this.designer = designer;
     }

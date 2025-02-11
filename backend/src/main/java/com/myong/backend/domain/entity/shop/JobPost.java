@@ -44,11 +44,11 @@ public class JobPost {
     private Gender gender;
 
     //요구 정시출근시간
-    @Column(name = "jp_worktime", nullable = false)
+    @Column(name = "jp_worktime")
     private String workTime;
 
     //요구 정시퇴근시간
-    @Column(name = "jp_leavetime", nullable = false)
+    @Column(name = "jp_leavetime")
     private String leaveTime;
 
     //첨부파일
@@ -63,12 +63,10 @@ public class JobPost {
     private List<Application> applications = new ArrayList<>(); // 이 구인글에 지원된 지원서들
 
 
-    public JobPost(String title, String content, Work work, String workTime, String leaveTime, Shop shop) {
+    public JobPost(String title, String content, Work work, Shop shop) {
         this.title = title;
         this.content = content;
         this.work = work;
-        this.workTime = workTime;
-        this.leaveTime = leaveTime;
         this.shop = shop;
     }
 }
