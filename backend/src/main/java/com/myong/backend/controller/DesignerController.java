@@ -5,6 +5,7 @@ import com.myong.backend.domain.dto.designer.Api;
 import com.myong.backend.domain.dto.designer.SignUpRequest;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
 import jakarta.validation.Valid;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Slf4j
@@ -24,8 +26,8 @@ import java.util.Map;
 @RequestMapping("/designer")
 public class DesignerController {
 
-    private final DesignerService signUpService;
     private final DesignerService designerService;
+
 
     @PostMapping("/signup")
     public Api<SignUpRequest>signup(
@@ -36,7 +38,7 @@ public class DesignerController {
 
         var body = request.getData();//request의 데이터를 바디에 담고
 
-        signUpService.signUp(body);//서비스에 바디를 넣기
+        designerService.signUp(body);//서비스에 바디를 넣기
 
         Api<SignUpRequest> response = Api.<SignUpRequest>builder()
                 .resultCode(String.valueOf(HttpStatus.OK.value()))//결과코드가 맞으면 200코드를 반환
@@ -88,5 +90,12 @@ public class DesignerController {
         }else {
             throw new NullPointerException("이메일 인증 실패");
         }
+    }
+
+    //디자이너 프로필 불러오기
+    @GetMapping("/profile/{nickname}")
+    public ResponseEntity<Designer> profile(@PathVariable String nickname){
+        Designer designer = designerService.getProfile(nickname);
+        return ResponseEntity.ok(designer);
     }
 }
