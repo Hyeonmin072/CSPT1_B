@@ -5,6 +5,7 @@ import com.myong.backend.domain.dto.designer.SignUpRequest;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.repository.DesignerRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
-
+@Slf4j
 @Service
 @Transactional
 public class DesignerService {
@@ -46,6 +47,13 @@ public class DesignerService {
 
 
         designerRepository.save(designer);
+    }
+
+    //프로필 조회하기
+    public Designer getProfile(String nickname) {
+        return designerRepository.findByNickName(nickname)
+                .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));//디자이너가 없으면 찾을 수 없다고 반환
+
     }
 
     //이메일 중복검사
