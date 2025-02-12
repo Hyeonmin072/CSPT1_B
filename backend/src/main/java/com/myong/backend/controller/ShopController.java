@@ -3,6 +3,9 @@ package com.myong.backend.controller;
 import com.myong.backend.domain.dto.coupon.CouponListRequestDto;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
+import com.myong.backend.domain.dto.event.EventListRequestDto;
+import com.myong.backend.domain.dto.event.EventListResponseDto;
+import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.ShopService;
 import lombok.RequiredArgsConstructor;
@@ -105,5 +108,33 @@ public class ShopController {
         if (status == HttpStatus.OK) return ResponseEntity.status(HttpStatus.OK).body("성공적으로 쿠폰이 등록되었습니다.");
         else if (status == HttpStatus.BAD_REQUEST) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 요청입니다.");
         else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("쿠폰 등록 중 오류가 발생했습니다.");
+    }
+
+    /**
+     * 등록한 이벤트 조회
+     */
+    @GetMapping("/getevents")
+    public ResponseEntity<List<EventListResponseDto>> getEvents(@RequestBody EventListRequestDto request) {
+        List<EventListResponseDto> response = null;
+        try {
+            response = shopService.getEvents(request);  // 서비스 로직 수행 결과 담기
+        } catch (NullPointerException e) { // null 예외가 하위에서 던져질 경우
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) { // 그 외의 예외가 하위에서 던져질 경우
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(response, HttpStatus.OK); // 성공적으로 로직이 수행될 경우 이벤트 목록 반환
+    }
+
+    /**
+     * 이벤트 등록
+     */
+    @PostMapping("/addEvent")
+    public ResponseEntity<String> addEvent(@RequestBody EventRegisterRequestDto request) {
+        HttpStatus status = shopService.addEvent(request); // 서비스 로직 수행결과에 따라 다른 HTTP 상태 값 반환
+
+        if (status == HttpStatus.OK) return ResponseEntity.status(HttpStatus.OK).body("성공적으로 이벤트가 등록되었습니다.");
+        else if (status == HttpStatus.BAD_REQUEST) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 요청입니다.");
+        else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이벤트 등록 중 오류가 발생했습니다.");
     }
 }

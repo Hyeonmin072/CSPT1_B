@@ -3,11 +3,16 @@ package com.myong.backend.service;
 import com.myong.backend.domain.dto.coupon.CouponListRequestDto;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
+import com.myong.backend.domain.dto.event.EventListRequestDto;
+import com.myong.backend.domain.dto.event.EventListResponseDto;
+import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.shop.Event;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.repository.CouponRepository;
+import com.myong.backend.repository.EventRepository;
 import com.myong.backend.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +25,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -36,6 +43,7 @@ public class ShopService {
     private final DefaultMessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final CouponRepository couponRepository;
+    private final EventRepository eventRepository;
 
     public HttpStatus shopSignUp(ShopSignUpRequestDto request) {
 
@@ -111,32 +119,11 @@ public class ShopService {
         }
     }
 
-    public HttpStatus addCoupon(CouponRegisterRequestDto request) {
-        Coupon coupon = null;
-        try {
-            Shop shop = shopRepository.findByEmail(request.getShopEmail());// 이메일로 가게 찾기
-            // 할인 쿠폰 생성
-            coupon = new Coupon(
-                    request.getName(),
-                    DiscountType.FIXED,
-                    request.getAmount(),
-                    Period.ofDays(request.getGetDate()),
-                    Period.ofDays(request.getUseDate()),
-                    shop
-            );
-            couponRepository.save(coupon);
-        } catch (Exception e) { // 예외 발생 시 오류 반환
-            return HttpStatus.INTERNAL_SERVER_ERROR;
-        }
-
-        return HttpStatus.OK; // 성공적으로 쿠폰 등록 로직이 수행되었다면 OK 반환
-    }
-
     public List<CouponListResponseDto> getCoupons(CouponListRequestDto request) throws Exception {
         try {
             Shop shop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
             List<Coupon> coupons = shop.getCoupons(); // 쿠폰들 꺼내기
-            List<CouponListResponseDto> response = new ArrayList<>(); // 반환을 response 목록 생성
+            List<CouponListResponseDto> response = new ArrayList<>(); // 반환 값을 담을 response 리스트 생성
             for (Coupon coupon : coupons) { // for문 돌리면서 response에 쿠폰 response dto들 담기
                 CouponListResponseDto responseDto = new CouponListResponseDto(
                         coupon.getName(),
@@ -153,8 +140,71 @@ public class ShopService {
         } catch (Exception e) { // 최종 예외 잡기
             throw new Exception("예외 발생");
         }
+    }
 
+    public HttpStatus addCoupon(CouponRegisterRequestDto request) {
+        Coupon coupon = null;
+        try {
+            Shop shop = shopRepository.findByEmail(request.getShopEmail());// 이메일로 가게 찾기
+            // 쿠폰 생성
+            coupon = new Coupon(
+                    request.getName(),
+                    DiscountType.valueOf(request.getType()),
+                    request.getAmount(),
+                    Period.ofDays(request.getGetDate()),
+                    Period.ofDays(request.getUseDate()),
+                    shop
+            );
+            couponRepository.save(coupon);
+        } catch (Exception e) { // 예외 발생 시 오류 반환
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
 
+        return HttpStatus.OK; // 성공적으로 쿠폰 등록 로직이 수행되었다면 OK 반환
+    }
 
+    public List<EventListResponseDto> getEvents(EventListRequestDto request) throws Exception {
+        try {
+            Shop shop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+            List<Event> events = shop.getEvents(); // 이벤트 꺼내기
+            List<EventListResponseDto> response = new ArrayList<>(); // 반환 값을 담을 response 리스트 생성
+            for (Event event : events) { // for문 돌리면서 response에 쿠폰 response dto들 담기
+                EventListResponseDto responseDto = new EventListResponseDto(
+                        event.getName(),
+                        event.getAmount(),
+                        event.getType(),
+                        event.getStartDate(),
+                        event.getEndDate()
+                );
+                response.add(responseDto);
+            }
+            return response; // response 반환
+        } catch (NullPointerException e) { // Null 예외 잡기
+            throw new NullPointerException("Null 예외 발생");
+        } catch (Exception e) { // 최종 예외 잡기
+            throw new Exception("예외 발생");
+        }
+    }
+
+    public HttpStatus addEvent(EventRegisterRequestDto request) {
+        Event event = null;
+        try {
+            Shop shop = shopRepository.findByEmail(request.getShopEmail());// 이메일로 가게 찾기
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
+            // 이벤트 생성
+            event = new Event(
+                    request.getName(),
+                    request.getAmount(),
+                    DiscountType.valueOf(request.getType()),
+                    LocalDate.parse(request.getStartDate(), formatter),
+                    LocalDate.parse(request.getEndDate(), formatter),
+                    shop
+            );
+            eventRepository.save(event);
+        } catch (Exception e) { // 예외 발생 시 오류 반환
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+
+        return HttpStatus.OK; // 성공적으로 이벤트 등록 로직이 수행되었다면 OK 반환
     }
 }
