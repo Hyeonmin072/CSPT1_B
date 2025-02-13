@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
