@@ -71,8 +71,7 @@ public class User {
         this.birthDate = birthDate;
         this.gender = gender;
         this.address = address;
-        roles = new ArrayList<>();
-        this.roles.add("USER");
+
     }
 
 

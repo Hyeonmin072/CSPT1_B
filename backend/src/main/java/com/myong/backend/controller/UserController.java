@@ -15,13 +15,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-//    @PostMapping("/signin")
-//    public TokenInfo login(@RequestBody UserLoginRequestDto userLoginRequestDto){
-//        String email = userLoginRequestDto.getEmail();
-//        String password = userLoginRequestDto.getPassword();
-//        TokenInfo tokenInfo = userService.login(email,password);
-//        return tokenInfo;
-//    }
 
 
 
