@@ -26,6 +26,11 @@ public class UserService {
 
         Optional<User> ouser =  userRepository.findByEmail(userSignUpDto.getEmail());
 
+        // 이메일 중복 체크
+        if (checkEmailDuplication(userSignUpDto.getEmail())) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+
         if(!ouser.isPresent()){
             User user = new User(
                     userSignUpDto.getName(),
@@ -44,6 +49,8 @@ public class UserService {
 
     }
 
-
+    public Boolean checkEmailDuplication(String email) {
+        return userRepository.existsByEmail(email);
+    }
 
 }
