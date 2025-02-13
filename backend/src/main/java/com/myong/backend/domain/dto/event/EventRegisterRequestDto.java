@@ -1,26 +1,26 @@
-package com.myong.backend.domain.dto.coupon;
+package com.myong.backend.domain.dto.event;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
+import java.io.Serializable;
+
 @Value
-public class CouponRegisterRequestDto {
+public class EventRegisterRequestDto implements Serializable {
 
     @NotBlank
     String name;
 
     @NotBlank
-    Integer getDate;
-
-    @NotBlank
-    Integer useDate;
+    Long amount;
 
     @NotBlank
     String type;
 
     @NotBlank
-    Long amount;
+    String startDate;
 
     @NotBlank
+    String endDate;
     String shopEmail;
 }

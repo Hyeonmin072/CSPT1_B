@@ -76,6 +76,9 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<Event> events = new ArrayList<>(); // 등록한 이벤트들
     
 
     public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post) {
