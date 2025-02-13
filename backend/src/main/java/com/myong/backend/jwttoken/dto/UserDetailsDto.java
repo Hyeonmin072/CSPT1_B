@@ -28,7 +28,7 @@ public class UserDetailsDto implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities != null ? authorities : new ArrayList<>();
+        return authorities;
     }
 
     @Override

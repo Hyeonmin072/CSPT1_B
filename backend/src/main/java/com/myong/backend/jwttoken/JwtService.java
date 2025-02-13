@@ -31,6 +31,8 @@ public class JwtService {
 
     public String createAccessToken (String userName, String role){
         long now = (new Date()).getTime();
+        System.out.println("토큰생성중 userName:"+userName);
+        System.out.println("토큰생성중 role:"+role);
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 1800000);
         return Jwts.builder()
@@ -83,7 +85,7 @@ public class JwtService {
 
     public String getUserRole(String token){
         Claims claims = parseClaims(token);
-        return claims.get("Auth",String.class);
+        return claims.get("auth",String.class);
     }
 
 

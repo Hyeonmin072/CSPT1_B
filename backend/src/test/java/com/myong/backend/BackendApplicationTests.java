@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -18,6 +19,8 @@ class BackendApplicationTests {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Test
 	void contextLoads() {
@@ -30,7 +33,7 @@ class BackendApplicationTests {
 	void insertTestUser(){
 		String name = "테스트2";
 		String email = "mild11361@naver.com";
-		String pwd = "aaa1234";
+		String pwd = passwordEncoder.encode("aaa1234");
 		String tel = "010-1234-1234";
 		LocalDate birthDate = LocalDate.of(1999,11,27);
 		Gender gender = Gender.MALE;

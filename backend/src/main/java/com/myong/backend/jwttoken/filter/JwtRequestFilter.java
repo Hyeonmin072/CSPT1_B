@@ -46,6 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // "Bearer " 이후의 실제 토큰 값 추출
         String token = authorization.split(" ")[1];
+        System.out.println("token : "+token);
 
         try {
             // 토큰이 비어있거나 만료된 경우 다음 필터로 전달
@@ -69,27 +70,36 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                     return ;
                 }
-                filterChain.doFilter(request, response);
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                objectMapper.writeValue(response.getWriter(),"{\"잘못된 토큰 값입니다.\"}");
                 return;
             }
 
             // 토큰에서 사용자 정보 추출
             String userName = jwtService.getUserName(token);
             String role = jwtService.getUserRole(token);
+
+            System.out.println("userName : "+userName);
+            System.out.println("role : "+role);
             UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role);
+
+            System.out.println("사용자 정보 추출:"+userDetailsDto.getAuthorities());
+            System.out.println("사용자 정보 추출:"+userDetailsDto.getUsername());
 
             // 스프링 시큐리티 인증 토큰 생성 및 SecurityContext에 설정
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            response.setContentType("application/json");
+            response.getWriter().write("Success");
+
         } catch (ExpiredJwtException e) {
             // 토큰이 만료되었을 경우에도 다음 필터로 전달
             filterChain.doFilter(request, response);
-            return;
+
         }
 
-        // 다음 필터로 요청 전달
-        filterChain.doFilter(request, response);
     }
 
 }

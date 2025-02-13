@@ -7,13 +7,16 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 
+import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @RedisHash(value = "refreshToken")
-public class RefreshToken {
+public class RefreshToken implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private String key; // Redis 해시고유키
