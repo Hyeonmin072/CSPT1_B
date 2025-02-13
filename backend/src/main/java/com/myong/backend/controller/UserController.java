@@ -2,12 +2,19 @@ package com.myong.backend.controller;
 
 
 
+import com.myong.backend.domain.dto.email.EmailCheckDto;
+import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
+import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -15,13 +22,38 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-
+    private final EmailSendService emailSendService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> SignUp(@RequestBody UserSignUpDto userSignUpDto){
 
         return userService.SingUp(userSignUpDto);
 
+    }
+
+    //Send Email: 이메일 전송 버튼 클릭시
+    @PostMapping("/sendemail")
+    public Map<String, String> mailSend(
+            @RequestBody EmailRequestDto emailRequestDto
+    ){
+        String code = emailSendService.joinEmail(emailRequestDto.getEmail());
+        //response를 Json으로 변환
+        Map<String, String> response = new HashMap<>();
+        response.put("code", code);
+
+        return response;
+    }
+
+    //이메일 인증
+
+    @PostMapping("/verifyemail")
+    public String authCheck(@RequestBody @Valid EmailCheckDto emailCheckDto){
+        Boolean checked = emailSendService.checkAuthNum(emailCheckDto.getEmail(), emailCheckDto.getAuthNum());
+        if(checked){
+            return "이메일 인증 성공!!";
+        }else {
+            throw new NullPointerException("이메일 인증 실패");
+        }
     }
 
 
