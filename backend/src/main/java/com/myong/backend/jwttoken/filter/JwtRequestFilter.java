@@ -51,6 +51,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         try {
             // 토큰이 비어있거나 만료된 경우 다음 필터로 전달
             if (StringUtils.isBlank(token) || jwtService.isExpired(token)) {
+                if(!jwtService.isValidToken(token)){
+                    throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+                }
                 String userName = jwtService.getUserName(token);
                 String role = jwtService.getUserRole(token);
                 if(jwtService.refreshTokenIsExpired(userName)){
@@ -72,7 +75,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                objectMapper.writeValue(response.getWriter(),"{\"잘못된 토큰 값입니다.\"}");
+                objectMapper.writeValue(response.getWriter(),"{\"로그인이 만료되었습니다.\"}");
                 return;
             }
 
@@ -91,8 +94,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            response.setContentType("application/json");
-            response.getWriter().write("Success");
+
+            filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
             // 토큰이 만료되었을 경우에도 다음 필터로 전달

@@ -96,5 +96,16 @@ public class JwtService {
             return e.getClaims();
         }
     }
+    public boolean isValidToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true; // 정상적으로 파싱되면 유효한 토큰
+        } catch (Exception e) {
+            return false; // 예외 발생 시 유효하지 않은 토큰
+        }
+    }
 
 }
