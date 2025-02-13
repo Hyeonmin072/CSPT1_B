@@ -31,6 +31,7 @@ public class DesignerController {
 
 
     @PostMapping("/signup")
+    //회원가입
     public Api<SignUpRequest>signup(
             @Valid
             @RequestBody
