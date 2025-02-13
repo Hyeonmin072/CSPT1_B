@@ -34,6 +34,11 @@ public class UserService {
 
         Optional<User> ouser =  userRepository.findByEmail(userSignUpDto.getEmail());
 
+        // 이메일 중복 체크
+        if (checkEmailDuplication(userSignUpDto.getEmail())) {
+            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+        }
+
         if(!ouser.isPresent()){
             User user = new User(
                     userSignUpDto.getName(),
@@ -51,7 +56,6 @@ public class UserService {
         return ResponseEntity.status(400).body("회원가입에 실패하셨습니다.");
 
     }
-
 
     public ResponseEntity<String> Signout(HttpServletRequest request){
         String authorization = request.getHeader(AUTHORIZATION);
@@ -79,6 +83,10 @@ public class UserService {
 
         return ResponseEntity.ok("로그아웃에 성공하셨습니다");
 
+    }
+
+    public Boolean checkEmailDuplication(String email) {
+        return userRepository.existsByEmail(email);
     }
 
 

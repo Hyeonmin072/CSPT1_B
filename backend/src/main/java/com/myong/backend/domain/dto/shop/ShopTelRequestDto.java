@@ -1,8 +1,11 @@
 package com.myong.backend.domain.dto.shop;
 
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Value;
 
-@Getter
+@Value
 public class ShopTelRequestDto {
+
+    @NotBlank
     private String tel;
 }

@@ -64,6 +64,9 @@ public class Designer {
     @JoinColumn(name = "s_id")
     private Shop shop;   // 소속된 가게
 
+    @OneToOne(mappedBy = "designer", cascade = CascadeType.ALL)
+    private Resume resume;
+
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<DesignerHoliday> holidays = new ArrayList<>();  // 휴무일(LocalDate)
 

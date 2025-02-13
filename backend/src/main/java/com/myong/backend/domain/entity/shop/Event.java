@@ -1,9 +1,7 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.user.DiscountType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -20,6 +18,9 @@ public class Event {
     @Id
     @Column(name = "e_id")
     private UUID id = UUID.randomUUID(); // 이벤트 고유 키
+    
+    @Column(name = "e_name")
+    private String name; // 이벤트 이름
 
     @Column(name = "e_discount")
     private Long amount; // 이벤트 할인 금액 
@@ -32,12 +33,18 @@ public class Event {
     
     @Column(name = "e_end_date")
     private LocalDate endDate; // 이벤트 종료일
+    
+    @ManyToOne
+    @JoinColumn(name = "s_id", nullable = false)
+    private Shop shop; // 가게 고유 키
 
-    public Event(Long amount, DiscountType type, LocalDate startDate, LocalDate endDate) {
+    public Event(String name, Long amount, DiscountType type, LocalDate startDate, LocalDate endDate, Shop shop) {
+        this.name = name;
         this.amount = amount;
         this.type = type;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.shop = shop;
     }
 
     @Override
