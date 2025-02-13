@@ -52,7 +52,7 @@ public class DesignerController {
     }
 
     //이메일 중복검사
-    @GetMapping("email/{email}/exists")
+    @GetMapping("email/check/{email}")
     public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable String email){
         log.info("checked email duplicate: {}", email);
         //중복되면 true, 중복안되면 false
