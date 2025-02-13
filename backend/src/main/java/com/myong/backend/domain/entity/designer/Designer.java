@@ -98,4 +98,26 @@ public class Designer {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+    // 프로필 수정 메소드들
+    public void updateNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void updateDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void updatePwd(String newPwd) {
+        this.pwd = newPwd;
+    }
+
+    public void updateTel(String tel) {
+        this.tel = tel;
+    }
+
+    public void updateImage(String image) {
+        this.image = image;
+    }
+
 }

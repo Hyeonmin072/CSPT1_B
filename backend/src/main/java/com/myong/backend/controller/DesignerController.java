@@ -3,6 +3,7 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.designer.Api;
 import com.myong.backend.domain.dto.designer.SignUpRequest;
+import com.myong.backend.domain.dto.designer.UpdateProfileRequest;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -98,4 +99,17 @@ public class DesignerController {
         Designer designer = designerService.getProfile(nickname);
         return ResponseEntity.ok(designer);
     }
+
+    //디자이너 프로필 수정
+    @PostMapping("/profile/update/{nickname}")
+    public ResponseEntity<Designer> updateProfile(
+            @PathVariable String nickname,
+            @Valid @RequestBody UpdateProfileRequest request
+            ){
+            log.info("update profile: {}", request);
+
+            Designer updatedesigner = designerService.updateProfile(nickname, request);
+            return ResponseEntity.ok(updatedesigner);
+    }
+
 }
