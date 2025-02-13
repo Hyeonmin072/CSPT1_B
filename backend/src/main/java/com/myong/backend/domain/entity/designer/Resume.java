@@ -21,10 +21,6 @@ public class Resume {
     @Column(name ="re_id")
     private UUID id = UUID.randomUUID();
 
-    //희망 근무요일
-    @Column(name = "re_wantday", nullable = false)
-    private String wantDay;
-
     //내용
     @Column(name = "re_content")
     private String content;
@@ -38,7 +34,7 @@ public class Resume {
     private String portfolio;
 
     //해당 이력서의 주인
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false)
     private Designer designer;
 
@@ -54,9 +50,11 @@ public class Resume {
     @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
     private List<Certification> certifications = new ArrayList<>();
 
+    // 희망근무요일
+    @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
+    private List<DesignerWantedDay> wantedDays = new ArrayList<>();
 
-    public Resume(String wantDay, String exp, Designer designer) {
-        this.wantDay = wantDay;
+    public Resume(String exp, Designer designer) {
         this.exp = exp;
         this.designer = designer;
     }
