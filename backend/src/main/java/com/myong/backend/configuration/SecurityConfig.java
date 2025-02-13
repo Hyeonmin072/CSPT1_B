@@ -46,7 +46,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager(); // ✅ new로 생성하지 말고 주입받아 사용
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean

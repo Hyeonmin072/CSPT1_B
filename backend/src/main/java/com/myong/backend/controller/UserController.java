@@ -7,6 +7,7 @@ import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +25,15 @@ public class UserController {
     private final UserService userService;
     private final EmailSendService emailSendService;
 
+
+
     @PostMapping("/signup")
     public ResponseEntity<String> SignUp(@RequestBody UserSignUpDto userSignUpDto){
 
         return userService.SingUp(userSignUpDto);
 
     }
+   
 
     //Send Email: 이메일 전송 버튼 클릭시
     @PostMapping("/sendemail")
@@ -63,5 +67,12 @@ public class UserController {
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(userService.checkEmailDuplication(email));
     }
+  
+   @PostMapping("/signout")
+    public ResponseEntity<String> Signout(HttpServletRequest request){
+        System.out.println("컨트롤러에 요청이 넘어옮");
+        return userService.Signout(request);
+    }
+
 
 }
