@@ -27,7 +27,7 @@ public class Resume {
 
     //경력여부
     @Column(name = "re_exp", nullable = false)
-    private String exp;
+    private Exp exp;
 
     //포트폴리오
     @Column(name = "re_portfolio")
@@ -54,7 +54,7 @@ public class Resume {
     @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
     private List<DesignerWantedDay> wantedDays = new ArrayList<>();
 
-    public Resume(String exp, Designer designer) {
+    public Resume(Exp exp, Designer designer) {
         this.exp = exp;
         this.designer = designer;
     }

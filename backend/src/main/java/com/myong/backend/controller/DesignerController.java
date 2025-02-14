@@ -95,21 +95,21 @@ public class DesignerController {
     }
 
     //디자이너 프로필 불러오기
-    @GetMapping("/profile/{nickname}")
-    public ResponseEntity<Designer> profile(@PathVariable String nickname){
-        Designer designer = designerService.getProfile(nickname);
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<Designer> profile(@PathVariable String email){
+        Designer designer = designerService.getProfile(email);
         return ResponseEntity.ok(designer);
     }
 
     //디자이너 프로필 수정
-    @PostMapping("/profile/update/{nickname}")
+    @PostMapping("/profile/update/{email}")
     public ResponseEntity<Designer> updateProfile(
-            @PathVariable String nickname,
+            @PathVariable String email,
             @Valid @RequestBody UpdateProfileRequest request
             ){
             log.info("update profile: {}", request);
 
-            Designer updatedesigner = designerService.updateProfile(nickname, request);
+            Designer updatedesigner = designerService.updateProfile(email, request);
             return ResponseEntity.ok(updatedesigner);
     }
 
