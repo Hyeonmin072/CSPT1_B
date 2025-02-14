@@ -55,18 +55,18 @@ public class DesignerService {
         designerRepository.save(designer);
     }
 
-    public Designer getProfile(String nickname) {
-        return designerRepository.findByNickName(nickname)
+    public Designer getProfile(String email) {
+        return designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
     }
 
     @Transactional
-    public Designer updateProfile(String nickname, UpdateProfileRequest updateProfileRequest) {
-        Designer designer = designerRepository.findByNickName(nickname)
+    public Designer updateProfile(String email, UpdateProfileRequest updateProfileRequest) {
+        Designer designer = designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
 
         // 닉네임 변경 시 중복 체크
-        if (updateProfileRequest.getUpdateNickName() != null && !updateProfileRequest.getUpdateNickName().equals(nickname)) {
+        if (updateProfileRequest.getUpdateNickName() != null && !updateProfileRequest.getUpdateNickName().equals(email)) {
             if (checkNicknameDuplication(updateProfileRequest.getUpdateNickName())) {
                 throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
             }
