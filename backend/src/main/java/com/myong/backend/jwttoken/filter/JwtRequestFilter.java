@@ -1,6 +1,7 @@
 package com.myong.backend.jwttoken.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.myong.backend.domain.dto.UserLoginRequestDto;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.TokenDto;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
@@ -35,6 +36,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        System.out.println(request.getRequestURI());
+        UserLoginRequestDto userLoginRequestDto = objectMapper.readValue(request.getInputStream(), UserLoginRequestDto.class);
+
+        // 객체의 필드를 로그로 찍기
+        System.out.println("Email: " + userLoginRequestDto.getEmail());
+        System.out.println("Password: " + userLoginRequestDto.getPassword());
+        System.out.println("Who: " + userLoginRequestDto.getWho());
+        if (request.getRequestURI().equals("/user/signin") || request.getRequestURI().equals("/designer/signin") || request.getRequestURI().equals("/shop/signin")) {
+            System.out.println("여기들어옮");
+            filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
+            return;
+        }
         // 요청 헤더에서 Authorization 값 추출
         String authorization = request.getHeader(AUTHORIZATION);
 
@@ -73,9 +87,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                     return ;
                 }
-                response.setContentType("application/json");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                objectMapper.writeValue(response.getWriter(),"{\"로그인이 만료되었습니다.\"}");
+                filterChain.doFilter(request, response);
                 return;
             }
 

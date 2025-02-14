@@ -32,23 +32,24 @@ public class DesignerController {
 
     @PostMapping("/signup")
     //회원가입
-    public Api<SignUpRequest>signup(
+    public
+    //Api<SignUpRequest>
+    ResponseEntity<?> signup(
             @Valid
-            @RequestBody
-            Api<SignUpRequest> request){
+            @RequestBody SignUpRequest request){
         log.info("signup request: {}", request); //디버깅용 로그찍기
 
-        var body = request.getData();//request의 데이터를 바디에 담고
+        //var body = request.getData();//request의 데이터를 바디에 담고
 
-        designerService.signUp(body);//서비스에 바디를 넣기
+        designerService.signUp(request);//서비스에 바디를 넣기
 
-        Api<SignUpRequest> response = Api.<SignUpRequest>builder()
-                .resultCode(String.valueOf(HttpStatus.OK.value()))//결과코드가 맞으면 200코드를 반환
-                .resultMessage(HttpStatus.OK.getReasonPhrase())//결과코드가 맞으면 ok메세지를 반화
-                .data(body)
-                .build();
+//        Api<SignUpRequest> response = Api.<SignUpRequest>builder()
+//                .resultCode(String.valueOf(HttpStatus.OK.value()))//결과코드가 맞으면 200코드를 반환
+//                .resultMessage(HttpStatus.OK.getReasonPhrase())//결과코드가 맞으면 ok메세지를 반화
+//                .data(body)
+//                .build();
 
-        return response;
+        return ResponseEntity.ok("회원가입성공");
     }
 
     //이메일 중복검사

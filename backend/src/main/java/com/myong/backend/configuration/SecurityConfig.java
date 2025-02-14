@@ -29,11 +29,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception { // ✅ AuthenticationManager를 인자로 받음
+        System.out.println("Setting up security filter chain");
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/signin").permitAll()
+                        .requestMatchers("/user/signin","/designer/signin","/shop/signin").permitAll()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults())
@@ -41,6 +42,7 @@ public class SecurityConfig {
                 .addFilterAt(new JwtLoginFilter(authenticationManager, jwtService, objectMapper), UsernamePasswordAuthenticationFilter.class) // ✅ AuthenticationManager를 주입
                 .addFilterBefore(new JwtRequestFilter(jwtService, objectMapper), JwtLoginFilter.class);
 
+        System.out.println("Security filter chain setup complete");
         return http.build();
     }
 

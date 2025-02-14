@@ -28,6 +28,8 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -111,9 +113,9 @@ public class ShopService {
      * @return
      */
     public String checkEmail(ShopEmailRequestDto request) {
-        Shop findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
 
-        if (findShop == null) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
+        if (!findShop.isPresent()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
         else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기
     }
 
@@ -123,7 +125,12 @@ public class ShopService {
      * @return
      */
     public List<CouponListResponseDto> getCoupons(ShopEmailRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        if(!findShop.isPresent()){
+            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
+        }
+
+        Shop shop = findShop.get();
         return couponRepository.findByShop(shop.getId()); // // 가게의 고유 키를 통해 가져온 쿠폰 목록 반환
     }
 
@@ -133,7 +140,11 @@ public class ShopService {
      * @return
      */
     public String addCoupon(CouponRegisterRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShopEmail()); // 이메일로 가게 찾기
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail()); // 이메일로 가게 찾기
+        if(!findShop.isPresent()){
+            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
+        }
+        Shop shop = findShop.get();
 
         Coupon coupon = new Coupon( // 쿠폰 생성
                 request.getName(),
@@ -154,7 +165,11 @@ public class ShopService {
      * @return
      */
     public List<EventListResponseDto> getEvents(ShopEmailRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        if(!findShop.isPresent()){
+            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
+        }
+        Shop shop = findShop.get();
         return eventRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 이벤트 목록 반환
     }
 
@@ -164,7 +179,12 @@ public class ShopService {
      * @return
      */
     public String addEvent(EventRegisterRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShopEmail());// 이메일로 가게 찾기
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail());// 이메일로 가게 찾기
+        if(!findShop.isPresent()){
+            throw new NoSuchElementException("해당 가게를 찾지못했습니다.");
+        }
+        Shop shop = findShop.get();
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         Event event = new Event( // 이벤트 생성
                 request.getName(),
