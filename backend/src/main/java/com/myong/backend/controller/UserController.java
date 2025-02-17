@@ -25,8 +25,6 @@ public class UserController {
     private final UserService userService;
     private final EmailSendService emailSendService;
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> Signin(){return ResponseEntity.ok("로그인 성공");}
 
     @PostMapping("/signup")
     public ResponseEntity<String> SignUp(@RequestBody UserSignUpDto userSignUpDto){

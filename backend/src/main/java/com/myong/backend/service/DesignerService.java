@@ -7,6 +7,7 @@ import com.myong.backend.repository.DesignerRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,6 +19,8 @@ import java.time.format.DateTimeParseException;
 @Transactional
 public class DesignerService {
     private final DesignerRepository designerRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public DesignerService(DesignerRepository designerRepository) {
@@ -47,7 +50,7 @@ public class DesignerService {
                 request.getName(),
                 request.getNickname(),
                 request.getEmail(),
-                request.getPwd(),
+                passwordEncoder.encode(request.getPwd()),
                 request.getTel(),
                 birthday,
                 request.getGender()

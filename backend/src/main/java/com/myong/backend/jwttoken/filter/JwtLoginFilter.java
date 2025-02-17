@@ -30,33 +30,25 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         this.objectMapper = objectMapper;
 
 
+        setFilterProcessesUrl("/signin");
 
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException  {
-        System.out.println("Entering attemptAuthentication method in JwtLoginFilter");
         try{
-            System.out.println(request.getRequestURI());
-            String requestURI = request.getRequestURI();
-            System.out.println(requestURI);
-
-//            if (requestURI.equals("/user/signin") || requestURI.equals("/designer/signin") || requestURI.equals("/shop/signin")) {
-//                System.out.println("들어옴");
-//                return super.attemptAuthentication(request, response);
-//            }
 
             UserLoginRequestDto userLoginRequestDto = objectMapper.readValue(request.getInputStream(),UserLoginRequestDto.class);
 
-            // 사용자 입력값을 기반으로 인증 토큰 생성
             String username = userLoginRequestDto.getEmail();
             String password = userLoginRequestDto.getPassword();
             String who = userLoginRequestDto.getWho();
             String whoAndUser = username+","+who;
-            System.out.println("요청들어온 userName:"+username);
-            System.out.println("요청들어온 password:"+password);
-            System.out.println("요청들어온 who:"+who);
-            System.out.println("요청들어온 whoAndUser"+whoAndUser);
+
+            System.out.println("요청들어온 userName: "+username);
+            System.out.println("요청들어온 password: "+password);
+            System.out.println("요청들어온 who: "+who);
+            System.out.println("요청들어온 whoAndUser: "+whoAndUser);
 
             if (username == null || password == null || who == null) {
                 throw new IllegalArgumentException("Invalid parameter: username or password or who is missing");

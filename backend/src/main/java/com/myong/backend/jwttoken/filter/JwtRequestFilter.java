@@ -11,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,20 +36,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         System.out.println(request.getRequestURI());
-        UserLoginRequestDto userLoginRequestDto = objectMapper.readValue(request.getInputStream(), UserLoginRequestDto.class);
 
-        // 객체의 필드를 로그로 찍기
-        System.out.println("Email: " + userLoginRequestDto.getEmail());
-        System.out.println("Password: " + userLoginRequestDto.getPassword());
-        System.out.println("Who: " + userLoginRequestDto.getWho());
-        if (request.getRequestURI().equals("/user/signin") || request.getRequestURI().equals("/designer/signin") || request.getRequestURI().equals("/shop/signin")) {
-            System.out.println("여기들어옮");
+        if (request.getRequestURI().equals("/signin")) {
+            System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
             return;
         }
+
         // 요청 헤더에서 Authorization 값 추출
         String authorization = request.getHeader(AUTHORIZATION);
 

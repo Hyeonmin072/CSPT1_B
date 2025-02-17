@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception { // ✅ AuthenticationManager를 인자로 받음
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
         System.out.println("Setting up security filter chain");
         http
                 .csrf(csrf -> csrf.disable())
@@ -39,8 +39,9 @@ public class SecurityConfig {
                 )
                 .httpBasic(withDefaults())
                 .anonymous(anonymous -> anonymous.disable())
-                .addFilterAt(new JwtLoginFilter(authenticationManager, jwtService, objectMapper), UsernamePasswordAuthenticationFilter.class) // ✅ AuthenticationManager를 주입
-                .addFilterBefore(new JwtRequestFilter(jwtService, objectMapper), JwtLoginFilter.class);
+                .addFilterAt(new JwtRequestFilter(jwtService, objectMapper), JwtLoginFilter.class)
+                .addFilterBefore(new JwtLoginFilter(authenticationManager, jwtService, objectMapper), UsernamePasswordAuthenticationFilter.class);
+
 
         System.out.println("Security filter chain setup complete");
         return http.build();
