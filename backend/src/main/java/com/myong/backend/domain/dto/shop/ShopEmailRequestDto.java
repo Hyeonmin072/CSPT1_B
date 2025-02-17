@@ -1,8 +1,13 @@
 package com.myong.backend.domain.dto.shop;
 
-import lombok.Getter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Value;
 
-@Getter
+@Value
 public class ShopEmailRequestDto {
-    private String email;
+
+    @Email
+    @NotBlank
+    String email;
 }

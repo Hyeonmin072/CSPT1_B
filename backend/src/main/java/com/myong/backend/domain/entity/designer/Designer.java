@@ -7,11 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -56,12 +57,15 @@ public class Designer {
     @Column(name = "d_like")
     private Long like = 0L; //좋아요
 
-    @Column(name = "d_rating" ,nullable = false)
-    private Double rating = 0.0; // 평점
+    @Column(name = "d_rating" , nullable = false)
+    private Double rating = 0.0; // 평점 총 합계
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")
     private Shop shop;   // 소속된 가게
+
+    @OneToOne(mappedBy = "designer", cascade = CascadeType.ALL)
+    private Resume resume;
 
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<DesignerHoliday> holidays = new ArrayList<>();  // 휴무일(LocalDate)
@@ -80,6 +84,43 @@ public class Designer {
         this.tel = tel;
         this.birth = birth;
         this.gender = gender;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Designer designer = (Designer) o;
+        return getId() != null && Objects.equals(getId(), designer.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    // 프로필 수정 메소드들
+    public void updateNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public void updateDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public void updatePwd(String newPwd) {
+        this.pwd = newPwd;
+    }
+
+    public void updateTel(String tel) {
+        this.tel = tel;
+    }
+
+    public void updateImage(String image) {
+        this.image = image;
     }
 
 }

@@ -1,9 +1,15 @@
 package com.myong.backend.domain.dto.shop;
 
-import lombok.Getter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Value;
 
-@Getter
+@Value
 public class ShopVerifyCodeRequestDto {
-    private String tel;
-    private Integer verifyCode;
+
+    @NotBlank
+    String tel;
+
+    @NotBlank
+    Integer verifyCode;
+
 }

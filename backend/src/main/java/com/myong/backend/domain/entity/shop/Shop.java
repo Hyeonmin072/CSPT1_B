@@ -6,11 +6,10 @@ import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -34,7 +33,7 @@ public class Shop {
     private String tel; // 연락처
 
     @Column(name = "s_rating", nullable = false)
-    private Double rating = 0.0; // 평점
+    private Double rating = 0.0; // 평점 총 합계
 
     @Column(name = "s_desc")
     private String desc; // 소개
@@ -74,6 +73,9 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<Event> events = new ArrayList<>(); // 등록한 이벤트들
     
 
     public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post) {
@@ -85,4 +87,21 @@ public class Shop {
         this.pwd = pwd;
         this.post = post;
     }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Shop shop = (Shop) o;
+        return getId() != null && Objects.equals(getId(), shop.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+    
 }
