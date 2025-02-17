@@ -1,29 +1,14 @@
 package com.myong.backend.domain.dto.shop;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
+import lombok.Getter;
 
-@Value
+@Getter
 public class ShopSignUpRequestDto {
-
-    @NotBlank
-    String name;
-
-    @NotBlank
-    String address;
-
-    @NotBlank
-    Integer post;
-
-    @NotBlank
-    String tel;
-
-    @NotBlank
-    String bizId;
-
-    @NotBlank
-    String email;
-
-    @NotBlank
-    String password;
+    private String name;
+    private String address;
+    private Integer post;
+    private String tel;
+    private String bizId;
+    private String email;
+    private String password;
 }

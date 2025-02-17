@@ -1,14 +1,9 @@
 package com.myong.backend.domain.dto.shop;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
+import lombok.Getter;
 
-@Value
+@Getter
 public class ShopBizRequestDto {
-
-    @NotBlank
-    String bizId;
-
-    @NotBlank
-    String tel;
+    private String bizId;
+    private String tel;
 }

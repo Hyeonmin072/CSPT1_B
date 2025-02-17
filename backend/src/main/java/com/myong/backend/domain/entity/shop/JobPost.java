@@ -1,23 +1,20 @@
-package com.myong.backend.domain.entity.shop;
+package com.myong.backend.domain.entity.designer;
 
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.shop.Application;
+import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.shop.Work;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Getter
 @Entity
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class JobPost {
     //구인 게시물 고유키
     @Id
@@ -47,21 +44,16 @@ public class JobPost {
     private Gender gender;
 
     //요구 정시출근시간
-    @Column(name = "jp_worktime")
+    @Column(name = "jp_worktime", nullable = false)
     private String workTime;
 
     //요구 정시퇴근시간
-    @Column(name = "jp_leavetime")
+    @Column(name = "jp_leavetime", nullable = false)
     private String leaveTime;
 
     //첨부파일
     @Column(name = "jp_file")
     private String file;
-
-    //생성일
-    @CreatedDate
-    @Column(name = "jp_create_date")
-    private LocalDate createDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
@@ -71,26 +63,12 @@ public class JobPost {
     private List<Application> applications = new ArrayList<>(); // 이 구인글에 지원된 지원서들
 
 
-    public JobPost(String title, String content, Work work, Shop shop) {
+    public JobPost(String title, String content, Work work, String workTime, String leaveTime, Shop shop) {
         this.title = title;
         this.content = content;
         this.work = work;
+        this.workTime = workTime;
+        this.leaveTime = leaveTime;
         this.shop = shop;
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        JobPost jobPost = (JobPost) o;
-        return getId() != null && Objects.equals(getId(), jobPost.getId());
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

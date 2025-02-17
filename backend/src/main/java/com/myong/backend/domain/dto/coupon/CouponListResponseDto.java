@@ -1,26 +1,17 @@
 package com.myong.backend.domain.dto.coupon;
 
 import com.myong.backend.domain.entity.user.DiscountType;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.Period;
 
-@Value
+@Getter
+@AllArgsConstructor
 public class CouponListResponseDto {
-
-    @NotBlank
-    String name;
-
-    @NotBlank
-    DiscountType type;
-
-    @NotBlank
-    Long amount;
-
-    @NotBlank
-    Period getDate;
-
-    @NotBlank
-    Period useDate;
+    private String name;
+    private DiscountType type;
+    private Long amount;
+    private Period getDate;
+    private Period useDate;
 }
