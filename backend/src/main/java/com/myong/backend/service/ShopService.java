@@ -52,11 +52,11 @@ public class ShopService {
     public String shopSignUp(ShopSignUpRequestDto request) {
             Shop shop = new Shop( // 가게 생성
                     request.getName(),
-                    request.getAddress(),
+                    request.getPassword(),
                     request.getEmail(),
+                    request.getAddress(),
                     request.getTel(),
                     request.getBizId(),
-                    request.getPassword(),
                     request.getPost()
             );
             shopRepository.save(shop); // 가게 저장
@@ -177,5 +177,25 @@ public class ShopService {
         eventRepository.save(event); // 이벤트 저장
 
         return "성공적으로 이벤트가 등록되었습니다."; // 로직 수행결과 반환
+    }
+
+    /**
+     * 사업자 프로필 정보 조회
+     * @param request
+     * @return
+     */ 
+    public ShopProfileResponseDto getProfile(ShopEmailRequestDto request) {
+        return shopRepository.findProfileByEmail(request.getEmail());// 이메일로 가게 찾기
+    }
+
+    /**
+     * 사업자 프로필 정보 수정
+     * @param request
+     * @return
+     */
+    public String updateProflie(ShopProfileRequestDto request) {
+        Shop shop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
+        return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
 }
