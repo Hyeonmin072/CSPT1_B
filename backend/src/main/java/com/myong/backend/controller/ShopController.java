@@ -91,8 +91,24 @@ public class ShopController {
     /**
      * 이벤트 등록
      */
-    @PostMapping("/addEvent")
+    @PostMapping("/addevent")
     public ResponseEntity<String> addEvent(@Valid @RequestBody EventRegisterRequestDto request) {
         return ResponseEntity.ok(shopService.addEvent(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    }
+
+    /**
+     * 사업자 프로필 조회
+     */
+    @GetMapping("/profile")
+    public ResponseEntity<ShopProfileResponseDto> getProfile(@Valid @RequestBody ShopEmailRequestDto request) {
+        return ResponseEntity.ok(shopService.getProfile(request)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
+    }
+
+    /**
+     * 사업자 프로필 수정
+     */
+    @PostMapping("/profile")
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request) {
+        return ResponseEntity.ok(shopService.updateProflie(request)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
     }
 }

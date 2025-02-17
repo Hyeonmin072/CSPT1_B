@@ -1,5 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
+import com.myong.backend.domain.dto.shop.ShopProfileRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.usershop.UserShop;
@@ -9,7 +10,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalTime;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -68,8 +73,8 @@ public class Shop {
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<ShopHoliday> holidays = new ArrayList<>(); // 휴무일(LocalDate)
 
-    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
-    private List<ShopRegularHoliday> regularHolidays = new ArrayList<>(); // 정기 휴무일(DayOfWeek)
+    @Column(name = "s_regular_holiday")
+    private String regularHoliday; // 정기 휴무일
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
@@ -103,5 +108,36 @@ public class Shop {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-    
+
+    public void updateProfile(ShopProfileRequestDto request) {
+        if (!request.getName().equals(this.name)) { // 이름
+            this.name = request.getName();
+        }
+        if (!request.getAddress().equals(this.address)) { // 주소
+            this.address = request.getAddress();
+        }
+        if (!request.getPost().equals(this.post)) { // 우편번호
+            this.post = request.getPost();
+        }
+        if (!request.getTel().equals(this.tel)) { // 전화번호
+            this.tel = request.getTel();
+        }
+        if (request.getNewPwd().equals(request.getNewPwdConfirm()) && !request.getNewPwd().isBlank()) { // 비밀번호
+            this.pwd = request.getNewPwd();
+        }
+        if (!request.getDesc().equals(this.desc)) { // 설명
+            this.desc = request.getDesc();
+        }
+        if (!request.getOpen().equals(this.openTime)) { // 오픈시간
+            if (request.getOpen().isBlank()) this.openTime = null;
+            else this.openTime = LocalTime.parse(request.getOpen(), DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        if (!request.getClose().equals(this.closeTime)) { // 마감시간
+            if (request.getClose().isBlank()) this.closeTime = null;
+            else this.closeTime =  LocalTime.parse(request.getClose(), DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        if (!request.getRegularHoliday().equals(this.regularHoliday)) { // 정기 휴무일
+            this.regularHoliday = request.getRegularHoliday();
+        }
+    }
 }
