@@ -56,4 +56,52 @@ public class DesignerController {
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(designerService.checkNicknameDuplication(nickname));
     }
+
+
+    private final EmailSendService emailSendService;
+
+    //Send Email: 이메일 전송 버튼 클릭시
+    @PostMapping("/sendemail")
+    public Map<String, String> mailSend(
+            @RequestBody EmailRequestDto emailRequestDto
+    ){
+        String code = emailSendService.joinEmail(emailRequestDto.getEmail());
+        //response를 Json으로 변환
+        Map<String, String> response = new HashMap<>();
+        response.put("code", code);
+
+        return response;
+    }
+
+    //이메일 인증
+
+    @PostMapping("/verifyemail")
+    public String authCheck(@RequestBody @Valid EmailCheckDto emailCheckDto){
+        Boolean checked = emailSendService.checkAuthNum(emailCheckDto.getEmail(), emailCheckDto.getAuthNum());
+        if(checked){
+            return "이메일 인증 성공!!";
+        }else {
+            throw new NullPointerException("이메일 인증 실패");
+        }
+    }
+
+    //디자이너 프로필 불러오기
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<Designer> profile(@PathVariable String email){
+        Designer designer = designerService.getProfile(email);
+        return ResponseEntity.ok(designer);
+    }
+
+    //디자이너 프로필 수정
+    @PostMapping("/profile/update/{email}")
+    public ResponseEntity<Designer> updateProfile(
+            @PathVariable String email,
+            @Valid @RequestBody UpdateProfileRequest request
+            ){
+            log.info("update profile: {}", request);
+
+            Designer updatedesigner = designerService.updateProfile(email, request);
+            return ResponseEntity.ok(updatedesigner);
+    }
+
 }

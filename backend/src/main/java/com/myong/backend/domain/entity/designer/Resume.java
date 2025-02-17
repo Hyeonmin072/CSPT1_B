@@ -28,7 +28,7 @@ public class Resume {
 
     //경력여부
     @Column(name = "re_exp", nullable = false)
-    private String exp;
+    private Exp exp;
 
     //포트폴리오
     @Column(name = "re_portfolio")
@@ -48,8 +48,8 @@ public class Resume {
     private List<PreviousJob> previousJobs = new ArrayList<>();
 
 
-    public Resume(String wantDay, String exp, Designer designer) {
-        this.wantDay = wantDay;
+
+    public Resume(Exp exp, Designer designer) {
         this.exp = exp;
         this.designer = designer;
     }
