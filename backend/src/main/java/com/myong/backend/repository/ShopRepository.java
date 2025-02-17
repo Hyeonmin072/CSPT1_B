@@ -7,12 +7,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, UUID> {
 
-    Shop findByEmail(String email);
+    Optional<Shop> findByEmail(String email);
 
 
     @Query("select new com.myong.backend.domain.dto.shop.ShopProfileResponseDto(s.name, s.address, s.post, s.tel, s.pwd, s.desc, s.openTime , s.closeTime, s.regularHoliday)" +

@@ -214,7 +214,7 @@ public class ShopService {
      * @return
      */
     public String updateProflie(ShopProfileRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        Shop shop = shopRepository.findByEmail(request.getEmail()).get(); // 이메일로 가게 찾기
         shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
