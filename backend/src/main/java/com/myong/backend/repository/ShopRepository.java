@@ -15,7 +15,6 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
 
     Optional<Shop> findByEmail(String email);
 
-
     @Query("select new com.myong.backend.domain.dto.shop.ShopProfileResponseDto(s.name, s.address, s.post, s.tel, s.pwd, s.desc, s.openTime , s.closeTime, s.regularHoliday)" +
             "from Shop s " +
             "where s.email = :email")

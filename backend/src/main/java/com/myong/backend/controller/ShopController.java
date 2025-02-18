@@ -4,6 +4,8 @@ import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
+import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.ShopService;
 import jakarta.validation.Valid;
@@ -110,5 +112,37 @@ public class ShopController {
     @PostMapping("/profile")
     public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request) {
         return ResponseEntity.ok(shopService.updateProflie(request)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
+    }
+
+    /**
+     * 사업자 메뉴 조회
+     */
+    @GetMapping("/getmenu")
+    public ResponseEntity<List<MenuListResponseDto>> getMenu(@Valid @RequestBody ShopEmailRequestDto request) {
+        return ResponseEntity.ok(shopService.getMenu(request)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
+    }
+
+    /**
+     * 사업자 메뉴 추가
+     */
+    @PostMapping("/addmenu")
+    public ResponseEntity<String> addMenu(@Valid @RequestBody ShopMenuEditDto request) {
+        return ResponseEntity.ok(shopService.addMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 수정
+     */
+    @PostMapping("/updatemenu")
+    public ResponseEntity<String> updateMenu(@Valid @RequestBody ShopMenuEditDto request) {
+        return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 삭제
+     */
+    @PostMapping("/deleteMenu")
+    public ResponseEntity<String> deleteMenu(@Valid @RequestBody ShopMenuEditDto request) {
+        return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 }

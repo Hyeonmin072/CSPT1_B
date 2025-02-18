@@ -4,16 +4,19 @@ import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
+import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Event;
+import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
-import com.myong.backend.repository.CouponRepository;
-import com.myong.backend.repository.EventRepository;
-import com.myong.backend.repository.ShopRepository;
+import com.myong.backend.repository.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
@@ -44,6 +47,8 @@ public class ShopService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final CouponRepository couponRepository;
     private final EventRepository eventRepository;
+    private final MenuRepository menuRepository;
+    private final DesignerRepository designerRepository;
 
 
     /**
@@ -217,5 +222,91 @@ public class ShopService {
         Shop shop = shopRepository.findByEmail(request.getEmail()).get(); // 이메일로 가게 찾기
         shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
         return "프로필이 수정되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 조회
+     * @param request
+     * @return
+     */
+    public List<MenuListResponseDto> getMenu(@Valid ShopEmailRequestDto request) {
+        return menuRepository.findMenuByShopEmail(request.getEmail()); // 이메일로 가게의 메뉴 찾기
+    }
+    
+    /**
+     * 사업자 메뉴 추가
+     * @param request
+     * @return
+     */
+    public String addMenu(@Valid ShopMenuEditDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShop()).get(); // 가게 찾기
+        Designer designer = designerRepository.findByEmail(request.getDesigner()).get(); // 디자이너 찾기
+        Menu menu = null; // 메뉴 값
+        if(request.getPrice() == null && request.getEstimatedTime().isBlank()) { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+            menu = new Menu(
+                    request.getName(),
+                    request.getDesc(),
+                    request.getCommon(),
+                    shop,
+                    designer
+            );
+        } else if (request.getPrice() == null) { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+            menu = new Menu(
+                    request.getName(),
+                    request.getDesc(),
+                    request.getCommon(),
+                    shop,
+                    designer,
+                    request.getEstimatedTime()
+            );
+        } else if (request.getEstimatedTime().isBlank()) { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+            menu = new Menu(
+                    request.getName(),
+                    request.getDesc(),
+                    request.getCommon(),
+                    shop,
+                    designer,
+                    request.getPrice()
+            );
+        } else { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+            menu = new Menu(
+                    request.getName(),
+                    request.getDesc(),
+                    request.getCommon(),
+                    shop,
+                    designer,
+                    request.getPrice(),
+                    request.getEstimatedTime()
+            );
+        }
+
+        menuRepository.save(menu); // 메뉴 저장
+        return "성공적으로 메뉴가 등록되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 수정
+     * @param request
+     * @return
+     */
+    public String updateMenu(@Valid ShopMenuEditDto request) { 
+        Shop shop = shopRepository.findByEmail(request.getShop()).get(); // 가게 찾기
+        Designer designer = designerRepository.findByEmail(request.getDesigner()).get(); // 디자이너 찾기
+
+        Menu menu = menuRepository.findByName(request.getName()); // 메뉴 이름으로 찾기
+        menu.edit(request); // 편의 메서드로 메뉴 정보 수정
+
+        return "성공적으로 메뉴가 수정되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 삭제
+     * @param request
+     * @return
+     */
+    public String deleteMenu(@Valid ShopMenuEditDto request) {
+        Menu menu = menuRepository.findByName(request.getName()); // 메뉴 이름으로 찾기
+        menuRepository.delete(menu); // 메뉴 삭제
+        return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
 }
