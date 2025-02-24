@@ -239,10 +239,10 @@ public class ShopService {
      * @return
      */
     public String addMenu(@Valid ShopMenuEditDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShop()).get(); // 가게 찾기
-        Designer designer = designerRepository.findByEmail(request.getDesigner()).get(); // 디자이너 찾기
+        Shop shop = shopRepository.findByEmail(request.getShopEmail()).get(); // 가게 찾기
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail()).get(); // 디자이너 찾기
         Menu menu = null; // 메뉴 값
-        if(request.getPrice() == null && request.getEstimatedTime().isBlank()) { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+        if(request.getPrice() == null && request.getEstimatedTime().isBlank()) { // request에 가격과 소요시간 모두 비어있을 경우
             menu = new Menu(
                     request.getName(),
                     request.getDesc(),
@@ -250,7 +250,7 @@ public class ShopService {
                     shop,
                     designer
             );
-        } else if (request.getPrice() == null) { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+        } else if (request.getPrice() == null) { // request에 가격만 비어있을 경우
             menu = new Menu(
                     request.getName(),
                     request.getDesc(),
@@ -259,7 +259,7 @@ public class ShopService {
                     designer,
                     request.getEstimatedTime()
             );
-        } else if (request.getEstimatedTime().isBlank()) { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+        } else if (request.getEstimatedTime().isBlank()) { // request에 소요시간만 비어있을 경우
             menu = new Menu(
                     request.getName(),
                     request.getDesc(),
@@ -268,7 +268,7 @@ public class ShopService {
                     designer,
                     request.getPrice()
             );
-        } else { // request에 들어온 값에 따라 다른 생성자를 통해 값 주입
+        } else { // request에 가겨과 소요시간 모두 존재할 경우
             menu = new Menu(
                     request.getName(),
                     request.getDesc(),
@@ -290,8 +290,8 @@ public class ShopService {
      * @return
      */
     public String updateMenu(@Valid ShopMenuEditDto request) { 
-        Shop shop = shopRepository.findByEmail(request.getShop()).get(); // 가게 찾기
-        Designer designer = designerRepository.findByEmail(request.getDesigner()).get(); // 디자이너 찾기
+        Shop shop = shopRepository.findByEmail(request.getShopEmail()).get(); // 가게 찾기
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail()).get(); // 디자이너 찾기
 
         Menu menu = menuRepository.findByName(request.getName()); // 메뉴 이름으로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정

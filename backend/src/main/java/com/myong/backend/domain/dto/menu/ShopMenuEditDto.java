@@ -7,10 +7,10 @@ import lombok.Value;
 public class ShopMenuEditDto {
 
     @NotBlank
-    String shop;
+    String shopEmail;
 
     @NotBlank
-    String designer;
+    String designerEmail;
 
     @NotBlank
     String name;
@@ -23,5 +23,5 @@ public class ShopMenuEditDto {
     String estimatedTime;
 
     @NotBlank
-    String common;
+    String common; // yes or no
 }

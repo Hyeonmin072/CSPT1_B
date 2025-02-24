@@ -12,5 +12,5 @@ public class MenuListResponseDto {
     String designerName;
 
     @NotBlank
-    Long price;
+    Integer price;
 }

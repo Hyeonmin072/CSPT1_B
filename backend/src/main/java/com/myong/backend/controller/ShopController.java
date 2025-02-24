@@ -123,7 +123,7 @@ public class ShopController {
     }
 
     /**
-     * 사업자 메뉴 추가
+     * 사업자 메뉴 등록
      */
     @PostMapping("/addmenu")
     public ResponseEntity<String> addMenu(@Valid @RequestBody ShopMenuEditDto request) {
@@ -141,7 +141,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 삭제
      */
-    @PostMapping("/deleteMenu")
+    @PostMapping("/deletemenu")
     public ResponseEntity<String> deleteMenu(@Valid @RequestBody ShopMenuEditDto request) {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
