@@ -1,7 +1,9 @@
 package com.myong.backend.domain.entity.shop;
 
+import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.entity.Gender;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -71,10 +73,16 @@ public class JobPost {
     private List<Application> applications = new ArrayList<>(); // 이 구인글에 지원된 지원서들
 
 
-    public JobPost(String title, String content, Work work, Shop shop) {
-        this.title = title;
-        this.content = content;
+    @Builder
+    public JobPost(String file, String leaveTime, String workTime, Gender gender, String salary, Work work, String content, String title, Shop shop) {
+        this.file = file;
+        this.leaveTime = leaveTime;
+        this.workTime = workTime;
+        this.gender = gender;
+        this.salary = salary;
         this.work = work;
+        this.content = content;
+        this.title = title;
         this.shop = shop;
     }
 
@@ -92,5 +100,26 @@ public class JobPost {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public void updateJobPost(JobPostEditDto request) {
+        if (!request.getTitle().equals(this.title)) {
+            this.title = request.getTitle();  // title이 다르면 업데이트
+        }
+        if (!request.getGender().equals(this.gender.toString())) {
+            this.gender = Gender.valueOf(request.getGender());  // gender가 다르면 업데이트
+        }
+        if (!request.getWork().equals(this.work.toString())) {
+            this.work = Work.valueOf(request.getWork());  // work가 다르면 업데이트
+        }
+        if (!request.getWorkTime().equals(this.workTime)) {
+            this.workTime = request.getWorkTime();  // workTime이 다르면 업데이트
+        }
+        if (!request.getLeaveTime().equals(this.leaveTime)) {
+            this.leaveTime = request.getLeaveTime();  // leaveTime이 다르면 업데이트
+        }
+        if (!request.getContent().equals(this.content)) {
+            this.content = request.getContent();  // content가 다르면 업데이트
+        }
     }
 }

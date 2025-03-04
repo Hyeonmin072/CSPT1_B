@@ -4,14 +4,15 @@ import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
+import com.myong.backend.domain.dto.job.JobPostEditDto;
+import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
-import com.myong.backend.domain.entity.shop.Event;
-import com.myong.backend.domain.entity.shop.Menu;
-import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
@@ -27,17 +28,13 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -56,6 +53,7 @@ public class ShopService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final ReviewRepository reviewRepository;
+    private final JobPostRepository jobPostRepository;
 
 
     /**
@@ -371,4 +369,72 @@ public class ShopService {
         return "리뷰가 성공적으로 등록되었습니다.";
     }
 
+    /**
+     * 사업자 구인글 목록 조회
+     * @param request
+     * @return
+     */
+    public List<JobPostListResponseDto> getJobPosts(ShopEmailRequestDto request) {
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+        if(!findShop.isPresent()){
+            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
+        }
+        Shop shop = findShop.get();
+        List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
+
+        List<JobPostListResponseDto> response = new ArrayList<>(); // 구인글 목록 dto 생성
+        for (JobPost jobPost : jobPosts) { // 구인글 목록 dto에 구인글 목록 담기
+            JobPostListResponseDto jobPostListResponseDto = new JobPostListResponseDto(
+                    jobPost.getShop().getName(),
+                    jobPost.getTitle(),
+                    jobPost.getSalary(),
+                    jobPost.getGender().toString(),
+                    jobPost.getWork().toString(),
+                    jobPost.getWorkTime(),
+                    jobPost.getLeaveTime()
+            );
+            response.add(jobPostListResponseDto); // 구인글 목록 dto 반환
+        }
+        return response;
+    }
+
+    /**
+     * 사업자 구인글 등록
+     * @param request
+     * @return
+     */
+    public String addJobPost(JobPostEditDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 가게 찾기
+        JobPost jobPost = JobPost.builder() //빌더를 통해 가게 생성
+                .shop(shop)
+                .title(request.getTitle())
+                .gender(Gender.valueOf(request.getGender()))
+                .work(Work.valueOf(request.getWork()))
+                .workTime(request.getWorkTime())
+                .leaveTime(request.getLeaveTime())
+                .content(request.getContent())
+                .build();
+
+        jobPostRepository.save(jobPost); // 가게를 영속성 컨텍스트에 저장
+        return "성공적으로 구인글이 등록되었습니다."; // 성공 구문 반환
+    }
+
+    public String updateJobPost(JobPostEditDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 가게 찾기
+        JobPost jobPost = jobPostRepository.findByTitleAndShop(request.getTitle(), shop)
+                .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 제목과 가게로 구인글 찾기
+        jobPost.updateJobPost(request); // 구인글 수정 편의 메서드를 통해 수정
+        return "성공적으로 구인글이 수정되었습니다."; // 성공 구문 반환
+    }
+
+    public String deleteJobPost(JobPostEditDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 가게 찾기
+        JobPost jobPost = jobPostRepository.findByTitleAndShop(request.getTitle(), shop)
+                .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 제목과 가게로 구인글 찾기
+        jobPostRepository.delete(jobPost); // 구인글 삭제
+        return "성공적으로 구인글이 마감되었습니다."; // 성공 구문 반환
+    }
 }

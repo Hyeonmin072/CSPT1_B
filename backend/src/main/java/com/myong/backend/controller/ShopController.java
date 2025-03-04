@@ -4,6 +4,8 @@ import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
+import com.myong.backend.domain.dto.job.JobPostEditDto;
+import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
@@ -13,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -146,8 +150,43 @@ public class ShopController {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
+    /**
+     * 사업자 리뷰 등록
+     */
     @PostMapping("/registerReview")
     public ResponseEntity<String> registerReview(@RequestBody ShopRegisterReviewRequestDto request){
         return ResponseEntity.ok(shopService.registerReview(request));
+    }
+
+    /**
+     * 사업자 구인글 목록 조회
+     */
+    @GetMapping("/getjobposts")
+    public ResponseEntity<List<JobPostListResponseDto>> getJobPosts(@Validated @RequestBody ShopEmailRequestDto request) {
+        return ResponseEntity.ok(shopService.getJobPosts(request));
+    }
+    
+    /**
+     * 사업자 구인글 등록
+     */
+    @PostMapping("/addjobpost")
+    public ResponseEntity<String> addJobPost(@Validated @RequestBody JobPostEditDto request) {
+        return ResponseEntity.ok(shopService.addJobPost(request));
+    }
+
+    /**
+     * 사업자 구인글 수정
+     */
+    @PostMapping("/updatejobpost")
+    public ResponseEntity<String> updateJobPost(@Validated @RequestBody JobPostEditDto request) {
+        return ResponseEntity.ok(shopService.updateJobPost(request));
+    }
+
+    /**
+     * 사업자 구인글 마감
+     */
+    @PostMapping("/deletejobpost")
+    public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostEditDto request) {
+        return ResponseEntity.ok(shopService.deleteJobPost(request));
     }
 }
