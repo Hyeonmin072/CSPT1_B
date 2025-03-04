@@ -3,6 +3,7 @@ package com.myong.backend.domain.entity.shop;
 import com.myong.backend.domain.dto.shop.ShopProfileRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.Coupon;
+import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -38,7 +39,13 @@ public class Shop {
     private String tel; // 연락처
 
     @Column(name = "s_rating", nullable = false)
-    private Double rating = 0.0; // 평점 총 합계
+    private Double rating = 0.0; // 총 평점
+
+    @Column(name = "s_total_rating")
+    private Double totalRating = 0.0;   // 리뷰 평점 합계
+
+    @Column(name = "s_review_count")
+    private Integer reviewCount = 0;   // 리뷰 개수
 
     @Column(name = "s_desc")
     private String desc; // 소개
@@ -63,6 +70,9 @@ public class Shop {
 
     @Column(name = "s_post", nullable = false)
     private Integer post; // 우편번호
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>(); // 가게에 대한 리뷰들
 
     @OneToMany(mappedBy = "shop", cascade =  CascadeType.ALL)
     private List<Designer> designers = new ArrayList<>(); // 소속 디자이너들
@@ -91,6 +101,9 @@ public class Shop {
         this.bizId = bizId;
         this.pwd = pwd;
         this.post = post;
+    }
+    public void updateRating(Double rating){
+        this.rating=rating;
     }
 
     @Override
