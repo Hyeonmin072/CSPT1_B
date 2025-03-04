@@ -4,6 +4,8 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.dto.user.UserHomePageRequestDto;
+import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.UserService;
@@ -73,5 +75,10 @@ public class UserController {
         return userService.Signout(request);
     }
 
+//    @PostMapping("/homepage")
+//    public ResponseEntity<UserHomePageResponseDto> LoadHomePage(@RequestBody
+//                                                                UserHomePageRequestDto request){
+//        userService
+//    }
 
 }

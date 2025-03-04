@@ -7,12 +7,15 @@ import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Event;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
+import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
 import com.myong.backend.repository.*;
@@ -24,6 +27,7 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +53,9 @@ public class ShopService {
     private final EventRepository eventRepository;
     private final MenuRepository menuRepository;
     private final DesignerRepository designerRepository;
+    private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
 
 
     /**
@@ -309,4 +316,59 @@ public class ShopService {
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
+
+
+    public String registerReview(ShopRegisterReviewRequestDto request){
+
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmaill());
+        Optional<User> findUser = userRepository.findByEmail(request.getUserEmail());
+        Optional<Designer> findDesigner = designerRepository.findByEmail(request.getDesignerEmail());
+        Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
+
+        if(!findShop.isPresent()){
+            throw new NoSuchElementException("해당 가게를 찾지 못했습니다.");
+        }
+        if(!findUser.isPresent()){
+            throw new NoSuchElementException("해당 유저를 찾지 못했습니다.");
+        }
+        if(!findDesigner.isPresent()){
+            throw new NoSuchElementException("해당 디자이너를 찾지 못했습니다.");
+        }
+        if(!findReservation.isPresent()){
+            throw new NoSuchElementException("해당 예약을 찾지 못했습니다.");
+        }
+
+        Shop shop = findShop.get();
+        User user = findUser.get();
+        Designer designer = findDesigner.get();
+        Reservation reservation = findReservation.get();
+
+        Review review = new Review(
+                request.getReviewContent(),
+                request.getReviewRating(),
+                request.getReviewImg(),
+                reservation,
+                shop,
+                designer,
+                user
+        );
+
+        reviewRepository.save(review);
+
+        //리뷰 등록시 해당 가게 평점 등록
+        double TotalShopRating = shop.getTotalRating()+ request.getReviewRating();
+        int ShopReviewCount = shop.getReviewCount()+1;
+        double shopRating = TotalShopRating/ShopReviewCount;
+        shop.updateRating(shopRating);
+        shopRepository.save(shop);
+
+        double TotalDesignerRating = designer.getTotalRating() + request.getReviewRating();
+        int DesignerReviewCount = designer.getReviewCount()+1;
+        double desingerRating = TotalDesignerRating/DesignerReviewCount;
+        designer.updateRating(desingerRating);
+        designerRepository.save(designer);
+
+        return "리뷰가 성공적으로 등록되었습니다.";
+    }
+
 }
