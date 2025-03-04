@@ -1,6 +1,7 @@
 package com.myong.backend.service;
 
 
+import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.user.User;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -89,5 +91,14 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public UserHomePageResponseDto LoadHomePage(String email){
+        Optional<User> findUser = userRepository.findByEmail(email);
+        if(!findUser.isPresent()){
+            throw new NoSuchElementException("해당 유저가 존재하지않습니다");
+        }
+        User user = findUser.get();
+
+        user.getLocation();
+    }
 
 }
