@@ -2,6 +2,7 @@ package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.entity.user.DiscountType;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -20,12 +21,12 @@ public class Event {
     private UUID id = UUID.randomUUID(); // 이벤트 고유 키
     
     @Column(name = "e_name")
-    private String name; // 이벤트 이름
+    private String name = ""; // 이벤트 이름
 
     @Column(name = "e_discount")
-    private Long amount; // 이벤트 할인 금액 
+    private Long amount = 0L; // 이벤트 할인 금액
     
-    @Column(name = "e_type")
+    @Column(name = "e_type", nullable = false)
     private DiscountType type; // 이벤트 할인 타입
     
     @Column(name = "e_start_date")
@@ -38,6 +39,7 @@ public class Event {
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
 
+    @Builder
     public Event(String name, Long amount, DiscountType type, LocalDate startDate, LocalDate endDate, Shop shop) {
         this.name = name;
         this.amount = amount;

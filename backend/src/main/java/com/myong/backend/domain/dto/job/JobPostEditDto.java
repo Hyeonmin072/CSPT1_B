@@ -14,9 +14,12 @@ public class JobPostEditDto implements Serializable {
     String shopEmail;
 
     @NotBlank
+    String id;
+
+    @NotBlank
     String title;
 
-    String salary;
+    String salary = "";
 
     @NotBlank
     String gender;
@@ -24,8 +27,8 @@ public class JobPostEditDto implements Serializable {
     @NotBlank
     String work;
 
-    String workTime;
-    String leaveTime;
+    String workTime = "";
+    String leaveTime = "";
 
     @NotBlank
     String content;

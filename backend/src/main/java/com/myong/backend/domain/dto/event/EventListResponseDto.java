@@ -1,14 +1,15 @@
 package com.myong.backend.domain.dto.event;
 
-import com.myong.backend.domain.entity.user.DiscountType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 
 @Value
 public class EventListResponseDto implements Serializable {
+
+    @NotBlank
+    String id;
 
     @NotBlank
     String name;
@@ -17,11 +18,11 @@ public class EventListResponseDto implements Serializable {
     Long amount;
 
     @NotBlank
-    DiscountType type;
+    String type;
 
     @NotBlank
-    LocalDate startDate;
+    String startDate;
 
     @NotBlank
-    LocalDate endDate;
+    String endDate;
 }

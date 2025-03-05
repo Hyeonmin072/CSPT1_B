@@ -7,7 +7,7 @@ import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
-import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
+import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.business.Reservation;
@@ -135,13 +135,23 @@ public class ShopService {
      * @return
      */
     public List<CouponListResponseDto> getCoupons(ShopEmailRequestDto request) {
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
-        if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
-        }
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 이메일로 가게 찾기
 
-        Shop shop = findShop.get();
-        return couponRepository.findByShop(shop.getId()); // // 가게의 고유 키를 통해 가져온 쿠폰 목록 반환
+        List<Coupon> coupons = couponRepository.findByShop(shop);// 가게를 통해 가져온 쿠폰들 반환
+        List<CouponListResponseDto> response = new ArrayList<>(); // 쿠폰 목록 리스트 생성
+        for (Coupon coupon : coupons) { // 쿠폰 목록에 쿠폰 담기
+            CouponListResponseDto couponListResponseDto = new CouponListResponseDto(
+                    coupon.getId().toString(),
+                    coupon.getName(),
+                    coupon.getType().toString(),
+                    coupon.getAmount(),
+                    coupon.getGetDate(),
+                    coupon.getUseDate()
+            );
+            response.add(couponListResponseDto);
+        }
+        return response; // 쿠폰 목록 반환
     }
 
     /**
@@ -175,12 +185,23 @@ public class ShopService {
      * @return
      */
     public List<EventListResponseDto> getEvents(ShopEmailRequestDto request) {
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
-        if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 이메일로 가게 찾기
+
+        List<Event> events = eventRepository.findByShop(shop);// 가게를 통해 가져온 이벤트들 반환
+        List<EventListResponseDto> response = new ArrayList<>(); // 이벤트 목록 리스트 생성
+        for (Event event : events) { // 이벤트 목록에 이벤트 담기
+            EventListResponseDto eventListResponseDto = new EventListResponseDto(
+                    event.getId().toString(),
+                    event.getName(),
+                    event.getAmount(),
+                    event.getType().toString(),
+                    event.getStartDate().toString(),
+                    event.getEndDate().toString()
+            );
+            response.add(eventListResponseDto);
         }
-        Shop shop = findShop.get();
-        return eventRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 이벤트 목록 반환
+        return response; // 이벤트 목록 반환
     }
 
     /**
@@ -189,11 +210,8 @@ public class ShopService {
      * @return
      */
     public String addEvent(EventRegisterRequestDto request) {
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail());// 이메일로 가게 찾기
-        if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지못했습니다.");
-        }
-        Shop shop = findShop.get();
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다."));// 이메일로 가게 찾기
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         Event event = new Event( // 이벤트 생성
@@ -215,7 +233,20 @@ public class ShopService {
      * @return
      */ 
     public ShopProfileResponseDto getProfile(ShopEmailRequestDto request) {
-        return shopRepository.findProfileByEmail(request.getEmail());// 이메일로 가게 찾기
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 이메일로 가게 찾기
+        return new ShopProfileResponseDto(
+                shop.getId().toString(),
+                shop.getName(),
+                shop.getAddress(),
+                shop.getPost(),
+                shop.getTel(),
+                shop.getPwd(),
+                shop.getDesc(),
+                shop.getOpenTime().toString(),
+                shop.getCloseTime().toString(),
+                shop.getRegularHoliday()
+        );
     }
 
     /**
@@ -224,7 +255,8 @@ public class ShopService {
      * @return
      */
     public String updateProflie(ShopProfileRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getEmail()).get(); // 이메일로 가게 찾기
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 이메일로 가게 찾기
         shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
@@ -235,7 +267,20 @@ public class ShopService {
      * @return
      */
     public List<MenuListResponseDto> getMenu(@Valid ShopEmailRequestDto request) {
-        return menuRepository.findMenuByShopEmail(request.getEmail()); // 이메일로 가게의 메뉴 찾기
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() ->  new NoSuchElementException("가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
+        List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
+        List<MenuListResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
+        for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
+            MenuListResponseDto menuListResponseDto = new MenuListResponseDto(
+                    menu.getId().toString(),
+                    menu.getName(),
+                    menu.getDesigner().getName(),
+                    menu.getPrice()
+            );
+            response.add(menuListResponseDto); 
+        }
+        return response; // 메뉴 목록 반환
     }
     
     /**
@@ -243,49 +288,22 @@ public class ShopService {
      * @param request
      * @return
      */
-    public String addMenu(@Valid ShopMenuEditDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShopEmail()).get(); // 가게 찾기
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail()).get(); // 디자이너 찾기
-        Menu menu = null; // 메뉴 값
-        if(request.getPrice() == null && request.getEstimatedTime().isBlank()) { // request에 가격과 소요시간 모두 비어있을 경우
-            menu = new Menu(
-                    request.getName(),
-                    request.getDesc(),
-                    request.getCommon(),
-                    shop,
-                    designer
-            );
-        } else if (request.getPrice() == null) { // request에 가격만 비어있을 경우
-            menu = new Menu(
-                    request.getName(),
-                    request.getDesc(),
-                    request.getCommon(),
-                    shop,
-                    designer,
-                    request.getEstimatedTime()
-            );
-        } else if (request.getEstimatedTime().isBlank()) { // request에 소요시간만 비어있을 경우
-            menu = new Menu(
-                    request.getName(),
-                    request.getDesc(),
-                    request.getCommon(),
-                    shop,
-                    designer,
-                    request.getPrice()
-            );
-        } else { // request에 가겨과 소요시간 모두 존재할 경우
-            menu = new Menu(
-                    request.getName(),
-                    request.getDesc(),
-                    request.getCommon(),
-                    shop,
-                    designer,
-                    request.getPrice(),
-                    request.getEstimatedTime()
-            );
-        }
+    public String addMenu(@Valid MenuEditDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() ->  new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 이메일로 디자이너 찾기
+        Menu menu = Menu.builder() // 메뉴 엔티티 개체 생성
+                .name(request.getName())
+                .desc(request.getDesc())
+                .price(request.getPrice())
+                .estimatedTime(request.getEstimatedTime())
+                .common(request.getCommon())
+                .shop(shop)
+                .designer(designer)
+                .build();
 
-        menuRepository.save(menu); // 메뉴 저장
+        menuRepository.save(menu); // 메뉴를 영속성 컨텍스트에 저장
         return "성공적으로 메뉴가 등록되었습니다."; // 성공 구문 반환
     }
 
@@ -294,11 +312,9 @@ public class ShopService {
      * @param request
      * @return
      */
-    public String updateMenu(@Valid ShopMenuEditDto request) { 
-        Shop shop = shopRepository.findByEmail(request.getShopEmail()).get(); // 가게 찾기
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail()).get(); // 디자이너 찾기
-
-        Menu menu = menuRepository.findByName(request.getName()); // 메뉴 이름으로 찾기
+    public String updateMenu(@Valid MenuEditDto request) {
+        Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
+                .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정
 
         return "성공적으로 메뉴가 수정되었습니다."; // 성공 구문 반환
@@ -309,8 +325,9 @@ public class ShopService {
      * @param request
      * @return
      */
-    public String deleteMenu(@Valid ShopMenuEditDto request) {
-        Menu menu = menuRepository.findByName(request.getName()); // 메뉴 이름으로 찾기
+    public String deleteMenu(@Valid MenuEditDto request) {
+        Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
+                .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
@@ -375,23 +392,22 @@ public class ShopService {
      * @return
      */
     public List<JobPostListResponseDto> getJobPosts(ShopEmailRequestDto request) {
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
-        if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지못했습니다");
-        }
-        Shop shop = findShop.get();
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 이메일로 가게 찾기
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
 
-        List<JobPostListResponseDto> response = new ArrayList<>(); // 구인글 목록 dto 생성
-        for (JobPost jobPost : jobPosts) { // 구인글 목록 dto에 구인글 목록 담기
+        List<JobPostListResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
+        for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
             JobPostListResponseDto jobPostListResponseDto = new JobPostListResponseDto(
                     jobPost.getShop().getName(),
+                    jobPost.getId().toString(),
                     jobPost.getTitle(),
                     jobPost.getSalary(),
                     jobPost.getGender().toString(),
                     jobPost.getWork().toString(),
                     jobPost.getWorkTime(),
-                    jobPost.getLeaveTime()
+                    jobPost.getLeaveTime(),
+                    jobPost.getContent()
             );
             response.add(jobPostListResponseDto); // 구인글 목록 dto 반환
         }
@@ -405,8 +421,8 @@ public class ShopService {
      */
     public String addJobPost(JobPostEditDto request) {
         Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 가게 찾기
-        JobPost jobPost = JobPost.builder() //빌더를 통해 가게 생성
+                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 구인글이 등록될 가게 찾기
+        JobPost jobPost = JobPost.builder() //빌더를 통해 구인글 생성
                 .shop(shop)
                 .title(request.getTitle())
                 .gender(Gender.valueOf(request.getGender()))
@@ -414,26 +430,33 @@ public class ShopService {
                 .workTime(request.getWorkTime())
                 .leaveTime(request.getLeaveTime())
                 .content(request.getContent())
+                .salary(request.getSalary())
                 .build();
 
-        jobPostRepository.save(jobPost); // 가게를 영속성 컨텍스트에 저장
+        jobPostRepository.save(jobPost); // 구인글 개체를 영속성 컨텍스트에 저장
         return "성공적으로 구인글이 등록되었습니다."; // 성공 구문 반환
     }
 
-    public String updateJobPost(JobPostEditDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 가게 찾기
-        JobPost jobPost = jobPostRepository.findByTitleAndShop(request.getTitle(), shop)
-                .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 제목과 가게로 구인글 찾기
+    /**
+     * 사업자 구인글 수정
+     * @param request
+     * @return
+     */
+    public String updateJobPost(JobPostEditDto request) {// 가게 찾기
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
+                .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPost.updateJobPost(request); // 구인글 수정 편의 메서드를 통해 수정
         return "성공적으로 구인글이 수정되었습니다."; // 성공 구문 반환
     }
 
+    /**
+     * 사업자 구인글 삭제
+     * @param request
+     * @return
+     */
     public String deleteJobPost(JobPostEditDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 가게 찾기
-        JobPost jobPost = jobPostRepository.findByTitleAndShop(request.getTitle(), shop)
-                .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 제목과 가게로 구인글 찾기
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
+                .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPostRepository.delete(jobPost); // 구인글 삭제
         return "성공적으로 구인글이 마감되었습니다."; // 성공 구문 반환
     }

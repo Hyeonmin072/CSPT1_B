@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
 @Value
-public class ShopMenuEditDto {
+public class MenuEditDto {
 
     @NotBlank
     String shopEmail;
@@ -13,14 +13,17 @@ public class ShopMenuEditDto {
     String designerEmail;
 
     @NotBlank
+    String id;
+
+    @NotBlank
     String name;
 
     @NotBlank
     String desc;
 
-    Integer price;
+    Integer price = 0;
 
-    String estimatedTime;
+    String estimatedTime = "";
 
     @NotBlank
     String common; // yes or no

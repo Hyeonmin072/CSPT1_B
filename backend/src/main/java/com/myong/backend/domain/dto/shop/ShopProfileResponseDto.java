@@ -3,10 +3,12 @@ package com.myong.backend.domain.dto.shop;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
-import java.time.LocalTime;
-
 @Value
 public class ShopProfileResponseDto {
+
+    @NotBlank
+    String id;
+
     @NotBlank
     String name;
 
@@ -24,9 +26,9 @@ public class ShopProfileResponseDto {
 
     String desc;
 
-    LocalTime open;
+    String open;
 
-    LocalTime close;
+    String close;
 
     String regularHoliday;
 }

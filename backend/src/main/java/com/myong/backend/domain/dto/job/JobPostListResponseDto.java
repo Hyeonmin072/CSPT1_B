@@ -14,6 +14,9 @@ public class JobPostListResponseDto implements Serializable {
     String shopName;
 
     @NotBlank
+    String id;
+
+    @NotBlank
     String title;
 
     String salary;
@@ -26,4 +29,7 @@ public class JobPostListResponseDto implements Serializable {
 
     String workTime;
     String leaveTime;
+
+    @NotBlank
+    String content;
 }

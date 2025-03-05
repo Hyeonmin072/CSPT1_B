@@ -7,7 +7,7 @@ import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
-import com.myong.backend.domain.dto.menu.ShopMenuEditDto;
+import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.ShopService;
 import jakarta.validation.Valid;
@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -130,7 +129,7 @@ public class ShopController {
      * 사업자 메뉴 등록
      */
     @PostMapping("/addmenu")
-    public ResponseEntity<String> addMenu(@Valid @RequestBody ShopMenuEditDto request) {
+    public ResponseEntity<String> addMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.addMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
@@ -138,15 +137,15 @@ public class ShopController {
      * 사업자 메뉴 수정
      */
     @PostMapping("/updatemenu")
-    public ResponseEntity<String> updateMenu(@Valid @RequestBody ShopMenuEditDto request) {
+    public ResponseEntity<String> updateMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
-     * 사업자 메뉴 삭제
+     * 사업자 메뉴 삭제f
      */
     @PostMapping("/deletemenu")
-    public ResponseEntity<String> deleteMenu(@Valid @RequestBody ShopMenuEditDto request) {
+    public ResponseEntity<String> deleteMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 

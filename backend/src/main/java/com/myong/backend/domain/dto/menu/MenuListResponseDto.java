@@ -6,6 +6,9 @@ import lombok.Value;
 @Value
 public class MenuListResponseDto {
     @NotBlank
+    String id;
+
+    @NotBlank
     String name;
 
     @NotBlank

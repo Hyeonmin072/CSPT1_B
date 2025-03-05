@@ -48,7 +48,7 @@ public class Shop {
     private Integer reviewCount = 0;   // 리뷰 개수
 
     @Column(name = "s_desc")
-    private String desc; // 소개
+    private String desc = ""; // 소개
 
     @Column(name = "s_biz_id", nullable = false)
     private String bizId; // 사업자번호
@@ -57,16 +57,16 @@ public class Shop {
     private String pwd; // 비밀번호
 
     @Column(name = "s_longitude")
-    private Double longitude; // 경도
+    private Double longitude = 0.0; // 경도
 
     @Column(name = "s_latitude")
-    private Double latitude; // 위도
+    private Double latitude = 0.0; // 위도
 
     @Column(name = "s_open_time")
-    private LocalTime openTime; // 오픈시간
+    private LocalTime openTime = LocalTime.of(0,0); // 오픈시간
 
     @Column(name = "s_close_time")
-    private LocalTime closeTime; // 마감시간
+    private LocalTime closeTime = LocalTime.of(0,0); // 마감시간
 
     @Column(name = "s_post", nullable = false)
     private Integer post; // 우편번호
@@ -84,7 +84,7 @@ public class Shop {
     private List<ShopHoliday> holidays = new ArrayList<>(); // 휴무일(LocalDate)
 
     @Column(name = "s_regular_holiday")
-    private String regularHoliday; // 정기 휴무일
+    private String regularHoliday = ""; // 정기 휴무일
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
@@ -138,18 +138,16 @@ public class Shop {
         if (request.getNewPwd().equals(request.getNewPwdConfirm()) && !request.getNewPwd().isBlank()) { // 비밀번호
             this.pwd = request.getNewPwd();
         }
-        if (!request.getDesc().equals(this.desc)) { // 설명
+        if (!request.getDesc().equals(this.desc)  && !request.getDesc().isBlank()) { // 설명
             this.desc = request.getDesc();
         }
-        if (!request.getOpen().equals(this.openTime)) { // 오픈시간
-            if (request.getOpen().isBlank()) this.openTime = null;
-            else this.openTime = LocalTime.parse(request.getOpen(), DateTimeFormatter.ofPattern("HH:mm"));
+        if (!request.getOpen().equals(this.openTime) && !request.getOpen().isBlank()) { // 오픈시간
+            this.openTime = LocalTime.parse(request.getOpen(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getClose().equals(this.closeTime)) { // 마감시간
-            if (request.getClose().isBlank()) this.closeTime = null;
-            else this.closeTime =  LocalTime.parse(request.getClose(), DateTimeFormatter.ofPattern("HH:mm"));
+        if (!request.getClose().equals(this.closeTime) && !request.getClose().isBlank()) { // 마감시간
+            this.closeTime =  LocalTime.parse(request.getClose(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getRegularHoliday().equals(this.regularHoliday)) { // 정기 휴무일
+        if (!request.getRegularHoliday().equals(this.regularHoliday) && !request.getRegularHoliday().isBlank()) { // 정기 휴무일
             this.regularHoliday = request.getRegularHoliday();
         }
     }
