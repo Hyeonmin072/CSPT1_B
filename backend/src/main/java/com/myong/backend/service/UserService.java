@@ -91,14 +91,14 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public UserHomePageResponseDto LoadHomePage(String email){
-        Optional<User> findUser = userRepository.findByEmail(email);
-        if(!findUser.isPresent()){
-            throw new NoSuchElementException("해당 유저가 존재하지않습니다");
-        }
-        User user = findUser.get();
-
-        user.getLocation();
-    }
+//    public UserHomePageResponseDto LoadHomePage(String email){
+//        Optional<User> findUser = userRepository.findByEmail(email);
+//        if(!findUser.isPresent()){
+//            throw new NoSuchElementException("해당 유저가 존재하지않습니다");
+//        }
+//        User user = findUser.get();
+//
+//        user.getLocation();
+//    }
 
 }

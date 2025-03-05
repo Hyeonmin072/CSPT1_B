@@ -55,6 +55,11 @@ public class User {
     @Column(name = "u_address", nullable = false)
     private String address; // 거주지
 
+    @Column(name = "u_longitude")
+    private String longitude;  // x : 경도
+
+    @Column(name = "u_latitude")
+    private String latitude;    // y : 위도
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들

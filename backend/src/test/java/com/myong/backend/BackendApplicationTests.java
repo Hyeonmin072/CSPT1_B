@@ -22,30 +22,30 @@ class BackendApplicationTests {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	@Test
-	void contextLoads() {
-		System.out.println("Hello World");
-		System.out.println("Hello World2");
-		System.out.println("Hello World3");
-	}
-
-	@Test
-	void insertTestUser(){
-		String name = "테스트2";
-		String email = "mild11361@naver.com";
-		String pwd = passwordEncoder.encode("aaa1234");
-		String tel = "010-1234-1234";
-		LocalDate birthDate = LocalDate.of(1999,11,27);
-		Gender gender = Gender.MALE;
-		String address = "스울";
-		Optional<User> ou = userRepository.findByEmail(email);
-
-		if(!ou.isPresent()){
-			User user = new User(name,email,pwd,tel,birthDate,gender,address);
-			userRepository.save(user);
-		}
-
-	}
+//	@Test
+//	void contextLoads() {
+//		System.out.println("Hello World");
+//		System.out.println("Hello World2");
+//		System.out.println("Hello World3");
+//	}
+//
+//	@Test
+//	void insertTestUser(){
+//		String name = "테스트2";
+//		String email = "mild11361@naver.com";
+//		String pwd = passwordEncoder.encode("aaa1234");
+//		String tel = "010-1234-1234";
+//		LocalDate birthDate = LocalDate.of(1999,11,27);
+//		Gender gender = Gender.MALE;
+//		String address = "스울";
+//		Optional<User> ou = userRepository.findByEmail(email);
+//
+//		if(!ou.isPresent()){
+//			User user = new User(name,email,pwd,tel,birthDate,gender,address);
+//			userRepository.save(user);
+//		}
+//
+//	}
 
 
 
