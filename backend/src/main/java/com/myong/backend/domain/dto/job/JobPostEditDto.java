@@ -3,23 +3,20 @@ package com.myong.backend.domain.dto.job;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
-import java.io.Serializable;
-
 /**
  * DTO for {@link com.myong.backend.domain.entity.shop.JobPost}
  */
 @Value
-public class JobPostEditDto implements Serializable {
+public class JobPostEditDto {
     @NotBlank
     String shopEmail;
 
-    @NotBlank
     String id;
 
     @NotBlank
     String title;
 
-    String salary = "";
+    String salary;
 
     @NotBlank
     String gender;
@@ -27,8 +24,8 @@ public class JobPostEditDto implements Serializable {
     @NotBlank
     String work;
 
-    String workTime = "";
-    String leaveTime = "";
+    String workTime;
+    String leaveTime;
 
     @NotBlank
     String content;

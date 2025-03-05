@@ -107,7 +107,7 @@ public class JobPost {
             this.title = request.getTitle();  // title이 다르면 업데이트
         }
         if (!request.getSalary().equals(this.salary) && !request.getSalary().isBlank()) {
-            this.title = request.getTitle();  // salary가 다르면 업데이트
+            this.salary = request.getSalary();  // salary가 다르면 업데이트
         }
         if (!request.getGender().equals(this.gender.toString())) {
             this.gender = Gender.valueOf(request.getGender());  // gender가 다르면 업데이트
