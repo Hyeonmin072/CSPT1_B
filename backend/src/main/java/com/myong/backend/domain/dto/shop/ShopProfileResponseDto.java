@@ -1,13 +1,11 @@
 package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 @Value
 public class ShopProfileResponseDto {
-
-    @NotBlank
-    String id;
 
     @NotBlank
     String name;
@@ -15,7 +13,7 @@ public class ShopProfileResponseDto {
     @NotBlank
     String addres;
 
-    @NotBlank
+    @NotNull
     Integer post;
 
     @NotBlank

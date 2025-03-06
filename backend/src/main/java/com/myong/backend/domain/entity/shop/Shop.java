@@ -56,17 +56,17 @@ public class Shop {
     @Column(name = "s_pwd", nullable = false)
     private String pwd; // 비밀번호
 
-    @Column(name = "s_longitude")
-    private Double longitude = 0.0; // 경도
+    @Column(name = "s_longitude", nullable = false)
+    private Double longitude; // 경도
 
-    @Column(name = "s_latitude")
-    private Double latitude = 0.0; // 위도
+    @Column(name = "s_latitude", nullable = false)
+    private Double latitude; // 위도
 
     @Column(name = "s_open_time")
-    private LocalTime openTime = LocalTime.of(0,0); // 오픈시간
+    private LocalTime openTime = LocalTime.of(0,0); // 오픈시간 00:00
 
     @Column(name = "s_close_time")
-    private LocalTime closeTime = LocalTime.of(0,0); // 마감시간
+    private LocalTime closeTime = LocalTime.of(0,0); // 마감시간 00:00
 
     @Column(name = "s_post", nullable = false)
     private Integer post; // 우편번호
@@ -138,13 +138,13 @@ public class Shop {
         if (request.getNewPwd().equals(request.getNewPwdConfirm()) && !request.getNewPwd().isBlank()) { // 비밀번호
             this.pwd = request.getNewPwd();
         }
-        if (!request.getDesc().equals(this.desc)  && !request.getDesc().isBlank()) { // 설명
+        if (!request.getDesc().equals(this.desc) && !request.getDesc().isBlank()) { // 설명
             this.desc = request.getDesc();
         }
-        if (!request.getOpen().equals(this.openTime) && !request.getOpen().isBlank()) { // 오픈시간
+        if (!request.getOpen().equals(this.openTime.toString()) && !request.getOpen().isBlank()) { // 오픈시간
             this.openTime = LocalTime.parse(request.getOpen(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getClose().equals(this.closeTime) && !request.getClose().isBlank()) { // 마감시간
+        if (!request.getClose().equals(this.closeTime.toString()) && !request.getClose().isBlank()) { // 마감시간
             this.closeTime =  LocalTime.parse(request.getClose(), DateTimeFormatter.ofPattern("HH:mm"));
         }
         if (!request.getRegularHoliday().equals(this.regularHoliday) && !request.getRegularHoliday().isBlank()) { // 정기 휴무일

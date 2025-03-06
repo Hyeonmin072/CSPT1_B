@@ -12,7 +12,6 @@ public class MenuEditDto {
     @NotBlank
     String designerEmail;
 
-    @NotBlank
     String id;
 
     @NotBlank
@@ -21,9 +20,9 @@ public class MenuEditDto {
     @NotBlank
     String desc;
 
-    Integer price = 0;
+    Integer price;
 
-    String estimatedTime = "";
+    String estimatedTime;
 
     @NotBlank
     String common; // yes or no

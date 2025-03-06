@@ -30,11 +30,11 @@ public class Event {
     private DiscountType type; // 이벤트 할인 타입
     
     @Column(name = "e_start_date")
-    private LocalDate startDate; // 이벤트 시작일
-    
+    private LocalDate startDate = LocalDate.of(9999,9,9); // 이벤트 시작일 9999-09-09
+
     @Column(name = "e_end_date")
-    private LocalDate endDate; // 이벤트 종료일
-    
+    private LocalDate endDate = LocalDate.of(9999,9,9); // 이벤트 종료일 9999-09-09
+
     @ManyToOne
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키

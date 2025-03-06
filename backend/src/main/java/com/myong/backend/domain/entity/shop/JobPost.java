@@ -11,6 +11,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -50,11 +52,11 @@ public class JobPost {
 
     //요구 정시출근시간
     @Column(name = "jp_worktime")
-    private String workTime = "";
+    private LocalTime workTime = LocalTime.of(0,0); // 00:00
 
     //요구 정시퇴근시간
     @Column(name = "jp_leavetime")
-    private String leaveTime = "";
+    private LocalTime leaveTime = LocalTime.of(0,0); // 00:00
 
     //첨부파일
     @Column(name = "jp_file")
@@ -74,7 +76,7 @@ public class JobPost {
 
 
     @Builder
-    public JobPost(String file, String leaveTime, String workTime, Gender gender, String salary, Work work, String content, String title, Shop shop) {
+    public JobPost(String file, LocalTime leaveTime, LocalTime workTime, Gender gender, String salary, Work work, String content, String title, Shop shop) {
         this.file = file;
         this.leaveTime = leaveTime;
         this.workTime = workTime;
@@ -115,11 +117,11 @@ public class JobPost {
         if (!request.getWork().equals(this.work.toString())) {
             this.work = Work.valueOf(request.getWork());  // work가 다르면 업데이트
         }
-        if (!request.getWorkTime().equals(this.workTime) && !request.getWork().isBlank()) {
-            this.workTime = request.getWorkTime();  // workTime이 다르면 업데이트
+        if (!request.getWorkTime().equals(this.workTime.toString()) && !request.getWork().isBlank()) {
+            this.workTime = LocalTime.parse(request.getWorkTime(), DateTimeFormatter.ofPattern("HH:mm"));  // workTime이 다르면 업데이트
         }
-        if (!request.getLeaveTime().equals(this.leaveTime) && !request.getLeaveTime().isBlank()) {
-            this.leaveTime = request.getLeaveTime();  // leaveTime이 다르면 업데이트
+        if (!request.getLeaveTime().equals(this.leaveTime.toString()) && !request.getLeaveTime().isBlank()) {
+            this.leaveTime = LocalTime.parse(request.getLeaveTime(), DateTimeFormatter.ofPattern("HH:mm"));  // leaveTime이 다르면 업데이트
         }
         if (!request.getContent().equals(this.content)) {
             this.content = request.getContent();  // content가 다르면 업데이트

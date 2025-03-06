@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -236,7 +237,6 @@ public class ShopService {
         Shop shop = shopRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 이메일로 가게 찾기
         return new ShopProfileResponseDto(
-                shop.getId().toString(),
                 shop.getName(),
                 shop.getAddress(),
                 shop.getPost(),
@@ -397,6 +397,7 @@ public class ShopService {
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
 
         List<JobPostListResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
             JobPostListResponseDto jobPostListResponseDto = new JobPostListResponseDto(
                     jobPost.getShop().getName(),
@@ -405,8 +406,8 @@ public class ShopService {
                     jobPost.getSalary(),
                     jobPost.getGender().toString(),
                     jobPost.getWork().toString(),
-                    jobPost.getWorkTime(),
-                    jobPost.getLeaveTime(),
+                    jobPost.getWorkTime().toString(),
+                    jobPost.getLeaveTime().toString(),
                     jobPost.getContent()
             );
             response.add(jobPostListResponseDto); // 구인글 목록 dto 반환
@@ -422,13 +423,15 @@ public class ShopService {
     public String addJobPost(JobPostEditDto request) {
         Shop shop = shopRepository.findByEmail(request.getShopEmail())
                 .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 구인글이 등록될 가게 찾기
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm"); // 날짜 포매터 만들기
         JobPost jobPost = JobPost.builder() //빌더를 통해 구인글 생성
                 .shop(shop)
                 .title(request.getTitle())
                 .gender(Gender.valueOf(request.getGender()))
                 .work(Work.valueOf(request.getWork()))
-                .workTime(request.getWorkTime())
-                .leaveTime(request.getLeaveTime())
+                .workTime(LocalTime.parse(request.getWorkTime(), formatter))
+                .leaveTime(LocalTime.parse(request.getWorkTime(), formatter))
                 .content(request.getContent())
                 .salary(request.getSalary())
                 .build();

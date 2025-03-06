@@ -26,15 +26,15 @@ public class ShopProfileRequestDto {
     @NotBlank
     String pwd;
 
-    String newPwd = "";
+    String newPwd;
 
-    String newPwdConfirm = "";
+    String newPwdConfirm;
 
-    String desc = "";
+    String desc;
 
-    String open = "";
+    String open;
 
-    String close = "";
+    String close;
 
-    String regularHoliday = "";
+    String regularHoliday;
 }
