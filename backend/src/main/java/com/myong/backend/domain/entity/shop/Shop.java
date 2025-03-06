@@ -56,10 +56,10 @@ public class Shop {
     @Column(name = "s_pwd", nullable = false)
     private String pwd; // 비밀번호
 
-    @Column(name = "s_longitude")
+    @Column(name = "s_longitude", nullable = false)
     private Double longitude; // 경도
 
-    @Column(name = "s_latitude")
+    @Column(name = "s_latitude",nullable = false)
     private Double latitude; // 위도
 
     @Column(name = "s_open_time")
@@ -93,7 +93,7 @@ public class Shop {
     private List<Event> events = new ArrayList<>(); // 등록한 이벤트들
     
 
-    public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post) {
+    public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post,Double longitude, Double latitude) {
         this.name = name;
         this.address = address;
         this.email = email;
@@ -101,6 +101,8 @@ public class Shop {
         this.bizId = bizId;
         this.pwd = pwd;
         this.post = post;
+        this.longitude=longitude;
+        this.latitude=latitude;
     }
     public void updateRating(Double rating){
         this.rating=rating;

@@ -1,5 +1,6 @@
 package com.myong.backend.service;
 
+import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
@@ -56,6 +57,7 @@ public class ShopService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final ReviewRepository reviewRepository;
+    private final KakaoMapApi kakaoMapApi;
 
 
     /**
@@ -64,6 +66,12 @@ public class ShopService {
      * @return
      */
     public String shopSignUp(ShopSignUpRequestDto request) {
+
+        String result = kakaoMapApi.getCoordinatesFromAddress(request.getAddress());
+        System.out.println("위도와 경도:"+result);
+        String latitude = result.split(" ")[0];
+        String longitude = result.split(" ")[1];
+
             Shop shop = new Shop( // 가게 생성
                     request.getName(),
                     request.getPassword(),
@@ -71,7 +79,9 @@ public class ShopService {
                     request.getAddress(),
                     request.getTel(),
                     request.getBizId(),
-                    request.getPost()
+                    request.getPost(),
+                    Double.parseDouble(longitude),
+                    Double.parseDouble(latitude)
             );
             shopRepository.save(shop); // 가게 저장
             return "사업자 회원가입에 성공했습니다.";

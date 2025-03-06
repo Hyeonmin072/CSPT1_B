@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,4 +20,14 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
             "from Shop s " +
             "where s.email = :email")
     ShopProfileResponseDto findProfileByEmail(@Param("email")String email);
+
+    @Query(value = " select * FROM shop " +
+            "Where ST_Distance_Sphere(point(:longitude,:latitude),point(longitude,latitude)) <= 2000",
+            nativeQuery = true)
+    List<Shop> findShopWithinRadius(@Param("longitude") double longitude,@Param("latitude") double latitude);
+
+    @Query("select s From Shop s where s.address Like :location% ")
+    List<Shop> findShopWithAddress(@Param("location") String location);
+
+
 }

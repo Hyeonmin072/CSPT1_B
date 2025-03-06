@@ -75,10 +75,11 @@ public class UserController {
         return userService.Signout(request);
     }
 
-//    @PostMapping("/homepage")
-//    public ResponseEntity<UserHomePageResponseDto> LoadHomePage(@RequestBody
-//                                                                UserHomePageRequestDto request){
-//        userService
-//    }
+    @PostMapping("/homepage")
+    public ResponseEntity<UserHomePageResponseDto> LoadHomePage(@RequestBody
+                                                                UserHomePageRequestDto request){
+
+        return ResponseEntity.ok(userService.LoadHomePage(request.getUserEmail()));
+    }
 
 }

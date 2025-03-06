@@ -42,7 +42,7 @@ public class User {
     @Column(name = "u_tel", nullable = false)
     private String tel; // 연락처
 
-    @Column(name = "u_location")
+    @Column(name = "u_location",nullable = false)
     private String location; // 위치
 
     @Column(name = "u_birth_date", nullable = false)
@@ -55,11 +55,11 @@ public class User {
     @Column(name = "u_address", nullable = false)
     private String address; // 거주지
 
-    @Column(name = "u_longitude")
-    private String longitude;  // x : 경도
+    @Column(name = "u_longitude" ,nullable = false)
+    private Double longitude;  // x : 경도
 
-    @Column(name = "u_latitude")
-    private String latitude;    // y : 위도
+    @Column(name = "u_latitude",nullable = false)
+    private Double latitude;    // y : 위도
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들
@@ -68,7 +68,7 @@ public class User {
     private List<UserShop> shops = new ArrayList<>(); // 예약한 샵들
 
 
-    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, String longitude, String latitude) {
+    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Double longitude, Double latitude,String location) {
         this.name = name;
         this.email = email;
         this.pwd = pwd;
@@ -78,6 +78,7 @@ public class User {
         this.address = address;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.location = location;
     }
 
 
