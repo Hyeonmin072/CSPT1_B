@@ -1,6 +1,7 @@
 package com.myong.backend.service;
 
 
+import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.domain.entity.Gender;
@@ -10,6 +11,7 @@ import com.myong.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -31,6 +34,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RedisTemplate<String,Object> redisTemplate;
+    private final KakaoMapApi kakaoMapApi;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
@@ -42,6 +46,12 @@ public class UserService {
         }
 
         if(!ouser.isPresent()){
+
+            String result = kakaoMapApi.getCoordinatesFromAddress(userSignUpDto.getAddress());
+            System.out.println("위도와 경도:"+result);
+            String latitude = result.split(" ")[0];
+            String longitude = result.split(" ")[1];
+
             User user = new User(
                     userSignUpDto.getName(),
                     userSignUpDto.getEmail(),
@@ -49,7 +59,9 @@ public class UserService {
                     userSignUpDto.getTel(),
                     userSignUpDto.getBirth(),
                     (userSignUpDto != null && userSignUpDto.getGender().equals("남성") ? Gender.MALE : Gender.FEMALE),
-                    userSignUpDto.getAddress()
+                    userSignUpDto.getAddress(),
+                    longitude,
+                    latitude
             );
 
             userRepository.save(user);

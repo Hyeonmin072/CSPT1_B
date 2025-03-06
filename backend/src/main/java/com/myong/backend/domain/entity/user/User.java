@@ -68,7 +68,7 @@ public class User {
     private List<UserShop> shops = new ArrayList<>(); // 예약한 샵들
 
 
-    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address) {
+    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, String longitude, String latitude) {
         this.name = name;
         this.email = email;
         this.pwd = pwd;
@@ -76,7 +76,8 @@ public class User {
         this.birthDate = birthDate;
         this.gender = gender;
         this.address = address;
-
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
 
