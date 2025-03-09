@@ -2,13 +2,15 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
+import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
-import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
+import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.ShopService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.List;
 @Slf4j
 public class ShopController {
     private final ShopService shopService;
+    private final DesignerService designerService;
 
     /**
      * 사업자 회원가입
@@ -187,5 +190,61 @@ public class ShopController {
     @PostMapping("/deletejobpost")
     public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.deleteJobPost(request));
+    }
+
+    /**
+     * 사업자 소속된 디자이너 목록 조회
+     */
+    @GetMapping("/designers")
+    public ResponseEntity<List<ShopDesignerListResponseDto>> getDesigners(@Validated @RequestBody ShopEmailRequestDto request) {
+        return ResponseEntity.ok(shopService.getDesigners(request));
+    }
+
+    /**
+     * 사업자 소속된 디자이너 상세 조회
+     */
+    @GetMapping("/designer/detail")
+    public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
+        return ResponseEntity.ok(designerService.getDesigner(request));
+    }
+
+    /**
+     * 사업자 디자이너 추가
+     */
+    @PostMapping("/designer/join")
+    public ResponseEntity<String> joinDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
+        return ResponseEntity.ok(shopService.joinDesigner(request));
+    }
+
+    /**
+     * 사업자 디자이너 삭제
+     */
+    @PostMapping("/designer/delete")
+    public ResponseEntity<String> deleteDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
+        return ResponseEntity.ok(shopService.deleteDesigner(request));
+    }
+
+    /**
+     * 사업자 블랙리스트 목록 조회
+     */
+    @GetMapping("/blacklists")
+    public ResponseEntity<List<BlackListResponseDto>> getBlackLists(@Validated @RequestBody ShopEmailRequestDto request) {
+        return ResponseEntity.ok(shopService.getBlackLists(request));
+    }
+
+    /**
+     * 사업자 블랙리스트 추가
+     */
+    @PostMapping("/blacklist/create")
+    public ResponseEntity<String> createBlackList(@Validated @RequestBody BlackListRequestDto request) {
+        return ResponseEntity.ok(shopService.createBlackList(request));
+    }
+
+    /**
+     * 사업자 블랙리스트 삭제
+     */
+    @PostMapping("/blacklist/delete")
+    public ResponseEntity<String> deleteBlackList(@Validated @RequestBody BlackListRequestDto request) {
+        return ResponseEntity.ok(shopService.deleteBlackList(request));
     }
 }

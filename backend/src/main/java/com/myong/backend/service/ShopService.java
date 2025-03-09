@@ -2,6 +2,7 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
+import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
@@ -16,6 +17,7 @@ import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
@@ -55,6 +57,7 @@ public class ShopService {
     private final ReservationRepository reservationRepository;
     private final ReviewRepository reviewRepository;
     private final JobPostRepository jobPostRepository;
+    private final BlackListRepository blackListRepository;
 
 
     /**
@@ -422,7 +425,7 @@ public class ShopService {
      */
     public String addJobPost(JobPostEditDto request) {
         Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("이 이메일로 가게를 찾을 수 없습니다.")); // 구인글이 등록될 가게 찾기
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 구인글이 등록될 가게 찾기
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm"); // 날짜 포매터 만들기
         JobPost jobPost = JobPost.builder() //빌더를 통해 구인글 생성
@@ -462,5 +465,132 @@ public class ShopService {
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPostRepository.delete(jobPost); // 구인글 삭제
         return "성공적으로 구인글이 마감되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 소속된 디자이너 목록 조회
+     * @param request
+     * @return
+     */
+    public List<ShopDesignerListResponseDto> getDesigners(ShopEmailRequestDto request) {
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 찾을 디자이너 찾기
+        List<Designer> designers = shop.getDesigners();// 디자이너들 가져오기
+        List<ShopDesignerListResponseDto> dtos = new ArrayList<>();
+        for (Designer designer : designers) { // 가져온 디자이너들의 정보를 dto에 담은 뒤 리스트로 반환
+            ShopDesignerListResponseDto dto = ShopDesignerListResponseDto.builder()
+                    .email(designer.getEmail())
+                    .name(designer.getName())
+                    .like(designer.getLike())
+                    .gender(designer.getGender().toString())
+                    .build();
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    /**
+     * 사업자 디자이너 추가
+     * @param request
+     * @return
+     */
+    public String joinDesigner(ShopDesignerRequestDto request) {
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 가입될 디자이너 찾기
+
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 디자이너가 가입될 가게 찾기
+
+        designer.getJob(shop); // 둘 다 찾았다면, 가게에 디자이너 추가
+
+        return "성공적으로 디자이너가 추가되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 디자이너 삭제
+     * @param request
+     * @return
+     */
+    public String deleteDesigner(ShopDesignerRequestDto request) {
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 삭제될 디자이너 찾기
+
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 디자이너가 삭제될 가게 찾기
+
+        designer.fire(); // 둘 다 찾았다면, 가게에서 디자이너 삭제
+
+        return "성공적으로 디자이너가 삭제되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 블랙리스트 목록 조회
+     * @param request
+     * @return
+     */
+    public List<BlackListResponseDto> getBlackLists(ShopEmailRequestDto request) {
+        Shop shop = shopRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
+
+        List<BlackList> blackLists = blackListRepository.findByShop(shop); // 가게의 블랙리스트 페치 조인으로 조회
+        List<BlackListResponseDto> dtos = new ArrayList<>(); 
+        for (BlackList blackList : blackLists) { // 가져온 블랙리스트들을 dto에 담은 뒤 리스트로 반환
+            BlackListResponseDto dto = BlackListResponseDto.builder()
+                    .reason(blackList.getReason())
+                    .userName(blackList.getUser().getName())
+                    .userEmail(blackList.getUser().getEmail())
+                    .build();
+            dtos.add(dto);
+        }
+
+        return dtos;
+    }
+
+    /**
+     * 사업자 블랙리스트 추가
+     * @param request
+     * @return
+     */
+    public String createBlackList(BlackListRequestDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
+
+        User user = userRepository.findByEmail(request.getUserEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다.")); // 유저 찾기
+
+        if(blackListRepository.findByShopAndUser(shop,user).isPresent()) {
+            throw new RuntimeException("이미 블랙리스트에 추가된 유저입니다."); // 이미 블랙리스트에 등록되었는지 검증
+        }
+
+        // 등록되지 않았을 경우
+        BlackList blackList = BlackList.builder() // 블랙리스트 개체 생성
+                .shop(shop)
+                .user(user)
+                .reason(request.getReason())
+                .build();
+
+        blackListRepository.save(blackList); // 블랙리스트 개체 저장
+        
+        return "성공적으로 블랙리스트에 추가되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 블랙리스트 삭제
+     * @param request
+     * @return
+     */
+    public String deleteBlackList(BlackListRequestDto request) {
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
+
+        User user = userRepository.findByEmail(request.getUserEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다.")); // 유저 찾기
+
+        BlackList blackList = blackListRepository.findByShopAndUser(shop, user)
+                .orElseThrow(() -> new NoSuchElementException("해당 블랙리스트를 찾을 수 없습니다."));// 가게와 유저를 통해 해당 블랙리스트 개체 찾기
+
+        blackListRepository.delete(blackList); // 블랙리스트 개체 삭제
+
+        return "성공적으로 블랙리스트에서 삭제되었습니다."; // 성공 구문 반환
     }
 }

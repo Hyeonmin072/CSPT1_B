@@ -3,6 +3,7 @@ package com.myong.backend.domain.entity.usershop;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -30,6 +31,7 @@ public class BlackList {
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
 
+    @Builder
     public BlackList(String reason,User user, Shop shop) {
         this.reason = reason;
         this.user = user;

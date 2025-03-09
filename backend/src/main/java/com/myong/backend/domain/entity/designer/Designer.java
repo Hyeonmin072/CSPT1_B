@@ -133,4 +133,11 @@ public class Designer {
         this.image = image;
     }
 
+    public void getJob(Shop shop) {
+        this.shop = shop;
+    }
+
+    public void fire() {
+        this.shop = null;
+    }
 }
