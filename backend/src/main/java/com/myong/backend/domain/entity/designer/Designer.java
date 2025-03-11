@@ -92,6 +92,10 @@ public class Designer {
         this.gender = gender;
     }
 
+    public void registerDesigner(Shop shop){
+        this.shop = shop;
+    }
+
     public void updateRating(Double rating){
         this.rating = rating;
     }

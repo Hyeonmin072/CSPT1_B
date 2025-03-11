@@ -1,5 +1,6 @@
 package com.myong.backend.service;
 
+import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
@@ -56,8 +57,10 @@ public class ShopService {
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
     private final ReviewRepository reviewRepository;
+    private final KakaoMapApi kakaoMapApi;
     private final JobPostRepository jobPostRepository;
     private final BlackListRepository blackListRepository;
+
 
 
     /**
@@ -66,6 +69,12 @@ public class ShopService {
      * @return
      */
     public String shopSignUp(ShopSignUpRequestDto request) {
+
+        String result = kakaoMapApi.getCoordinatesFromAddress(request.getAddress());
+        System.out.println("위도와 경도:"+result);
+        String latitude = result.split(" ")[0];
+        String longitude = result.split(" ")[1];
+
             Shop shop = new Shop( // 가게 생성
                     request.getName(),
                     request.getPassword(),
@@ -73,7 +82,9 @@ public class ShopService {
                     request.getAddress(),
                     request.getTel(),
                     request.getBizId(),
-                    request.getPost()
+                    request.getPost(),
+                    Double.parseDouble(longitude),
+                    Double.parseDouble(latitude)
             );
             shopRepository.save(shop); // 가게 저장
             return "사업자 회원가입에 성공했습니다.";
@@ -336,58 +347,7 @@ public class ShopService {
     }
 
 
-    public String registerReview(ShopRegisterReviewRequestDto request){
 
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmaill());
-        Optional<User> findUser = userRepository.findByEmail(request.getUserEmail());
-        Optional<Designer> findDesigner = designerRepository.findByEmail(request.getDesignerEmail());
-        Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
-
-        if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지 못했습니다.");
-        }
-        if(!findUser.isPresent()){
-            throw new NoSuchElementException("해당 유저를 찾지 못했습니다.");
-        }
-        if(!findDesigner.isPresent()){
-            throw new NoSuchElementException("해당 디자이너를 찾지 못했습니다.");
-        }
-        if(!findReservation.isPresent()){
-            throw new NoSuchElementException("해당 예약을 찾지 못했습니다.");
-        }
-
-        Shop shop = findShop.get();
-        User user = findUser.get();
-        Designer designer = findDesigner.get();
-        Reservation reservation = findReservation.get();
-
-        Review review = new Review(
-                request.getReviewContent(),
-                request.getReviewRating(),
-                request.getReviewImg(),
-                reservation,
-                shop,
-                designer,
-                user
-        );
-
-        reviewRepository.save(review);
-
-        //리뷰 등록시 해당 가게 평점 등록
-        double TotalShopRating = shop.getTotalRating()+ request.getReviewRating();
-        int ShopReviewCount = shop.getReviewCount()+1;
-        double shopRating = TotalShopRating/ShopReviewCount;
-        shop.updateRating(shopRating);
-        shopRepository.save(shop);
-
-        double TotalDesignerRating = designer.getTotalRating() + request.getReviewRating();
-        int DesignerReviewCount = designer.getReviewCount()+1;
-        double desingerRating = TotalDesignerRating/DesignerReviewCount;
-        designer.updateRating(desingerRating);
-        designerRepository.save(designer);
-
-        return "리뷰가 성공적으로 등록되었습니다.";
-    }
 
     /**
      * 사업자 구인글 목록 조회

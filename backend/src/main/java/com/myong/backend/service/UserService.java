@@ -1,21 +1,31 @@
 package com.myong.backend.service;
 
-
+import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
+import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
+import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.business.Reservation;
+import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
-import com.myong.backend.repository.UserRepository;
+import com.myong.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import javax.swing.text.html.Option;
+import java.util.*;
 import java.util.Optional;
+
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -28,6 +38,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RedisTemplate<String,Object> redisTemplate;
+    private final KakaoMapApi kakaoMapApi;
+    private final ShopRepository shopRepository;
+    private final AdvertisementRepository advertisementRepository;
+    private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
+    private final DesignerRepository designerRepository;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
@@ -39,6 +55,12 @@ public class UserService {
         }
 
         if(!ouser.isPresent()){
+
+            String result = kakaoMapApi.getCoordinatesFromAddress(userSignUpDto.getAddress());
+            System.out.println("위도와 경도:"+result);
+            String latitude = result.split(" ")[0];
+            String longitude = result.split(" ")[1];
+
             User user = new User(
                     userSignUpDto.getName(),
                     userSignUpDto.getEmail(),
@@ -46,6 +68,9 @@ public class UserService {
                     userSignUpDto.getTel(),
                     userSignUpDto.getBirth(),
                     (userSignUpDto != null && userSignUpDto.getGender().equals("남성") ? Gender.MALE : Gender.FEMALE),
+                    userSignUpDto.getAddress(),
+                    Double.parseDouble(longitude),
+                    Double.parseDouble(latitude),
                     userSignUpDto.getAddress()
             );
 
@@ -88,14 +113,51 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-//    public UserHomePageResponseDto LoadHomePage(String email){
-//        Optional<User> findUser = userRepository.findByEmail(email);
-//        if(!findUser.isPresent()){
-//            throw new NoSuchElementException("해당 유저가 존재하지않습니다");
-//        }
-//        User user = findUser.get();
-//
-//        user.getLocation();
-//    }
+
+    //유저 홈페이지 로딩
+    public UserHomePageResponseDto LoadHomePage(String email){
+        Optional<User> findUser = userRepository.findByEmail(email);
+        if(!findUser.isPresent()){
+            throw new NoSuchElementException("해당 유저가 존재하지않습니다");
+        }
+
+        User user = findUser.get();
+        //광고 가져오는거
+        List<Advertisement> adList =  advertisementRepository.findAll();
+
+        // 2km 반경 디비에서 조회
+        List<Shop> shopsIn2km =  shopRepository.findShopWithinRadius(user.getLongitude(), user.getLatitude());
+
+
+        // 2km 반경 헤어샵이 없으면 "시" 기준 디비에서 조회
+        if(shopsIn2km.size() < 1){
+
+            // ex("대구광역시") 로 시작하는 가게 조회
+            String location = user.getLocation().split(" ")[0];
+            List<Shop> shopsInLocation = shopRepository.findShopWithAddress(location);
+
+            Collections.sort(shopsInLocation,(shop1,shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
+
+            return new UserHomePageResponseDto(
+                    user.getLocation(),
+                    shopsInLocation,
+                    adList
+            );
+
+
+        }
+
+        // 2km 반경 평점순 정렬
+        Collections.sort(shopsIn2km,(shop1, shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
+
+        return new UserHomePageResponseDto(
+                user.getLocation(),
+                shopsIn2km,
+                adList
+        );
+
+    }
+
+
 
 }

@@ -93,7 +93,7 @@ public class Shop {
     private List<Event> events = new ArrayList<>(); // 등록한 이벤트들
     
 
-    public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post) {
+    public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post,Double longitude, Double latitude) {
         this.name = name;
         this.address = address;
         this.email = email;
@@ -101,6 +101,8 @@ public class Shop {
         this.bizId = bizId;
         this.pwd = pwd;
         this.post = post;
+        this.longitude=longitude;
+        this.latitude=latitude;
     }
     public void updateRating(Double rating){
         this.rating=rating;
