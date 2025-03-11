@@ -4,13 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
 @Value
-public class ShopMenuEditDto {
+public class MenuEditDto {
 
     @NotBlank
     String shopEmail;
 
     @NotBlank
     String designerEmail;
+
+    String id;
 
     @NotBlank
     String name;

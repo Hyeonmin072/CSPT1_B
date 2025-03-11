@@ -1,19 +1,19 @@
 package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
-
-import java.time.LocalTime;
 
 @Value
 public class ShopProfileResponseDto {
+
     @NotBlank
     String name;
 
     @NotBlank
     String addres;
 
-    @NotBlank
+    @NotNull
     Integer post;
 
     @NotBlank
@@ -24,9 +24,9 @@ public class ShopProfileResponseDto {
 
     String desc;
 
-    LocalTime open;
+    String open;
 
-    LocalTime close;
+    String close;
 
     String regularHoliday;
 }

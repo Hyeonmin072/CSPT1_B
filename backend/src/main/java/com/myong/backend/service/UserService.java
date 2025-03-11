@@ -1,6 +1,5 @@
 package com.myong.backend.service;
 
-
 import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
@@ -23,9 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.swing.text.html.Option;
 import java.util.*;
+import java.util.Optional;
+
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
@@ -112,7 +112,6 @@ public class UserService {
     public Boolean checkEmailDuplication(String email) {
         return userRepository.existsByEmail(email);
     }
-
 
 
     //유저 홈페이지 로딩

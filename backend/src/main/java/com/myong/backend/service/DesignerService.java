@@ -2,30 +2,31 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.designer.SignUpRequest;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequest;
+import com.myong.backend.domain.dto.shop.ShopDesignerDetailResponseDto;
+import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.repository.DesignerRepository;
+import com.myong.backend.repository.ShopRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class DesignerService {
     private final DesignerRepository designerRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public DesignerService(DesignerRepository designerRepository) {
-        this.designerRepository = designerRepository;
-    }
+    private final PasswordEncoder passwordEncoder;
+    private final ShopRepository shopRepository;
 
     public void signUp(SignUpRequest request) {
         // 이메일 중복 체크
@@ -115,5 +116,21 @@ public class DesignerService {
 
     public Boolean checkNicknameDuplication(String nickName) {
         return designerRepository.existsByNickName(nickName);
+    }
+
+    public ShopDesignerDetailResponseDto getDesigner(ShopDesignerRequestDto request) {
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
+
+
+        return ShopDesignerDetailResponseDto.builder() // 디자이너 상세정보를 dto에 담아 반환
+                .name(designer.getName())
+                .gender(designer.getGender().toString())
+                .like(designer.getLike())
+                .email(request.getDesignerEmail())
+                .build();
     }
 }
