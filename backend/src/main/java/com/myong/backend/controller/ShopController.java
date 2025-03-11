@@ -146,8 +146,5 @@ public class ShopController {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
-    @PostMapping("/registerReview")
-    public ResponseEntity<String> registerReview(@RequestBody ShopRegisterReviewRequestDto request){
-        return ResponseEntity.ok(shopService.registerReview(request));
-    }
+
 }

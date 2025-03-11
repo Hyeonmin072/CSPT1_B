@@ -2,16 +2,18 @@ package com.myong.backend.service;
 
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.business.Reservation;
+import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
-import com.myong.backend.repository.AdvertisementRepository;
-import com.myong.backend.repository.ShopRepository;
-import com.myong.backend.repository.UserRepository;
+import com.myong.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,9 @@ public class UserService {
     private final KakaoMapApi kakaoMapApi;
     private final ShopRepository shopRepository;
     private final AdvertisementRepository advertisementRepository;
+    private final ReservationRepository reservationRepository;
+    private final ReviewRepository reviewRepository;
+    private final DesignerRepository designerRepository;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
@@ -153,5 +158,7 @@ public class UserService {
         );
 
     }
+
+
 
 }

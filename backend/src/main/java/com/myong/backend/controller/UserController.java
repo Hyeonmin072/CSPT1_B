@@ -4,6 +4,7 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.UserHomePageRequestDto;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
@@ -81,5 +82,7 @@ public class UserController {
 
         return ResponseEntity.ok(userService.LoadHomePage(request.getUserEmail()));
     }
+
+
 
 }

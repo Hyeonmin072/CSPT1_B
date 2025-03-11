@@ -328,57 +328,6 @@ public class ShopService {
     }
 
 
-    public String registerReview(ShopRegisterReviewRequestDto request){
 
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmaill());
-        Optional<User> findUser = userRepository.findByEmail(request.getUserEmail());
-        Optional<Designer> findDesigner = designerRepository.findByEmail(request.getDesignerEmail());
-        Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
-
-        if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지 못했습니다.");
-        }
-        if(!findUser.isPresent()){
-            throw new NoSuchElementException("해당 유저를 찾지 못했습니다.");
-        }
-        if(!findDesigner.isPresent()){
-            throw new NoSuchElementException("해당 디자이너를 찾지 못했습니다.");
-        }
-        if(!findReservation.isPresent()){
-            throw new NoSuchElementException("해당 예약을 찾지 못했습니다.");
-        }
-
-        Shop shop = findShop.get();
-        User user = findUser.get();
-        Designer designer = findDesigner.get();
-        Reservation reservation = findReservation.get();
-
-        Review review = new Review(
-                request.getReviewContent(),
-                request.getReviewRating(),
-                request.getReviewImg(),
-                reservation,
-                shop,
-                designer,
-                user
-        );
-
-        reviewRepository.save(review);
-
-        //리뷰 등록시 해당 가게 평점 등록
-        double TotalShopRating = shop.getTotalRating()+ request.getReviewRating();
-        int ShopReviewCount = shop.getReviewCount()+1;
-        double shopRating = TotalShopRating/ShopReviewCount;
-        shop.updateRating(shopRating);
-        shopRepository.save(shop);
-
-        double TotalDesignerRating = designer.getTotalRating() + request.getReviewRating();
-        int DesignerReviewCount = designer.getReviewCount()+1;
-        double desingerRating = TotalDesignerRating/DesignerReviewCount;
-        designer.updateRating(desingerRating);
-        designerRepository.save(designer);
-
-        return "리뷰가 성공적으로 등록되었습니다.";
-    }
 
 }
