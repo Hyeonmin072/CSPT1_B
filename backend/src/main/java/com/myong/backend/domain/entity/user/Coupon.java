@@ -3,6 +3,7 @@ package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -52,6 +53,7 @@ public class Coupon {
     @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL)
     private List<UserCoupon> userCoupons; // 받은 유저들
 
+    @Builder
     public Coupon(String name, DiscountType type, Long amount, Period getDate, Period useDate, Shop shop) { // 고정금액 할인 쿠폰
         this.name = name;
         this.type = type;

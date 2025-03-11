@@ -4,6 +4,9 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
+import com.myong.backend.domain.dto.user.UserHomePageRequestDto;
+import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.UserService;
@@ -27,7 +30,7 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<String> SignUp(@RequestBody UserSignUpDto userSignUpDto){
+    public ResponseEntity<String> SignUp(@Valid @RequestBody UserSignUpDto userSignUpDto){
 
         return userService.SingUp(userSignUpDto);
 
@@ -72,6 +75,14 @@ public class UserController {
         System.out.println("컨트롤러에 요청이 넘어옮");
         return userService.Signout(request);
     }
+
+    @PostMapping("/homepage")
+    public ResponseEntity<UserHomePageResponseDto> LoadHomePage(@RequestBody
+                                                                UserHomePageRequestDto request){
+
+        return ResponseEntity.ok(userService.LoadHomePage(request.getUserEmail()));
+    }
+
 
 
 }

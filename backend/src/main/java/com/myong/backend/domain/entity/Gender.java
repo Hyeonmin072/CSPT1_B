@@ -1,8 +1,5 @@
 package com.myong.backend.domain.entity;
 
-import jakarta.persistence.Enumerated;
-
-
 public enum Gender {
-    MALE, FEMALE // 남자, 여자
+    MALE, FEMALE, NO // 남자, 여자, 선택안함
 }
