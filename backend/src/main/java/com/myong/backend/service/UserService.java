@@ -67,8 +67,9 @@ public class UserService {
                     passwordEncoder.encode(userSignUpDto.getPassword()),
                     userSignUpDto.getTel(),
                     userSignUpDto.getBirth(),
-                    (userSignUpDto != null && userSignUpDto.getGender().equals("남성") ? Gender.MALE : Gender.FEMALE),
+                    userSignUpDto.getGender(),
                     userSignUpDto.getAddress(),
+                    userSignUpDto.getPost(),
                     Double.parseDouble(longitude),
                     Double.parseDouble(latitude),
                     userSignUpDto.getAddress()

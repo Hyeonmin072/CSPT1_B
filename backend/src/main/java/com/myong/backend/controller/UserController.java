@@ -30,7 +30,7 @@ public class UserController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<String> SignUp(@RequestBody UserSignUpDto userSignUpDto){
+    public ResponseEntity<String> SignUp(@Valid @RequestBody UserSignUpDto userSignUpDto){
 
         return userService.SingUp(userSignUpDto);
 

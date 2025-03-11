@@ -55,6 +55,9 @@ public class User {
     @Column(name = "u_address", nullable = false)
     private String address; // 거주지
 
+    @Column(name = "u_post", nullable = false)
+    private Integer post; // 우편번호
+
     @Column(name = "u_longitude" ,nullable = false)
     private Double longitude;  // x : 경도
 
@@ -68,7 +71,7 @@ public class User {
     private List<UserShop> shops = new ArrayList<>(); // 예약한 샵들
 
 
-    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Double longitude, Double latitude,String location) {
+    public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Integer post ,Double longitude, Double latitude,String location) {
         this.name = name;
         this.email = email;
         this.pwd = pwd;
@@ -76,6 +79,7 @@ public class User {
         this.birthDate = birthDate;
         this.gender = gender;
         this.address = address;
+        this.post = post;
         this.longitude = longitude;
         this.latitude = latitude;
         this.location = location;

@@ -1,8 +1,10 @@
 package com.myong.backend.domain.dto.menu;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 import lombok.Value;
 
+@Data
 @Value
 public class MenuEditDto {
 
