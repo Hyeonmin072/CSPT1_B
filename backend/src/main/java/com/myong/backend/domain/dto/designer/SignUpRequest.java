@@ -27,10 +27,10 @@ public class SignUpRequest {
     private String email;
 
     @NotBlank
-    private String pwd;
+    private String password;
 
     @NotBlank
-    private String pwd2;//비밀번호 확인용
+    private String confirmPassword;//비밀번호 확인용
 
     @NotBlank
     @PhoneNumber
@@ -44,6 +44,6 @@ public class SignUpRequest {
 
     @AssertTrue(message = "비밀번호가 일치하지 않습니다.")
     private boolean isPwdMatching(){
-        return pwd.equals(pwd2);
+        return password.equals(confirmPassword);
     };
 }

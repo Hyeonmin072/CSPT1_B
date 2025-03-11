@@ -51,7 +51,7 @@ public class DesignerService {
                 request.getName(),
                 request.getNickname(),
                 request.getEmail(),
-                passwordEncoder.encode(request.getPwd()),
+                passwordEncoder.encode(request.getPassword()),
                 request.getTel(),
                 birthday,
                 request.getGender()

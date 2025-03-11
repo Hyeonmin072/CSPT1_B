@@ -3,23 +3,20 @@ package com.myong.backend.service;
 import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
-import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
-import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
+import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
-import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.BlackList;
-import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
 import com.myong.backend.repository.*;
@@ -69,7 +66,6 @@ public class ShopService {
      * @return
      */
     public String shopSignUp(ShopSignUpRequestDto request) {
-
         String result = kakaoMapApi.getCoordinatesFromAddress(request.getAddress());
         System.out.println("위도와 경도:"+result);
         String latitude = result.split(" ")[0];
