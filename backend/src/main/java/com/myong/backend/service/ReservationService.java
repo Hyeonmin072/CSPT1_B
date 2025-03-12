@@ -3,6 +3,7 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.reservation.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.ReservationCreateRequestDto;
+import com.myong.backend.domain.dto.reservation.ReservationInfoResponseDto;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -122,6 +124,22 @@ public class ReservationService {
         reservationRepository.deleteById(UUID.fromString(requestDto.getReservationId()));
 
         return ResponseEntity.ok("예약이 성공적으로 거절되었습니다.");
+    }
+
+    public List<ReservationInfoResponseDto> getReservationByUser(String userEmail){
+
+        Optional<User> ou = userRepository.findByEmail(userEmail);
+        if(!ou.isPresent()){
+            throw new IllegalArgumentException("존재하지않는 유저입니다.");
+        }
+        User user = ou.get();
+        List<Reservation> reservationList =  reservationRepository.findAllByUser(user);
+
+        for(Reservation reservation : reservationList){
+
+        }
+
+
     }
 
 }

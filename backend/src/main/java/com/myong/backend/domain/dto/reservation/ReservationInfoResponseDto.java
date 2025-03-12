@@ -10,7 +10,10 @@ public class ReservationInfoResponseDto {
 
     private LocalDateTime serviceDate;
     private String menu;
+    private String shop;
+    private String designer;
     private String payMethod;
-    private Long pay;
+    private Integer price;
+
 
 }
