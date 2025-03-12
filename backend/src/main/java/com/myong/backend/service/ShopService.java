@@ -532,21 +532,28 @@ public class ShopService {
 
     /**
      * 사업자 블랙리스트 삭제
-     * @param request
+     * @param requests
      * @return
      */
-    public String deleteBlackList(BlackListRequestDto request) {
-        Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
+    public String deleteBlackList(List<BlackListRequestDto> requests) {
+        for (BlackListRequestDto request : requests) {
+            // 가게 찾기
+            Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                    .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다."));
 
-        User user = userRepository.findByEmail(request.getUserEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다.")); // 유저 찾기
+            // 유저 찾기
+            User user = userRepository.findByEmail(request.getUserEmail())
+                    .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
 
-        BlackList blackList = blackListRepository.findByShopAndUser(shop, user)
-                .orElseThrow(() -> new NoSuchElementException("해당 블랙리스트를 찾을 수 없습니다."));// 가게와 유저를 통해 해당 블랙리스트 개체 찾기
+            // 찾은 가게와 유저를 통해 해당 블랙리스트 개체 찾기
+            BlackList blackList = blackListRepository.findByShopAndUser(shop, user)
+                    .orElseThrow(() -> new NoSuchElementException("해당 블랙리스트를 찾을 수 없습니다."));
 
-        blackListRepository.delete(blackList); // 블랙리스트 개체 삭제
+            // 블랙리스트 개체 삭제
+            blackListRepository.delete(blackList);
+        }
 
-        return "성공적으로 블랙리스트에서 삭제되었습니다."; // 성공 구문 반환
+        // 성공 구문 반환
+        return "성공적으로 블랙리스트에서 삭제되었습니다.";
     }
 }
