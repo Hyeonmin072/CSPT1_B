@@ -1,8 +1,10 @@
 package com.myong.backend.service;
 
 
-import com.myong.backend.domain.dto.reservation.ReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.ReservationAcceptRequestDto;
+import com.myong.backend.domain.dto.reservation.ReservationCreateRequestDto;
 import com.myong.backend.domain.entity.business.Reservation;
+import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
@@ -28,7 +30,7 @@ public class ReservationService {
     private final ShopRepository shopRepository;
 
 
-    public ResponseEntity<String> createReservation(ReservationRequestDto requestDto){
+    public ResponseEntity<String> createReservation(ReservationCreateRequestDto requestDto){
 
         Optional<User> ou = userRepository.findByEmail(requestDto.getUserEmail());
         if(!ou.isPresent()){
@@ -57,6 +59,7 @@ public class ReservationService {
             Reservation reservation = new Reservation(
                     requestDto.getServiceDate(),
                     requestDto.getPayMethod(),
+                    menu.getPrice(),
                     menu,
                     shop,
                     designer,
@@ -76,6 +79,7 @@ public class ReservationService {
         Reservation reservation = new Reservation(
                 requestDto.getServiceDate(),
                 requestDto.getPayMethod(),
+                menu.getPrice(),
                 menu,
                 shop,
                 designer,
@@ -86,4 +90,38 @@ public class ReservationService {
         reservationRepository.save(reservation);
         return ResponseEntity.ok("예약 등록이 완료되었습니다.");
     }
+
+    public ResponseEntity<String> acceptReservation(ReservationAcceptRequestDto requestDto){
+        Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
+        // 예약이 존재하지않으면 만료된예약
+        if(!or.isPresent()){
+            throw new IllegalArgumentException("만료된 예약입니다");
+        }
+
+        Reservation reservation = or.get();
+
+        //이미 승낙된 예약이면 리턴
+        if(reservation.getStatus() == ReservationStatus.SUCCESS){
+            return ResponseEntity.ok("이미 승낙된 예약입니다.");
+        }
+
+        //예약승낙
+        reservation.acceptReservation();
+        reservationRepository.save(reservation);
+
+        return ResponseEntity.ok("예약이 성공적으로 승낙되었습니다.");
+
+    }
+
+    public ResponseEntity<String> refuseReservation(ReservationAcceptRequestDto requestDto){
+        Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
+        if(!or.isPresent()){
+            throw new IllegalArgumentException("이미 만료된 예약입니다.");
+        }
+
+        reservationRepository.deleteById(UUID.fromString(requestDto.getReservationId()));
+
+        return ResponseEntity.ok("예약이 성공적으로 거절되었습니다.");
+    }
+
 }
