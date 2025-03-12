@@ -42,6 +42,9 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private PaymentMethod payMethod; // 결제 수단
 
+    @Column(name = "r_price")
+    private Integer price; // 결제 금액
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "m_id", nullable = false)
     private Menu menu; // 메뉴 고유 키
@@ -62,9 +65,10 @@ public class Reservation {
     @JoinColumn(name = "u_id",nullable = false)
     private User user; // 유저 고유 키
 
-    public Reservation(LocalDateTime serviceDate,PaymentMethod payMethod, Menu menu, Shop shop, Designer designer, User user, Coupon coupon) {
+    public Reservation(LocalDateTime serviceDate,PaymentMethod payMethod, Integer price, Menu menu, Shop shop, Designer designer, User user, Coupon coupon) {
         this.serviceDate = serviceDate;
         this.payMethod = payMethod;
+        this.price = price;
         this.menu = menu;
         this.shop = shop;
         this.designer = designer;
@@ -72,13 +76,18 @@ public class Reservation {
         this.coupon = coupon;
     }
 
-    public Reservation(LocalDateTime serviceDate,PaymentMethod payMethod, Menu menu, Shop shop, Designer designer, User user) {
+    public Reservation(LocalDateTime serviceDate,PaymentMethod payMethod, Integer price,Menu menu, Shop shop, Designer designer, User user) {
         this.serviceDate = serviceDate;
         this.payMethod = payMethod;
+        this.price = price;
         this.menu = menu;
         this.shop = shop;
         this.designer = designer;
         this.user = user;
+    }
+
+    public void acceptReservation(){
+        this.status = ReservationStatus.SUCCESS;
     }
 
     @Override

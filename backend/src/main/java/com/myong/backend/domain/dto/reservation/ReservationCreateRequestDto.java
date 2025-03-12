@@ -5,10 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
-public class ReservationRequestDto {
+public class ReservationCreateRequestDto {
 
     @NotBlank
     private LocalDateTime serviceDate; // 서비스 받을 날짜
@@ -29,7 +28,7 @@ public class ReservationRequestDto {
     private String couponId; // 쿠폰 아이디
 
     @NotBlank
-    private String menuId;
+    private String menuId; // 메뉴 아이디
 
 
 }

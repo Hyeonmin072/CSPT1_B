@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
     Optional<Reservation> findById(UUID id);
+
 }
