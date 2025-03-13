@@ -33,8 +33,8 @@ public class Coupon {
     @Enumerated(EnumType.STRING)
     private DiscountType type; // 할인방식
 
-    @Column(name = "c_amount", nullable = false)
-    private Long amount; // 할인값
+    @Column(name = "c_price", nullable = false)
+    private Integer price; // 할인값
 
     @Column(name = "c_get_date", nullable = false)
     private Period getDate; // 수령가능한 기간
@@ -54,10 +54,10 @@ public class Coupon {
     private List<UserCoupon> userCoupons; // 받은 유저들
 
     @Builder
-    public Coupon(String name, DiscountType type, Long amount, Period getDate, Period useDate, Shop shop) { // 고정금액 할인 쿠폰
+    public Coupon(String name, DiscountType type, Integer price, Period getDate, Period useDate, Shop shop) { // 고정금액 할인 쿠폰
         this.name = name;
         this.type = type;
-        this.amount = amount;
+        this.price = price;
         this.getDate =  getDate;
         this.useDate = useDate;
         this.shop = shop;

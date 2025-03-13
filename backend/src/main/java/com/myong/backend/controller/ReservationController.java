@@ -35,8 +35,8 @@ public class ReservationController {
     }
 
     @GetMapping("/{userEmail}")
-    public List<ReservationInfoResponseDto> getReservationByUser(@PathVariable String userEmail){
-        return reservationService
+    public List<ReservationInfoResponseDto> getReservationByUser(@PathVariable("userEmail") String userEmail){
+        return reservationService.getReservationByUser(userEmail);
     }
 
 }

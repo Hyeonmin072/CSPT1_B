@@ -7,9 +7,14 @@
     <list default="true" id="d6dbc241-2e84-412e-990b-bec39ef132fd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/ReservationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/ReservationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/coupon/CouponListResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/coupon/CouponListResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/coupon/CouponRegisterRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/coupon/CouponRegisterRequestDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/reservation/ReservationInfoResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/reservation/ReservationInfoResponseDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/repository/ReservationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/repository/ReservationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/shop/ShopSignUpRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/shop/ShopSignUpRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/user/UserSignUpDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/user/UserSignUpDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/user/Coupon.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/user/Coupon.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ReservationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ReservationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ShopService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ShopService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -199,5 +204,17 @@
     <option featureType="dependencySupport" implementationName="java:org.thymeleaf:thymeleaf" />
     <option featureType="dependencySupport" implementationName="java:org.springframework:spring-messaging" />
     <option featureType="dependencySupport" implementationName="java:org.springframework.boot:spring-boot" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-field">
+          <url>file://$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/reservation/ReservationInfoResponseDto.java</url>
+          <line>18</line>
+          <properties field="price" class="com.myong.backend.domain.dto.reservation.ReservationInfoResponseDto" />
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

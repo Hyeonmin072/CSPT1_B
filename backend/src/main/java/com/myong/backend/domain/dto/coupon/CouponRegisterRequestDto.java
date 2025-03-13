@@ -20,7 +20,7 @@ public class CouponRegisterRequestDto {
     String type;
 
     @NotNull
-    Long amount;
+    Integer price;
 
     @NotBlank
     String shopEmail;

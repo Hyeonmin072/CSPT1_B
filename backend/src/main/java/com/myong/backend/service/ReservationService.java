@@ -4,21 +4,25 @@ package com.myong.backend.service;
 import com.myong.backend.domain.dto.reservation.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.ReservationCreateRequestDto;
 import com.myong.backend.domain.dto.reservation.ReservationInfoResponseDto;
+import com.myong.backend.domain.entity.business.PaymentMethod;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
+import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,12 +80,15 @@ public class ReservationService {
         if(!oc.isPresent()){
             throw new IllegalArgumentException("해당 쿠폰이 존재하지 않습니다.");
         }
+
         Coupon coupon = oc.get();
+
+        int price = usingCoupon(coupon.getPrice(),menu.getPrice(),coupon.getType());
 
         Reservation reservation = new Reservation(
                 requestDto.getServiceDate(),
                 requestDto.getPayMethod(),
-                menu.getPrice(),
+                price,
                 menu,
                 shop,
                 designer,
@@ -132,13 +139,29 @@ public class ReservationService {
         if(!ou.isPresent()){
             throw new IllegalArgumentException("존재하지않는 유저입니다.");
         }
+
         User user = ou.get();
         List<Reservation> reservationList =  reservationRepository.findAllByUser(user);
 
-        for(Reservation reservation : reservationList){
 
+        return reservationList.stream()
+                .map(reservation -> new ReservationInfoResponseDto(
+                    reservation.getServiceDate(),
+                    reservation.getMenu().getName(),
+                    reservation.getShop().getName(),
+                    reservation.getDesigner().getName(),
+                    reservation.getPayMethod(),
+                    reservation.getPrice()
+                )).collect(Collectors.toList());
+
+    }
+
+
+    public int usingCoupon(int discount, int menuPrice, DiscountType discountType){
+        if(discountType == DiscountType.FIXED){
+            return menuPrice - discount;
         }
-
+        return menuPrice - (int)(menuPrice * ((double)discount / 100));
 
     }
 
