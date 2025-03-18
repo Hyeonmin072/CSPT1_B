@@ -59,7 +59,7 @@ public class UserCoupon {
     /**
      *  복합키(직렬화 사용)
      */
-    private static class UserCouponId implements Serializable {
+    static class UserCouponId implements Serializable {
         private UUID userId;
         private UUID couponId;
     }
