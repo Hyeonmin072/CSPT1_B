@@ -10,10 +10,10 @@ import java.util.List;
 public class UserHomePageResponseDto {
 
     private String location;
-    private List<Shop> shops;
+    private List<UserHomePageShopListDto> shops;
     private List<Advertisement> advertisements;
 
-    public UserHomePageResponseDto(String location,List<Shop> shops,List<Advertisement> advertisements){
+    public UserHomePageResponseDto(String location,List<UserHomePageShopListDto> shops,List<Advertisement> advertisements){
         this.location = location;
         this.shops = shops;
         this.advertisements = advertisements;

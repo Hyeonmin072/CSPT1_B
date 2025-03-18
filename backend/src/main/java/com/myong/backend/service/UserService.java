@@ -3,6 +3,7 @@ package com.myong.backend.service;
 import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
+import com.myong.backend.domain.dto.user.UserHomePageShopListDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.Gender;
@@ -25,6 +26,8 @@ import org.springframework.stereotype.Service;
 import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -139,21 +142,52 @@ public class UserService {
 
             Collections.sort(shopsInLocation,(shop1,shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
 
+            List<UserHomePageShopListDto> shopListDto =
+                    shopsInLocation.stream().map(shop -> new UserHomePageShopListDto(
+                            shop.getName(),
+                            shop.getEmail(),
+                            shop.getTel(),
+                            shop.getDesc(),
+                            shop.getRating(),
+                            shop.getReviewCount(),
+                            shop.getOpenTime(),
+                            shop.getCloseTime(),
+                            shop.getAddress(),
+                            shop.getPost(),
+                            shop.getLongitude(),
+                            shop.getLatitude()
+                    )).collect(Collectors.toList());
+
             return new UserHomePageResponseDto(
                     user.getLocation(),
-                    shopsInLocation,
+                    shopListDto,
                     adList
             );
-
 
         }
 
         // 2km 반경 평점순 정렬
         Collections.sort(shopsIn2km,(shop1, shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
 
+        List<UserHomePageShopListDto> shopListDto =
+                shopsIn2km.stream().map(shop -> new UserHomePageShopListDto(
+                        shop.getName(),
+                        shop.getEmail(),
+                        shop.getTel(),
+                        shop.getDesc(),
+                        shop.getRating(),
+                        shop.getReviewCount(),
+                        shop.getOpenTime(),
+                        shop.getCloseTime(),
+                        shop.getAddress(),
+                        shop.getPost(),
+                        shop.getLongitude(),
+                        shop.getLatitude()
+                )).collect(Collectors.toList());
+
         return new UserHomePageResponseDto(
                 user.getLocation(),
-                shopsIn2km,
+                shopListDto,
                 adList
         );
 

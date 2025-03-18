@@ -5,14 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d6dbc241-2e84-412e-990b-bec39ef132fd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/review/ReviewRemoveRequestDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/user/UserHomePageShopListDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/ReviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/ReviewController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/designer/Designer.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/designer/Designer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/shop/Shop.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/shop/Shop.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/repository/ShopRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/repository/ShopRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ReviewService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ReviewService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/test/java/com/myong/backend/BackendApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/com/myong/backend/BackendApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/user/UserHomePageResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/user/UserHomePageResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +77,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "Spring Boot.BackendApplication.executor": "Run",
-    "git-widget-placeholder": "ReviewRegister-Fix-KHS",
+    "git-widget-placeholder": "UserHomePage.v5-KHS",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/github/CSPT1_B/backend/build.gradle",
     "node.js.detected.package.eslint": "true",
@@ -213,6 +209,12 @@
           <line>18</line>
           <properties field="price" class="com.myong.backend.domain.dto.reservation.ReservationInfoResponseDto" />
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-field">
+          <url>file://$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/user/UserHomePageShopListDto.java</url>
+          <line>20</line>
+          <properties field="post" class="com.myong.backend.domain.dto.user.UserHomePageShopListDto" />
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
