@@ -36,6 +36,7 @@ public class ReservationService {
     private final ShopRepository shopRepository;
 
 
+    //예약생성
     public ResponseEntity<String> createReservation(ReservationCreateRequestDto requestDto){
 
         Optional<User> ou = userRepository.findByEmail(requestDto.getUserEmail());
@@ -61,6 +62,7 @@ public class ReservationService {
         Shop shop = os.get();
         Menu menu = om.get();
 
+        //쿠폰이 없을경우
         if(requestDto.getCouponId().equals("")){
             Reservation reservation = new Reservation(
                     requestDto.getServiceDate(),
@@ -75,6 +77,8 @@ public class ReservationService {
             reservationRepository.save(reservation);
             return ResponseEntity.ok("예약 등록이 완료되었습니다.");
         }
+
+        // 쿠폰이 존재할 경우
 
         Optional<Coupon> oc = couponRepository.findById(UUID.fromString(requestDto.getCouponId()));
         if(!oc.isPresent()){
@@ -133,6 +137,8 @@ public class ReservationService {
         return ResponseEntity.ok("예약이 성공적으로 거절되었습니다.");
     }
 
+
+    // 유저 예약 정보 조회
     public List<ReservationInfoResponseDto> getReservationByUser(String userEmail){
 
         Optional<User> ou = userRepository.findByEmail(userEmail);
@@ -143,15 +149,15 @@ public class ReservationService {
         User user = ou.get();
         List<Reservation> reservationList =  reservationRepository.findAllByUser(user);
 
-
         return reservationList.stream()
                 .map(reservation -> new ReservationInfoResponseDto(
                     reservation.getServiceDate(),
                     reservation.getMenu().getName(),
                     reservation.getShop().getName(),
                     reservation.getDesigner().getName(),
-                    reservation.getPayMethod(),
-                    reservation.getPrice()
+                    reservation.getPayMethod() == PaymentMethod.MEET ? "만나서 결제" : "카드결제",
+                    reservation.getPrice(),
+                    reservation.getStatus() == ReservationStatus.WAIT ? "수락대기" : "예약중"
                 )).collect(Collectors.toList());
 
     }
