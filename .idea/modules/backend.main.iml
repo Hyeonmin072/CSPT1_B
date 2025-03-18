@@ -15,7 +15,9 @@
       <configuration>
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
-        <datasource-mapping />
+        <datasource-mapping>
+          <factory-entry name="entityManagerFactory" />
+        </datasource-mapping>
         <naming-strategy-map />
       </configuration>
     </facet>
@@ -134,7 +136,6 @@
     <orderEntry type="library" name="Gradle: jakarta.xml.bind:jakarta.xml.bind-api:4.0.2" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.17.0" level="project" />
     <orderEntry type="library" name="Gradle: io.swagger.core.v3:swagger-annotations-jakarta:2.2.21" level="project" />
-    <orderEntry type="library" name="Gradle: org.thymeleaf.extras:thymelef-extras-springsecurity6:" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.springframework.boot:spring-boot-devtools:3.4.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.mysql:mysql-connector-j:9.1.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.squareup.okhttp3:logging-interceptor:4.10.0" level="project" />

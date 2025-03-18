@@ -28,7 +28,7 @@ public class ReviewService {
 
     public String registerReview(ShopRegisterReviewRequestDto request){
 
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmaill());
+        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail());
         Optional<User> findUser = userRepository.findByEmail(request.getUserEmail());
         Optional<Designer> findDesigner = designerRepository.findByEmail(request.getDesignerEmail());
         Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
@@ -65,11 +65,11 @@ public class ReviewService {
 
         //리뷰 등록시 해당 가게 평점 등록
         double shopRating = getReviewRating(shop.getTotalRating(),request.getReviewRating(),shop.getReviewCount());
-        shop.updateRating(shopRating);
+        shop.updateRating(shopRating,request.getReviewRating());
         shopRepository.save(shop);
 
         double desingerRating = getReviewRating(designer.getTotalRating(),request.getReviewRating(),designer.getReviewCount());
-        designer.updateRating(desingerRating);
+        designer.updateRating(desingerRating,request.getReviewRating());
         designerRepository.save(designer);
 
         return "리뷰가 성공적으로 등록되었습니다.";

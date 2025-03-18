@@ -104,8 +104,10 @@ public class Shop {
         this.longitude=longitude;
         this.latitude=latitude;
     }
-    public void updateRating(Double rating){
+    public void updateRating(Double rating,Double requestRating){
         this.rating=rating;
+        this.totalRating += requestRating;
+        this.reviewCount += 1;
     }
 
     @Override
