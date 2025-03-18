@@ -9,6 +9,8 @@ import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -20,6 +22,7 @@ import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
 import com.myong.backend.repository.*;
+import com.myong.backend.repository.mybatis.ReservationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +60,7 @@ public class ShopService {
     private final KakaoMapApi kakaoMapApi;
     private final JobPostRepository jobPostRepository;
     private final BlackListRepository blackListRepository;
+    private final ReservationMapper reservationMapper;
 
 
 
@@ -555,5 +559,18 @@ public class ShopService {
 
         // 성공 구문 반환
         return "성공적으로 블랙리스트에서 삭제되었습니다.";
+    }
+
+    /**
+     * 사업자 예약 조회
+     * @param request
+     * @return
+     */
+    public List<ShopReservationResponseDto> getReservations(ShopReservationRequestDto request) {
+        // 가게 찾기
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다."));
+        // MyBatis SqlMapper를 통해 예약 조회하기
+        return reservationMapper.findAll(request);
     }
 }

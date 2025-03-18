@@ -58,7 +58,7 @@ public class Love {
     /**
      * 복합키(직렬화 사용)
      */
-    private static class LoveId implements Serializable {
+    static class LoveId implements Serializable {
         private UUID userId;
         private UUID designerId;
     }

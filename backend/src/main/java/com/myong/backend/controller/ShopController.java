@@ -2,6 +2,8 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
@@ -239,5 +241,13 @@ public class ShopController {
     @PostMapping("/blacklist/delete")
     public ResponseEntity<String> deleteBlackList(@Validated @RequestBody List<BlackListRequestDto> requests) {
         return ResponseEntity.ok(shopService.deleteBlackList(requests));
+    }
+
+    /**
+     * 사업자 예약 관리(조회)
+     */
+    @GetMapping("/reservations")
+    public ResponseEntity<List<ShopReservationResponseDto>> getReservations(@Validated @RequestBody ShopReservationRequestDto request) {
+        return ResponseEntity.ok(shopService.getReservations(request));
     }
 }
