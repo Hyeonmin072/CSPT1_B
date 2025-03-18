@@ -104,11 +104,14 @@ public class Shop {
         this.longitude=longitude;
         this.latitude=latitude;
     }
-    public void updateRating(Double rating,Double requestRating){
-        this.rating=rating;
-        this.totalRating += requestRating;
-        this.reviewCount += 1;
+    public void updateRating(Double rating,Double totalRating,Integer reviewCount){
+        this.rating = rating;
+        this.totalRating = totalRating;
+        this.reviewCount = reviewCount;
     }
+
+
+
 
     @Override
     public final boolean equals(Object o) {

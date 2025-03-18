@@ -16,7 +16,7 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
     Optional<Shop> findByEmail(String email);
 
     @Query(value = " select * FROM shop " +
-            "Where ST_Distance_Sphere(point(:longitude,:latitude),point(longitude,latitude)) <= 2000",
+            "Where ST_Distance(point(:longitude,:latitude),point(shop.s_longitude,shop.s_latitude)) <= 2000",
             nativeQuery = true)
     List<Shop> findShopWithinRadius(@Param("longitude") double longitude, @Param("latitude") double latitude);
 

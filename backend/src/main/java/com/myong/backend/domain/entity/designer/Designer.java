@@ -96,10 +96,10 @@ public class Designer {
         this.shop = shop;
     }
 
-    public void updateRating(Double rating,Double requestRating){
+    public void updateRating(Double rating,Double totalRating,Integer reviewCount){
         this.rating = rating;
-        this.totalRating += requestRating;
-        this.reviewCount += 1;
+        this.totalRating = totalRating;
+        this.reviewCount = reviewCount;
     }
 
     @Override
