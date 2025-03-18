@@ -5,6 +5,7 @@ import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.repository.DesignerRepository;
+import com.myong.backend.repository.ReviewRepository;
 import com.myong.backend.repository.ShopRepository;
 import com.myong.backend.repository.UserRepository;
 import com.myong.backend.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 @SpringBootTest
 
@@ -29,6 +31,9 @@ class BackendApplicationTests {
 	private ShopRepository shopRepository;
 	@Autowired
 	private DesignerRepository designerRepository;
+	@Autowired
+	private ReviewRepository reviewRepository;
+
 
 
 //	@Test
