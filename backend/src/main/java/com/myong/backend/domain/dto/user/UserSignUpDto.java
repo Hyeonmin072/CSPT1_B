@@ -21,7 +21,7 @@ public class UserSignUpDto {
     private String confirmPassword;
     @NotBlank
     private String tel;
-    @NotBlank
+    @NotNull
     private LocalDate birth;
     @NotNull
     private Gender gender;

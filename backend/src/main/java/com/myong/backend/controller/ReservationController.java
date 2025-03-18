@@ -2,6 +2,7 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.reservation.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.ReservationCreateRequestDto;
+import com.myong.backend.domain.dto.reservation.ReservationInfoResponseDto;
 import com.myong.backend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,11 @@ public class ReservationController {
     @PostMapping("/refuse")
     public ResponseEntity<String> refuseReservation(@RequestBody ReservationAcceptRequestDto requestDto){
         return reservationService.refuseReservation(requestDto);
+    }
+
+    @GetMapping("/{userEmail}")
+    public List<ReservationInfoResponseDto> getReservationByUser(@PathVariable("userEmail") String userEmail){
+        return reservationService.getReservationByUser(userEmail);
     }
 
 }

@@ -156,7 +156,7 @@ public class ShopService {
                     coupon.getId().toString(),
                     coupon.getName(),
                     coupon.getType().toString(),
-                    coupon.getAmount(),
+                    coupon.getPrice(),
                     coupon.getGetDate(),
                     coupon.getUseDate()
             );
@@ -180,7 +180,7 @@ public class ShopService {
         Coupon coupon = new Coupon( // 쿠폰 생성
                 request.getName(),
                 DiscountType.valueOf(request.getType()),
-                request.getAmount(),
+                request.getPrice(),
                 Period.ofDays(request.getGetDate()),
                 Period.ofDays(request.getUseDate()),
                 shop

@@ -18,7 +18,7 @@ public class CouponListResponseDto {
     String type;
 
     @NotBlank
-    Long amount;
+    Integer price;
 
     @NotBlank
     Period getDate;

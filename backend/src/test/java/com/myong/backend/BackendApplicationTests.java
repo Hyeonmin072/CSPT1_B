@@ -51,9 +51,6 @@ class BackendApplicationTests {
 //		designer1.registerDesigner(shop);
 //		designer2.registerDesigner(shop2);
 //		designer3.registerDesigner(shop2);
-//
-//
-//
 //	}
 
 

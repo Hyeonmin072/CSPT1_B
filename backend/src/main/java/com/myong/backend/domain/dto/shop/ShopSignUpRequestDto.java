@@ -3,9 +3,10 @@ package com.myong.backend.domain.dto.shop;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 import lombok.Value;
 
-@Value
+@Data
 public class ShopSignUpRequestDto {
 
     @NotBlank
