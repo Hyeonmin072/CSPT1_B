@@ -1,5 +1,7 @@
 package com.myong.backend.domain.entity.designer;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,10 +33,11 @@ public class Career {
     private LocalDate outDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "jp_id", nullable = false)
+    @JoinColumn(name = "re_id", nullable = false)
+    @JsonBackReference
     private Resume resume; // 구직 지원서 고유 키
 
-    public Career(String name, LocalDate joinDate, Resume resume) {
+    public Career(String name, LocalDate joinDate,Resume resume) {
         this.name = name;
         this.joinDate = joinDate;
         this.resume = resume;
@@ -55,5 +58,21 @@ public class Career {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public void updateShopName(String name){
+        this.name = name;
+    }
+
+    public void updateJoinDate(LocalDate joinDate){
+        this.joinDate = joinDate;
+    }
+
+    public void updateOutDate(LocalDate outDate){
+        this.outDate = outDate;
+    }
+
+    public void updateResume(Resume resume){
+        this.resume = resume;
     }
 }

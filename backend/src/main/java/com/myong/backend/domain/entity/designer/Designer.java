@@ -1,5 +1,6 @@
 package com.myong.backend.domain.entity.designer;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
@@ -62,6 +63,7 @@ public class Designer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")
+    @JsonManagedReference
     private Shop shop;   // 소속된 가게
 
     @OneToOne(mappedBy = "designer", cascade = CascadeType.ALL)

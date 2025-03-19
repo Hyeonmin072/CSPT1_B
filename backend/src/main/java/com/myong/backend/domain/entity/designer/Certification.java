@@ -1,5 +1,7 @@
 package com.myong.backend.domain.entity.designer;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,11 +19,12 @@ public class Certification {
     @Column(name = "cr_id")
     private UUID id = UUID.randomUUID(); // 자격증 고유 키
 
-    @Column(name = "ce_name",nullable = false)
+    @Column(name = "cr_name",nullable = false)
     private String name; // 자격증 이름
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ce_id", nullable = false)
+    @JoinColumn(name = "re_id", nullable = false)
+    @JsonBackReference
     private Resume resume; // 구직 지원서 고유 키
 
     public Certification(String name) {
@@ -42,5 +45,13 @@ public class Certification {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updateResume(Resume resume) {
+        this.resume = resume;
     }
 }
