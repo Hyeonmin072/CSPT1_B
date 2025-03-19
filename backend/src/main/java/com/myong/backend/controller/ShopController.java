@@ -2,15 +2,15 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
-import com.myong.backend.domain.dto.reservation.ShopReservationRequestDto;
-import com.myong.backend.domain.dto.reservation.ShopReservationResponseDto;
-import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationDetailResponseDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.ShopService;
@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/shop")
@@ -249,5 +250,13 @@ public class ShopController {
     @GetMapping("/reservations")
     public ResponseEntity<List<ShopReservationResponseDto>> getReservations(@Validated @RequestBody ShopReservationRequestDto request) {
         return ResponseEntity.ok(shopService.getReservations(request));
+    }
+
+    /**
+     * 사업자 예약 상세 관리(상세 조회)
+     */
+    @GetMapping("/reservations/{reservationId}")
+    public ResponseEntity<ShopReservationDetailResponseDto> getReservation(@PathVariable UUID reservationId) {
+        return ResponseEntity.ok(shopService.getReservation(reservationId));
     }
 }

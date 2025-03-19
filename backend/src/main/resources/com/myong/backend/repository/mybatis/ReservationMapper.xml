@@ -7,7 +7,8 @@
                u.u_name as userName,
                d.d_name as designerName,
                m.m_name as menuName,
-               m.m_price as menuPrice
+               m.m_price as menuPrice,
+               r.r_id as reservationId
         from reservation r
         join shop s on r.s_id = s.s_id
         join user u on r.u_id = u.u_id
@@ -26,13 +27,13 @@
             <if test="request.latest != null">
                 <choose>
                     <when test="request.latest.name() == 'ONE_WEEK'">
-                        and r.r_service_date >= NOW() - interval 1 week
+                        and r.r_service_date >= #{request.date} - interval 1 week
                     </when>
                     <when test="request.latest.name() == 'ONE_MONTH'">
-                        and r.r_service_date >= NOW() - interval 1 month
+                        and r.r_service_date >= #{request.date} - interval 1 month
                     </when>
                     <when test="request.latest.name() == 'ONE_YEAR'">
-                        and r.r_service_date >= NOW() - interval 1 year
+                        and r.r_service_date >= #{request.date} - interval 1 year
                     </when>
                 </choose>
             </if>

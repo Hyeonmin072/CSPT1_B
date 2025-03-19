@@ -9,6 +9,7 @@ import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.reservation.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
@@ -572,5 +573,16 @@ public class ShopService {
                 .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다."));
         // MyBatis SqlMapper를 통해 예약 조회하기
         return reservationMapper.findAll(request);
+    }
+
+    /**
+     * 사업자 예약 상세 조회
+     * @param reservationId
+     * @return
+     */
+    public ShopReservationDetailResponseDto getReservation(UUID reservationId) {
+        // 예약 상세 조회 결과 반환
+        return reservationRepository.findDetailById(reservationId)
+                .orElseThrow(() -> new NoSuchElementException("해당 예약을 찾을 수 없습니다."));
     }
 }
