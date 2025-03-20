@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/signin","/designer/signin","/shop/signin").permitAll()
+                        .requestMatchers("/user/signin","/designer/signin","/shop/signin","/v3/api-docs/**","/swagger-ui/**","swagger-ui.html/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .httpBasic(withDefaults())

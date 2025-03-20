@@ -25,11 +25,13 @@
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-websocket:3.4.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-web:3.4.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-mail:3.4.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0" level="project" />
     <orderEntry type="library" name="Gradle: net.nurigo:sdk:4.3.2" level="project" />
     <orderEntry type="library" name="Gradle: io.jsonwebtoken:jjwt-impl:0.11.5" level="project" />
     <orderEntry type="library" name="Gradle: io.jsonwebtoken:jjwt-jackson:0.11.5" level="project" />
     <orderEntry type="library" name="Gradle: io.jsonwebtoken:jjwt-api:0.11.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-test:3.4.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.security:spring-security-test:6.4.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jdbc:3.4.1" level="project" />
@@ -55,9 +57,13 @@
     <orderEntry type="library" name="Gradle: org.springframework:spring-web:6.2.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context-support:6.2.1" level="project" />
     <orderEntry type="library" name="Gradle: org.eclipse.angus:jakarta.mail:2.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.mybatis.spring.boot:mybatis-spring-boot-autoconfigure:3.0.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.mybatis:mybatis:3.5.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.mybatis:mybatis-spring:3.0.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springdoc:springdoc-openapi-starter-webmvc-api:2.5.0" level="project" />
     <orderEntry type="library" name="Gradle: org.webjars:swagger-ui:5.13.0" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.18.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.mybatis.spring.boot:mybatis-spring-boot-test-autoconfigure:3.0.4" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-test-autoconfigure:3.4.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-test:3.4.1" level="project" />
     <orderEntry type="library" name="Gradle: com.jayway.jsonpath:json-path:2.9.0" level="project" />

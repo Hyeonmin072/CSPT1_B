@@ -12,8 +12,9 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("API 문서")
+                        .title("헤어리즘 API 문서")
                         .version("1.0")
-                        .description("Swagger로 만든 API 문서"));
+                        .description("Swagger로 만든 API 문서"))
+                .openapi("3.0.1");  // ✅ OpenAPI 버전 명확히 지정
     }
 }
