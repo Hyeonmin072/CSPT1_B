@@ -22,8 +22,8 @@ public class Payment {
     @Column(name = "p_url", nullable = false)
     private String url; // 결제 URL
 
-    @Column(name = "p_amount", nullable = false)
-    private Long amount; // 결제 금액
+    @Column(name = "p_price", nullable = false)
+    private Integer price; // 결제 금액
 
     @Column(name = "p_status", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -40,9 +40,9 @@ public class Payment {
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
 
-    public Payment(String url, Long amount, Reservation reservation, Shop shop) {
+    public Payment(String url, Integer price, Reservation reservation, Shop shop) {
         this.url = url;
-        this.amount = amount;
+        this.price = price;
         this.reservation = reservation;
         this.shop = shop;
     }

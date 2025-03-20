@@ -1,6 +1,5 @@
 package com.myong.backend.domain.dto.coupon;
 
-import com.myong.backend.domain.entity.user.DiscountType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
 
@@ -10,13 +9,16 @@ import java.time.Period;
 public class CouponListResponseDto {
 
     @NotBlank
+    String id;
+
+    @NotBlank
     String name;
 
     @NotBlank
-    DiscountType type;
+    String type;
 
     @NotBlank
-    Long amount;
+    Integer price;
 
     @NotBlank
     Period getDate;

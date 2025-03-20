@@ -1,8 +1,12 @@
 package com.myong.backend.service;
 
 
+import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
+import com.myong.backend.repository.DesignerRepository;
+import com.myong.backend.repository.ShopRepository;
 import com.myong.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -23,21 +27,68 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final DesignerRepository designerRepository;
+    private final ShopRepository shopRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
-                .map(this::createUserDetails)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 유저가 존재하지 않습니다"));
+        try{
+            String user = username.split(",")[0];
+            String who = username.split(",")[1];
+            switch (who){
+                case "USER" -> {
+                    return userRepository.findByEmail(user)
+                            .map(this::createUserDetails)
+                            .orElseThrow(() -> new UsernameNotFoundException("해당 유저가 존재하지 않습니다"));
+                }
+                case "DESIGNER" -> {
+                    return designerRepository.findByEmail(user)
+                            .map(this::createDesginerDetails)
+                            .orElseThrow(() -> new UsernameNotFoundException("해당 디자이너가 존재하지 않습니다"));
+                }
+                case "SHOP" -> {
+                    return shopRepository.findByEmail(user)
+                            .map(this::createShopDetails)
+                            .orElseThrow(() -> new UsernameNotFoundException("해당 가게가 존재하지 않습니다"));
+                }
+                default -> throw new UsernameNotFoundException("잘못된 유형의 사용자입니다.");
+            }
+        } catch (Exception e){
+            throw new Error(e);
+        }
+
+
     }
 
     private UserDetailsDto createUserDetails(User user) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        authorities.add(new SimpleGrantedAuthority("USER"));
         return new UserDetailsDto(
                 user.getId().toString(),
                 user.getEmail(),
                 user.getPwd(),
+                authorities
+        );
+    }
+
+    private UserDetailsDto createDesginerDetails(Designer designer){
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("DESIGNER"));
+        return new UserDetailsDto(
+                designer.getId().toString(),
+                designer.getEmail(),
+                designer.getPwd(),
+                authorities
+        );
+    }
+
+    private UserDetailsDto createShopDetails(Shop shop){
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("SHOP"));
+        return new UserDetailsDto(
+                shop.getId().toString(),
+                shop.getEmail(),
+                shop.getPwd(),
                 authorities
         );
     }

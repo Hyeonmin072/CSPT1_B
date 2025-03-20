@@ -59,7 +59,13 @@ public class Designer {
     private Long like = 0L; //좋아요
 
     @Column(name = "d_rating" , nullable = false)
-    private Double rating = 0.0; // 평점 총 합계
+    private Double rating = 0.0; // 총 평점
+
+    @Column(name = "d_total_rating")
+    private Double totalRating = 0.0; // 평점 합계
+
+    @Column(name = "d_review_count")
+    private Integer reviewCount = 0;  // 리뷰 개수
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")
@@ -86,6 +92,16 @@ public class Designer {
         this.tel = tel;
         this.birth = birth;
         this.gender = gender;
+    }
+
+    public void registerDesigner(Shop shop){
+        this.shop = shop;
+    }
+
+    public void updateRating(Double rating,Double totalRating,Integer reviewCount){
+        this.rating = rating;
+        this.totalRating = totalRating;
+        this.reviewCount = reviewCount;
     }
 
     @Override
@@ -125,4 +141,11 @@ public class Designer {
         this.image = image;
     }
 
+    public void getJob(Shop shop) {
+        this.shop = shop;
+    }
+
+    public void fire() {
+        this.shop = null;
+    }
 }

@@ -33,7 +33,7 @@ public class DesignerController {
     @PostMapping("/signup")
     //회원가입
     public
-        //Api<SignUpRequest>
+    //Api<SignUpRequest>
     ResponseEntity<?> signup(
             @Valid
             @RequestBody SignUpRequest request){
@@ -107,11 +107,11 @@ public class DesignerController {
     public ResponseEntity<Designer> updateProfile(
             @PathVariable String nickname,
             @Valid @RequestBody UpdateProfileRequest request
-    ){
-        log.info("update profile: {}", request);
+            ){
+            log.info("update profile: {}", request);
 
-        Designer updatedesigner = designerService.updateProfile(nickname, request);
-        return ResponseEntity.ok(updatedesigner);
+            Designer updatedesigner = designerService.updateProfile(nickname, request);
+            return ResponseEntity.ok(updatedesigner);
     }
 
 }

@@ -33,7 +33,7 @@ public class Reservation {
 
     @CreatedDate
     @Column(name = "r_create_date", updatable = false)
-    private LocalDateTime createDate; // 예약을 접수한 날짜
+    private LocalDateTime createDate = LocalDateTime.now(); // 예약을 접수한 날짜
 
     @Column(name = "r_service_date", nullable = false)
     private LocalDateTime serviceDate; // 서비스를 받을 날짜
@@ -41,6 +41,9 @@ public class Reservation {
     @Column(name = "r_pay_method")
     @Enumerated(EnumType.STRING)
     private PaymentMethod payMethod; // 결제 수단
+
+    @Column(name = "r_price")
+    private Integer price; // 결제 금액
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "m_id", nullable = false)
@@ -62,12 +65,29 @@ public class Reservation {
     @JoinColumn(name = "u_id",nullable = false)
     private User user; // 유저 고유 키
 
-    public Reservation(LocalDateTime serviceDate, Menu menu, Shop shop, Designer designer, User user) {
+    public Reservation(LocalDateTime serviceDate,PaymentMethod payMethod, Integer price, Menu menu, Shop shop, Designer designer, User user, Coupon coupon) {
         this.serviceDate = serviceDate;
+        this.payMethod = payMethod;
+        this.price = price;
         this.menu = menu;
         this.shop = shop;
         this.designer = designer;
         this.user = user;
+        this.coupon = coupon;
+    }
+
+    public Reservation(LocalDateTime serviceDate,PaymentMethod payMethod, Integer price,Menu menu, Shop shop, Designer designer, User user) {
+        this.serviceDate = serviceDate;
+        this.payMethod = payMethod;
+        this.price = price;
+        this.menu = menu;
+        this.shop = shop;
+        this.designer = designer;
+        this.user = user;
+    }
+
+    public void acceptReservation(){
+        this.status = ReservationStatus.SUCCESS;
     }
 
     @Override

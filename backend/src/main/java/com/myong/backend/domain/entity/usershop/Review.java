@@ -58,9 +58,10 @@ public class Review {
     @JoinColumn(name = "rva_id")
     private ReviewAnswer reviewAnswer; // 리뷰 답변 고유 키
 
-    public Review(String content, Double rating, Reservation reservation, Shop shop, Designer designer, User user) {
+    public Review(String content, Double rating,String image, Reservation reservation, Shop shop, Designer designer, User user) {
         this.content = content;
         this.rating = rating;
+        this.image = image;
         this.reservation = reservation;
         this.shop = shop;
         this.designer = designer;
