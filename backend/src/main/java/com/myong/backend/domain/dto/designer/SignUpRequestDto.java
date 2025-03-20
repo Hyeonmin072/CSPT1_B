@@ -15,7 +15,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 
-public class SignUpRequest {
+public class SignUpRequestDto {
 
 
     @NotBlank

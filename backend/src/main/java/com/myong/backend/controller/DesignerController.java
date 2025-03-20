@@ -2,13 +2,17 @@ package com.myong.backend.controller;
 
 
 import com.myong.backend.domain.dto.designer.Api;
-import com.myong.backend.domain.dto.designer.SignUpRequest;
-import com.myong.backend.domain.dto.designer.UpdateProfileRequest;
+import com.myong.backend.domain.dto.designer.ResumeRequestDto;
+import com.myong.backend.domain.dto.designer.SignUpRequestDto;
+import com.myong.backend.domain.dto.designer.SignUpRequestDto;
+import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
+import com.myong.backend.service.ResumeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,28 +32,23 @@ import java.util.UUID;
 public class DesignerController {
 
     private final DesignerService designerService;
+    private final ResumeService resumeService;
 
 
     @PostMapping("/signup")
     //회원가입
-    public
-    //Api<SignUpRequest>
-    ResponseEntity<?> signup(
+    public ResponseEntity<SignUpRequestDto> signup(
             @Valid
-            @RequestBody SignUpRequest request){
+            @RequestBody
+            SignUpRequestDto request,
+            ResumeRequestDto resumeDto){
         log.info("signup request: {}", request); //디버깅용 로그찍기
 
-        //var body = request.getData();//request의 데이터를 바디에 담고
+        designerService.signUp(request,resumeDto);
 
-        designerService.signUp(request);//서비스에 바디를 넣기
+        ResponseEntity<SignUpRequestDto> response = ResponseEntity.status(HttpStatus.OK).body(request);
 
-//        Api<SignUpRequest> response = Api.<SignUpRequest>builder()
-//                .resultCode(String.valueOf(HttpStatus.OK.value()))//결과코드가 맞으면 200코드를 반환
-//                .resultMessage(HttpStatus.OK.getReasonPhrase())//결과코드가 맞으면 ok메세지를 반화
-//                .data(body)
-//                .build();
-
-        return ResponseEntity.ok("회원가입성공");
+        return response;
     }
 
     //이메일 중복검사
@@ -96,22 +95,43 @@ public class DesignerController {
     }
 
     //디자이너 프로필 불러오기
-    @GetMapping("/profile/{nickname}")
-    public ResponseEntity<Designer> profile(@PathVariable String nickname){
-        Designer designer = designerService.getProfile(nickname);
+    @GetMapping("/profile/{email}")
+    public ResponseEntity<Designer> profile(@PathVariable String email){
+        Designer designer = designerService.getProfile(email);
         return ResponseEntity.ok(designer);
     }
 
     //디자이너 프로필 수정
-    @PostMapping("/profile/update/{nickname}")
+    @PostMapping("/profile/update/{email}")
     public ResponseEntity<Designer> updateProfile(
-            @PathVariable String nickname,
-            @Valid @RequestBody UpdateProfileRequest request
+            @PathVariable String email,
+            @Valid @RequestBody UpdateProfileRequestDto request
             ){
             log.info("update profile: {}", request);
 
-            Designer updatedesigner = designerService.updateProfile(nickname, request);
+            Designer updatedesigner = designerService.updateProfile(email, request);
             return ResponseEntity.ok(updatedesigner);
+    }
+    //디자이너 이력서 수정
+
+
+    @PostMapping("/resume/update/{email}")
+    public ResponseEntity<Resume> updateResume(
+            @PathVariable String email,
+            @Valid  @RequestBody ResumeRequestDto resumeDto ){
+        log.info("update resume: {}", resumeDto);
+
+        Resume resume = resumeService.updateResume(email, resumeDto);
+        return ResponseEntity.ok(resume);
+    }
+
+
+
+    //디자이너 이력서 가져오기
+    @GetMapping("/resume/{email}")
+    public ResponseEntity<Resume> getResume(@PathVariable String email){
+        Resume resume = designerService.getResume(email);
+        return ResponseEntity.ok(resume);
     }
 
 }
