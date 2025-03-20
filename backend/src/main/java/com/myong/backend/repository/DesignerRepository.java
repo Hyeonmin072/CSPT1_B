@@ -11,5 +11,4 @@ public interface DesignerRepository extends JpaRepository<Designer, UUID> {
     Boolean existsByNickName(String nickName);
     Optional<Designer> findByNickName(String nickName);
     Optional<Designer> findByEmail(String email);
-
 }
