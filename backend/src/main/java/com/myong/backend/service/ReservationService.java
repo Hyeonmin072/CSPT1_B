@@ -1,9 +1,10 @@
 package com.myong.backend.service;
 
 
-import com.myong.backend.domain.dto.reservation.ReservationAcceptRequestDto;
-import com.myong.backend.domain.dto.reservation.ReservationCreateRequestDto;
-import com.myong.backend.domain.dto.reservation.ReservationInfoResponseDto;
+import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
+import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
+import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
 import com.myong.backend.domain.entity.business.PaymentMethod;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
@@ -18,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -162,6 +163,24 @@ public class ReservationService {
 
     }
 
+    // 예약 페이지1
+    public List<ReservationPage1ResponseDto> loadReservationPage1(String email){
+        Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게가 존재하지 않습니다."));
+
+        List<Designer> desingers = shop.getDesigners();
+        List<ReservationPage1ResponseDto> responseDtos =
+                desingers.stream().map(designer -> new ReservationPage1ResponseDto(
+                        designer.getName(),
+                        designer.getDesc(),
+                        designer.getImage(),
+                        designer.getRating(),
+                        designer.getLike(),
+                        designer.getReviewCount()
+                )).collect(Collectors.toList());
+
+        return responseDtos;
+    }
+
 
     public int usingCoupon(int discount, int menuPrice, DiscountType discountType){
         if(discountType == DiscountType.FIXED){
@@ -170,5 +189,7 @@ public class ReservationService {
         return menuPrice - (int)(menuPrice * ((double)discount / 100));
 
     }
+
+
 
 }

@@ -1,7 +1,6 @@
-package com.myong.backend.domain.dto.reservation;
+package com.myong.backend.domain.dto.reservation.response;
 
 
-import com.myong.backend.domain.entity.business.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

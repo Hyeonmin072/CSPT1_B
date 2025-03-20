@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto.reservation;
+package com.myong.backend.domain.dto.reservation.response;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

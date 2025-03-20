@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto.reservation;
+package com.myong.backend.domain.dto.reservation.request;
 
 import com.myong.backend.domain.entity.business.PaymentMethod;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto.user;
+package com.myong.backend.domain.dto.user.response;
 
 import com.myong.backend.domain.dto.user.common.ShopCommonDto;
 import com.myong.backend.domain.entity.Advertisement;
