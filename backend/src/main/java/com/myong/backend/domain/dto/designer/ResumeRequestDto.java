@@ -2,6 +2,7 @@ package com.myong.backend.domain.dto.designer;
 
 import com.myong.backend.domain.entity.designer.Exp;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,7 @@ import java.util.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Builder
 public class ResumeRequestDto {
 
     private String content;

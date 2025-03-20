@@ -40,7 +40,7 @@ public class Designer {
     private String email; // 이메일
 
     @Column(name = "d_pwd", nullable = false)
-    private String pwd; // 비밀번호
+    private String password; // 비밀번호
 
     @Column(name = "d_tel", nullable = false)
     private String tel; // 연락처
@@ -84,11 +84,11 @@ public class Designer {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
     private List<Attendance> attendance = new ArrayList<>();
 
-    public Designer(String name, String nickName, String email, String pwd, String tel, LocalDate birth, Gender gender) {
+    public Designer(String name, String nickName, String email, String password, String tel, LocalDate birth, Gender gender) {
         this.name = name;
         this.nickName = nickName;
         this.email = email;
-        this.pwd = pwd;
+        this.password = password;
         this.tel = tel;
         this.birth = birth;
         this.gender = gender;
@@ -129,8 +129,8 @@ public class Designer {
         this.desc = desc;
     }
 
-    public void updatePwd(String newPwd) {
-        this.pwd = newPwd;
+    public void updatePwd(String newPassword) {
+        this.password = newPassword;
     }
 
     public void updateTel(String tel) {

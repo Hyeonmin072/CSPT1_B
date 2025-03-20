@@ -14,7 +14,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class SignUpRequestDto {
 
 
@@ -36,7 +35,7 @@ public class SignUpRequestDto {
     @PhoneNumber
     private String tel;
 
-    @NotBlank
+    @NotNull
     private String birth;
 
     @NotNull

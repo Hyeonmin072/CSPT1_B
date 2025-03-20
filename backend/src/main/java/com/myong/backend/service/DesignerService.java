@@ -53,15 +53,17 @@ public class DesignerService {
             throw new IllegalArgumentException("invalid birth date format : yyyyMMdd으로 형태를 맞춰주세요");
         }
 
-        Designer designer = new Designer(
-                request.getName(),
-                request.getNickname(),
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getTel(),
-                birthday,
-                request.getGender()
-        );
+
+        Designer designer = Designer.builder()
+                        .name(request.getName())
+                        .nickName(request.getNickname())
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .tel(request.getTel())
+                        .birth(birthday)
+                        .gender(request.getGender())
+                        .build();
+
         designerRepository.save(designer);
 
         //이력서 생성
@@ -95,7 +97,7 @@ public class DesignerService {
 
         //비밀번호 변경
         if (updateProfileRequest.getNewPwd() != null) {
-            if (updateProfileRequest.getOldPwd() == null || !designer.getPwd().equals(updateProfileRequest.getOldPwd())) {
+            if (updateProfileRequest.getOldPwd() == null || !designer.getPassword().equals(updateProfileRequest.getOldPwd())) {
                 throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
             }
             if (updateProfileRequest.getOldPwd().equals(updateProfileRequest.getNewPwd())) {
@@ -139,6 +141,8 @@ public class DesignerService {
     public Resume getResume(String email) {
         return resumeService.getResume(email);
     }
+
+
     public ShopDesignerDetailResponseDto getDesigner(ShopDesignerRequestDto request) {
         Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기

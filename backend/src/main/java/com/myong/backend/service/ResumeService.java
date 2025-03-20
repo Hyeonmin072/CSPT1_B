@@ -136,16 +136,23 @@ public class ResumeService {
             log.info("existingCareers : {}", existingCareers);
 
             for (CareerRequestDto careerDto : resumeDto.getCareers()) {
-                String crKey = careerDto.getShopName() + "_" + careerDto.getJoinDate();
+
+                LocalDate joinDate = dateFormatting(careerDto.getJoinDate());
+                LocalDate outDate = Optional.ofNullable(dateFormatting(careerDto.getOutDate())).orElse(null);
+
+                log.info("joinDate : {}", joinDate);
+                log.info("outDate : {}", outDate);
+
+                String crKey = careerDto.getShopName() + "_" + joinDate;
                 log.info("crKey : {}", crKey);
 
-                LocalDate outDate = Optional.ofNullable(careerDto.getOutDate()).orElse(null);
+
 
                 if(!existingCareers.contains(crKey)) {
                     Career career = new Career();
 
                     career.updateShopName(careerDto.getShopName());
-                    career.updateJoinDate(careerDto.getJoinDate());
+                    career.updateJoinDate(joinDate);
                     career.updateOutDate(outDate);
                     career.updateResume(resume);
 
@@ -155,7 +162,7 @@ public class ResumeService {
                 }else{
                     if(existingCareers.contains(crKey)) {
                         Optional<Career>existingCareer = careerRepository.findByResumeAndNameAndJoinDate(
-                                resume, careerDto.getShopName(), careerDto.getJoinDate());
+                                resume, careerDto.getShopName(), joinDate);
 
                         if(existingCareer.isPresent()) {
                             Career career = existingCareer.get();

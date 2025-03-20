@@ -1,13 +1,14 @@
 package com.myong.backend.domain.dto.designer;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Builder
 public class UpdateProfileRequestDto {
 
     private String updateNickName;  //닉네임
