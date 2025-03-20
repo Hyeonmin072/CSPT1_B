@@ -1,6 +1,6 @@
 package com.myong.backend.repository;
 
-import com.myong.backend.domain.dto.reservation.ShopReservationDetailResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,7 +19,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
 
     List<Reservation> findAllByUser(User user);
 
-    @Query("select new com.myong.backend.domain.dto.reservation.ShopReservationDetailResponseDto(" +
+    @Query("select new com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto(" +
             "m.name, r.serviceDate, u.name, d.name, r.payMethod ,r.price) " +
             "from Reservation r " +
             "join r.user u " +

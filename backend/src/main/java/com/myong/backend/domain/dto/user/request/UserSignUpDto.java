@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto.user;
+package com.myong.backend.domain.dto.user.request;
 
 import com.myong.backend.domain.entity.Gender;
 import jakarta.validation.constraints.AssertTrue;

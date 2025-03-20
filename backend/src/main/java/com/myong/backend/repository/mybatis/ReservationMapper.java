@@ -1,7 +1,7 @@
 package com.myong.backend.repository.mybatis;
 
-import com.myong.backend.domain.dto.reservation.ShopReservationRequestDto;
-import com.myong.backend.domain.dto.reservation.ShopReservationResponseDto;
+import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

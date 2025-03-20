@@ -4,10 +4,10 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
-import com.myong.backend.domain.dto.user.ShopDetailsResponseDto;
-import com.myong.backend.domain.dto.user.UserHairShopPageResponseDto;
-import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
-import com.myong.backend.domain.dto.user.UserSignUpDto;
+import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
+import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
+import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -102,6 +102,12 @@ public class UserController {
     public ResponseEntity<ShopDetailsResponseDto> loadHairShopDetailsPage(@PathVariable(name = "shopemail")String shopemail){
         return ResponseEntity.ok(userService.loadHairShopDetailsPage(shopemail));
     }
+
+
+
+
+
+
 
 
 }
