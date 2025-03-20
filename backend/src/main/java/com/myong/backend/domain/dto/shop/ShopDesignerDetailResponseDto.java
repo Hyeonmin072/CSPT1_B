@@ -20,5 +20,5 @@ public class ShopDesignerDetailResponseDto {
     String gender;// 디자이너 성별
 
     @NotBlank
-    Long like; // 디자이너 좋아요 개수
+    Integer like; // 디자이너 좋아요 개수
 }

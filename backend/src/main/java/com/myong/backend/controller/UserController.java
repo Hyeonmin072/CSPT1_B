@@ -83,20 +83,25 @@ public class UserController {
         return userService.Signout(request);
     }
 
+    // 유저 페이지 헤어샵카테고리
     @GetMapping("/hairshop/{useremail}")
     public ResponseEntity<UserHairShopPageResponseDto> loadHairShopPage(@PathVariable(name = "useremail")String useremail){
         return ResponseEntity.ok(userService.loadHairShopPage(useremail));
     }
 
+
+    // 유저 홈페이지
     @GetMapping("/homepage/{useremail}")
     public ResponseEntity<UserHomePageResponseDto> loadHomePage(@PathVariable(name = "useremail")String useremail){
         return ResponseEntity.ok(userService.loadHomePage(useremail));
     }
 
-//    @GetMapping("/shopdetails/{shopemail}")
-//    public ResponseEntity<ShopDetailsResponseDto> loadHairShopDetailsPage(@PathVariable(name = "shopemail")String shopemail){
-//        return ResponseEntity.ok("11");
-//    }
+
+    // 헤어샵 상세보기
+    @GetMapping("/shopdetails/{shopemail}")
+    public ResponseEntity<ShopDetailsResponseDto> loadHairShopDetailsPage(@PathVariable(name = "shopemail")String shopemail){
+        return ResponseEntity.ok(userService.loadHairShopDetailsPage(shopemail));
+    }
 
 
 }

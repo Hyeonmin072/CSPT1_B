@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto.user.List;
+package com.myong.backend.domain.dto.user.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
-public class ShopListDto {
+public class ShopCommonDto {
 
     private String name; // 가게이름
     private String email; // 가게이메일

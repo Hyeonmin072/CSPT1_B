@@ -55,7 +55,7 @@ public class Designer {
     private Gender gender; //성별
 
     @Column(name = "d_like")
-    private Long like = 0L; //좋아요
+    private Integer like = 0; //좋아요
 
     @Column(name = "d_rating" , nullable = false)
     private Double rating = 0.0; // 총 평점
