@@ -1,13 +1,20 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.user.common.DesignerCommonDto;
+import com.myong.backend.domain.dto.user.common.ReviewCommonDto;
+import com.myong.backend.domain.dto.user.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
-import com.myong.backend.domain.dto.user.List.ShopListDto;
+import com.myong.backend.domain.dto.user.common.ShopCommonDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
+import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.user.Coupon;
+import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -135,8 +142,8 @@ public class UserService {
 
             Collections.sort(shopsInLocation,(shop1,shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
 
-            List<ShopListDto> shopListDto =
-                    shopsInLocation.stream().map(shop -> new ShopListDto(
+            List<ShopCommonDto> shopCommonDto =
+                    shopsInLocation.stream().map(shop -> new ShopCommonDto(
                             shop.getName(),
                             shop.getEmail(),
                             shop.getTel(),
@@ -153,7 +160,7 @@ public class UserService {
 
             return new UserHairShopPageResponseDto(
                     user.getLocation(),
-                    shopListDto
+                    shopCommonDto
             );
 
         }
@@ -161,8 +168,8 @@ public class UserService {
         // 2km 반경 평점순 정렬
         Collections.sort(shopsIn2km,(shop1, shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
 
-        List<ShopListDto> shopListDto =
-                shopsIn2km.stream().map(shop -> new ShopListDto(
+        List<ShopCommonDto> shopCommonDto =
+                shopsIn2km.stream().map(shop -> new ShopCommonDto(
                         shop.getName(),
                         shop.getEmail(),
                         shop.getTel(),
@@ -179,7 +186,7 @@ public class UserService {
 
         return new UserHairShopPageResponseDto(
                 user.getLocation(),
-                shopListDto
+                shopCommonDto
         );
 
     }
@@ -193,8 +200,8 @@ public class UserService {
 
         List<Advertisement> adList = advertisementRepository.findAll();
 
-        List<ShopListDto> shopListDto =
-                popularShops.stream().map(shop -> new ShopListDto(
+        List<ShopCommonDto> shopCommonDto =
+                popularShops.stream().map(shop -> new ShopCommonDto(
                         shop.getName(),
                         shop.getEmail(),
                         shop.getTel(),
@@ -211,8 +218,75 @@ public class UserService {
 
         return new UserHomePageResponseDto(
                 user.getLocation(),
-                shopListDto,
+                shopCommonDto,
                 adList
+        );
+    }
+
+    public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
+        Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다"));
+
+        //가게 데이터 정리
+        ShopCommonDto shopCommonDto = new ShopCommonDto(
+                shop.getName(),
+                shop.getEmail(),
+                shop.getTel(),
+                shop.getDesc(),
+                shop.getRating(),
+                shop.getReviewCount(),
+                shop.getOpenTime(),
+                shop.getCloseTime(),
+                shop.getAddress(),
+                shop.getPost(),
+                shop.getLongitude(),
+                shop.getLatitude()
+        );
+
+        // 디자이너 데이터 정리
+        List<Designer> designers = shop.getDesigners();
+        List<DesignerCommonDto> designerListDtos =
+                designers.stream().map(designer -> new DesignerCommonDto(
+                    designer.getName(),
+                    designer.getDesc(),
+                    designer.getLike(),
+                    designer.getRating()
+                )).collect(Collectors.toList());
+
+
+        // 리뷰 데이터 정리
+        List<Review> reviews = shop.getReviews();
+        List<ReviewCommonDto> reviewListDtos =
+                reviews.stream().map(review -> new ReviewCommonDto(
+                        review.getReservation().getMenu().getName(),
+                        review.getDesigner().getName(),
+                        review.getUser().getName(),
+                        review.getContent(),
+                        review.getRating()
+                )).collect(Collectors.toList());
+
+        List<Coupon> coupons = shop.getCoupons();
+        String highestPriceCoupon = "";
+
+        if(coupons.size() > 0){
+            // 유저 쿠폰 중 가장 할인율이 많은 값 선출
+            Collections.sort(coupons,(o1,o2) -> o2.getPrice() - o1.getPrice());
+            highestPriceCoupon = coupons.get(0).getPrice()+""+(coupons.get(0).getType().equals(DiscountType.FIXED) ? "원" : "%");
+        }
+
+        // 리뷰 별 이미지 데이터 가져오기
+        List<String> reviewImageUrls = new ArrayList<>();
+        for(Review review : reviews){
+            if(review.getImage().equals("")){continue;}
+            reviewImageUrls.add(review.getImage());
+        }
+
+
+        return new ShopDetailsResponseDto(
+                shopCommonDto,
+                designerListDtos,
+                reviewListDtos,
+                highestPriceCoupon,
+                reviewImageUrls
         );
     }
 

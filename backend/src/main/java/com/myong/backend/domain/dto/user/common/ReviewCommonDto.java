@@ -1,16 +1,16 @@
-package com.myong.backend.domain.dto.user.List;
+package com.myong.backend.domain.dto.user.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ReviewListDto {
+public class ReviewCommonDto {
 
     private String menu;
     private String designerName;
     private String userName;
-    private String desc;
+    private String content;
     private Double rating;
 
 }
