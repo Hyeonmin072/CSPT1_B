@@ -23,4 +23,6 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
     @Query("select s From Shop s where s.address Like :location% ")
     List<Shop> findShopWithAddress(@Param("location") String location);
 
+    List<Shop> findTop10ByOrderByLikeDesc();
+
 }

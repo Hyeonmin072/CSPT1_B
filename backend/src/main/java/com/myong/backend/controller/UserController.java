@@ -4,12 +4,13 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
-import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
-import com.myong.backend.domain.dto.user.UserHomePageRequestDto;
+import com.myong.backend.domain.dto.user.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.UserSignUpDto;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +25,19 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/user")
+@Tag(name = "유저 컨트롤러 ")
 public class UserController {
     private final UserService userService;
     private final EmailSendService emailSendService;
 
 
     @PostMapping("/signup")
-    public ResponseEntity<String> SignUp(@Valid @RequestBody UserSignUpDto userSignUpDto){
+//    @Operation(summary = "유저 회원가입")
+//    @ApiResponse(responseCode = "200",description = "회원 가입 성공")
+//    @ApiResponse(responseCode = "400",description = "회원 가입 실패")
+    public ResponseEntity<String> SignUp(
+//            @Parameter(required = true, description = "요청")
+            @Valid @RequestBody UserSignUpDto userSignUpDto){
 
         return userService.SingUp(userSignUpDto);
 
@@ -76,13 +83,20 @@ public class UserController {
         return userService.Signout(request);
     }
 
-    @PostMapping("/homepage")
-    public ResponseEntity<UserHomePageResponseDto> LoadHomePage(@RequestBody
-                                                                UserHomePageRequestDto request){
-
-        return ResponseEntity.ok(userService.LoadHomePage(request.getUserEmail()));
+    @GetMapping("/hairshop/{useremail}")
+    public ResponseEntity<UserHairShopPageResponseDto> loadHairShopPage(@PathVariable(name = "useremail")String useremail){
+        return ResponseEntity.ok(userService.loadHairShopPage(useremail));
     }
 
+    @GetMapping("/homepage/{useremail}")
+    public ResponseEntity<UserHomePageResponseDto> loadHomePage(@PathVariable(name = "useremail")String useremail){
+        return ResponseEntity.ok(userService.loadHomePage(useremail));
+    }
+
+//    @GetMapping("/shopdetails/{shopemail}")
+//    public ResponseEntity<ShopDetailsResponseDto> loadHairShopDetailsPage(@PathVariable(name = "shopemail")String shopemail){
+//        return ResponseEntity.ok("11");
+//    }
 
 
 }

@@ -40,6 +40,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         System.out.println(request.getRequestURI());
 
+        // Swagger UI 경로를 무시하고, JWT 토큰 검증을 생략
+        if (request.getRequestURI().contains("/swagger-ui") || request.getRequestURI().contains("/v3/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        System.out.println(" !! ");
+
+
         if (request.getRequestURI().equals("/signin")) {
             System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행

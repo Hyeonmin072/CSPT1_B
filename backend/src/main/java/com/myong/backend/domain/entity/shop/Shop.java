@@ -47,6 +47,9 @@ public class Shop {
     @Column(name = "s_review_count")
     private Integer reviewCount = 0;   // 리뷰 개수
 
+    @Column(name = "s_like")
+    private Integer like = 0;   // 좋아요 개수
+
     @Column(name = "s_desc")
     private String desc = ""; // 소개
 
