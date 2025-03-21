@@ -1,6 +1,7 @@
 package com.myong.backend.domain.dto.coupon;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 import java.time.Period;
@@ -17,7 +18,7 @@ public class CouponListResponseDto {
     @NotBlank
     String type;
 
-    @NotBlank
+    @NotNull
     Integer price;
 
     @NotBlank
