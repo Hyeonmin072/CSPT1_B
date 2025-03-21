@@ -51,7 +51,9 @@ public class ReservationController {
 
     @GetMapping("/reservationpage2/{designeremail}")
     public ResponseEntity<ReservationPage2ResponseDto> loadReservationPage2(@PathVariable(name = "designeremail")String designeremail){
-        return ResponseEntity.ok(reservationService);
+        return ResponseEntity.ok(reservationService.loadReservationPage2(designeremail));
     }
+
+
 
 }
