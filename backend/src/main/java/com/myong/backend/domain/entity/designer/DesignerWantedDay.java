@@ -20,6 +20,7 @@ public class DesignerWantedDay {
     @Column(name = "wt_id")
     private UUID id = UUID.randomUUID();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "wt_day", nullable = false)
     private DayOfWeek wantedDay;
 

@@ -4,6 +4,7 @@ import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequest
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
 import com.myong.backend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,5 +47,13 @@ public class ReservationController {
     public ResponseEntity<List<ReservationPage1ResponseDto>> loadReservationPage1(@PathVariable(name = "shopemail")String shopemail) {
         return ResponseEntity.ok(reservationService.loadReservationPage1(shopemail));
     }
+
+
+    @GetMapping("/reservationpage2/{designeremail}")
+    public ResponseEntity<ReservationPage2ResponseDto> loadReservationPage2(@PathVariable(name = "designeremail")String designeremail){
+        return ResponseEntity.ok(reservationService.loadReservationPage2(designeremail));
+    }
+
+
 
 }
