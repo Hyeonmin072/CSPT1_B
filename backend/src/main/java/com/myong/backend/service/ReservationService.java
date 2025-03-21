@@ -5,10 +5,13 @@ import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequest
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
 import com.myong.backend.domain.entity.business.PaymentMethod;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.DesignerHoliday;
+import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
@@ -19,10 +22,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +37,8 @@ public class ReservationService {
     private final DesignerRepository designerRepository;
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
+    private final DesignerRegularHolidayRepository designerRegularHolidayRepository;
+    private final DesignerHolidayRepository designerHolidayRepository
 
 
     //예약생성
@@ -179,6 +183,47 @@ public class ReservationService {
                 )).collect(Collectors.toList());
 
         return responseDtos;
+    }
+
+    // 예약페이지 2번 (디자이너 시간선택)
+    public ReservationPage2ResponseDto loadReservationPage2(String email){
+        final int INTERVALMINUTES = 30;
+
+        Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+
+
+        // 정규 휴일 (ex: SUNDAY)
+        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer).orElse(null);
+        String holidays = "";
+        holidays += (designerRegularHoliday != null) ? designerRegularHoliday.getDay() : "";
+
+        // 지정 휴일
+        List<LocalDate> designerHolidays = new ArrayList<>();
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+
+        List<DesignerHoliday> Holidays = designerHolidayRepository.findAllByDesignerAndMonth(designer,startDate,endDate);
+
+        for(DesignerHoliday holiyday : Holidays){
+            designerHolidays.add(holiyday.getDate());
+        }
+
+        // 예약 가능한 시간
+        List<LocalTime> availableTimes = new ArrayList<>();
+        LocalTime openTime = designer.getShop().getOpenTime();
+        LocalTime closeTime = designer.getShop().getCloseTime();
+
+        while(openTime.isBefore(closeTime)){
+            reservationRepository.findByDe
+        }
+
+
+
+
+
+
+
     }
 
 

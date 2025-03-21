@@ -22,6 +22,7 @@ public class DesignerRegularHoliday {
     @JoinColumn(name = "d_id", nullable = false)
     private Designer designer; // 디자이너 고유 키
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "drh_day", nullable = false)
     private DayOfWeek day; // 정기휴무 요일
 
