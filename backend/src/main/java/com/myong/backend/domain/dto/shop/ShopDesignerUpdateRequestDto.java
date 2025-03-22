@@ -1,11 +1,11 @@
 package com.myong.backend.domain.dto.shop;
 
+import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 @Getter
@@ -27,5 +27,5 @@ public class ShopDesignerUpdateRequestDto {
     LocalTime leaveTime; // 디자이너 정시 퇴근 시간
 
     @NotNull
-    DayOfWeek regularHoliday; // 디자이너 정기 휴무일
+    RegularHoliday regularHoliday; // 디자이너 정기 휴무일
 }

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.time.DayOfWeek;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,13 +23,12 @@ public class DesignerRegularHoliday {
     private Designer designer; // 디자이너 고유 키
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "drh_day")
-    private DayOfWeek day; // 정기휴무 요일
+    @Column(name = "drh_day", nullable = false)
+    private RegularHoliday day = RegularHoliday.NONE; // 정기휴무 요일
 
     @Builder
-    public DesignerRegularHoliday(Designer designer, DayOfWeek day) {
+    public DesignerRegularHoliday(Designer designer) {
         this.designer = designer;
-        this.day = day;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class DesignerRegularHoliday {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void updateHoliday(DayOfWeek regularHoliday) {
+    public void updateHoliday(RegularHoliday regularHoliday) {
         if(this.day != regularHoliday) this.day = regularHoliday;
     }
 }

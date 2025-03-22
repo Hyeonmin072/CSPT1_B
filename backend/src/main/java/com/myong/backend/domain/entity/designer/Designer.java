@@ -101,10 +101,6 @@ public class Designer {
         this.gender = gender;
     }
 
-    public void registerDesigner(Shop shop){
-        this.shop = shop;
-    }
-
     public void updateRating(Double rating,Double totalRating,Integer reviewCount){
         this.rating = rating;
         this.totalRating = totalRating;
