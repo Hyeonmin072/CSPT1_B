@@ -15,6 +15,8 @@ import com.myong.backend.domain.dto.reservation.response.ShopReservationResponse
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.DesignerHoliday;
+import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
 import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
@@ -62,6 +64,9 @@ public class ShopService {
     private final JobPostRepository jobPostRepository;
     private final BlackListRepository blackListRepository;
     private final ReservationMapper reservationMapper;
+    private final DesignerRegularHolidayRepository designerRegularHolidayRepository;
+    private final DesignerHolidayRepository designerHolidayRepository;
+    private final AttendanceRepository attendanceRepository;
 
 
 
@@ -451,6 +456,65 @@ public class ShopService {
     }
 
     /**
+     * 사업자 소속 디자이너 상세 조회
+     * @param request
+     * @return
+     */
+    public ShopDesignerDetailResponseDto getDesigner(ShopDesignerRequestDto request) {
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+
+        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
+
+        return ShopDesignerDetailResponseDto.builder() // 디자이너 상세정보를 dto에 담아 반환
+                .name(designer.getName())
+                .gender(designer.getGender().toString())
+                .like(designer.getLike())
+                .email(request.getDesignerEmail())
+                .workTime(designer.getWorkTime())
+                .leaveTime(designer.getLeaveTime())
+                .regularHoliday(designerRegularHoliday.getDay())
+                .build();
+    }
+
+    /**
+     * 사업자 소속 디자이너 수정
+     * @param request
+     * @return
+     */
+    public String updateDesigner(ShopDesignerUpdateRequestDto request) {
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+
+        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
+
+
+        designer.updateWorkAndLeave(request.getWorkTime(), request.getLeaveTime()); // 춡퇴근 시간 다르면 업데이트
+        designerRegularHoliday.updateHoliday(request.getRegularHoliday()); // 정기 휴무일 다르면 업데이트
+        return "성공적으로 소속 디자이너 정보가 수정되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 소속 디자이너 휴일 추가
+     * @param request
+     * @return
+     */
+    public String createDesignerHoliday(ShopDesignerHolidayRequestDto request) {
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+
+        DesignerHoliday designerHoliday = DesignerHoliday.builder()
+                .designer(designer)
+                .date(request.getHoliday())
+                .build();// 디자이너 휴무일 생성
+        designerHolidayRepository.save(designerHoliday); // 생성된 휴무일 개체 저장
+
+        return "성공적으로 소속 디자이너 휴일이 추가되었습니다."; // 성공 구문 반환
+    }
+
+    /**
      * 사업자 디자이너 추가
      * @param request
      * @return
@@ -463,6 +527,12 @@ public class ShopService {
                 .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 디자이너가 가입될 가게 찾기
 
         designer.getJob(shop); // 둘 다 찾았다면, 가게에 디자이너 추가
+
+        DesignerRegularHoliday designerRegularHoliday = DesignerRegularHoliday.builder()
+                .designer(designer)
+                .build();// 가게에 디자이너가 추가된 후, 디자이너 정기 휴무일 생성
+        designerRegularHolidayRepository.save(designerRegularHoliday); // 생성된 정기휴무일 개체 저장
+
 
         return "성공적으로 디자이너가 추가되었습니다."; // 성공 구문 반환
     }
@@ -479,7 +549,11 @@ public class ShopService {
         Shop shop = shopRepository.findByEmail(request.getShopEmail())
                 .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 디자이너가 삭제될 가게 찾기
 
-        designer.fire(); // 둘 다 찾았다면, 가게에서 디자이너 삭제
+        designer.fire(); // 둘 다 찾았다면, 가게에서 디자이너 삭제 및 출퇴근 시간 초기화
+
+        designerRegularHolidayRepository.deleteByDesigner(designer); // 이제 가게 소속이 아니므로, 정기 휴무일 개체 삭제
+        designerHolidayRepository.deleteByDesigner(designer); // 이제 가게 소속이 아니므로, 휴무일 개체 삭제
+        attendanceRepository.deleteByDesigner(designer); // 이제 가게 소속이 아니므로, 근태 개체 삭제
 
         return "성공적으로 디자이너가 삭제되었습니다."; // 성공 구문 반환
     }

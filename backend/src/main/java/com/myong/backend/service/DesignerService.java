@@ -2,14 +2,9 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.designer.ResumeRequestDto;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
-import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
-import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
-import com.myong.backend.domain.dto.shop.ShopDesignerDetailResponseDto;
-import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
-import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.repository.DesignerRepository;
 import com.myong.backend.repository.ShopRepository;
 import jakarta.transaction.Transactional;
@@ -21,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -140,22 +134,5 @@ public class DesignerService {
     //이력서 불러오기
     public Resume getResume(String email) {
         return resumeService.getResume(email);
-    }
-
-
-    public ShopDesignerDetailResponseDto getDesigner(ShopDesignerRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
-
-        Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
-
-
-        return ShopDesignerDetailResponseDto.builder() // 디자이너 상세정보를 dto에 담아 반환
-                .name(designer.getName())
-                .gender(designer.getGender().toString())
-                .like(designer.getLike())
-                .email(request.getDesignerEmail())
-                .build();
     }
 }

@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface DesignerRegularHolidayRepository extends JpaRepository<DesignerRegularHoliday, UUID> {
 
     Optional<DesignerRegularHoliday> findByDesigner(Designer designer);
+
+    void deleteByDesigner(Designer designer);
 }

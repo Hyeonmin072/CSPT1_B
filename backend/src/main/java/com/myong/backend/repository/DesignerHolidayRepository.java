@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface DesignerHolidayRepository extends JpaRepository<DesignerHoliday, UUID> {
@@ -18,4 +19,8 @@ public interface DesignerHolidayRepository extends JpaRepository<DesignerHoliday
             @Param("designer")Designer designer,
             @Param("startDate")LocalDate startDate,
             @Param("endDate")LocalDate endDate);
+
+    void deleteByDesigner(Designer designer);
+
+    Optional<DesignerHoliday> findByDesigner(Designer designer);
 }

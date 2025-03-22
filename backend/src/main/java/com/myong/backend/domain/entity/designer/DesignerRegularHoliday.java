@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.designer;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -23,9 +24,10 @@ public class DesignerRegularHoliday {
     private Designer designer; // 디자이너 고유 키
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "drh_day", nullable = false)
+    @Column(name = "drh_day")
     private DayOfWeek day; // 정기휴무 요일
 
+    @Builder
     public DesignerRegularHoliday(Designer designer, DayOfWeek day) {
         this.designer = designer;
         this.day = day;
@@ -45,5 +47,9 @@ public class DesignerRegularHoliday {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    public void updateHoliday(DayOfWeek regularHoliday) {
+        if(this.day != regularHoliday) this.day = regularHoliday;
     }
 }

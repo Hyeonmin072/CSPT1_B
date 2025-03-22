@@ -187,25 +187,9 @@ public class ShopController {
     public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.deleteJobPost(request));
     }
-
+    
     /**
-     * 사업자 소속된 디자이너 목록 조회
-     */
-    @GetMapping("/designers")
-    public ResponseEntity<List<ShopDesignerListResponseDto>> getDesigners(@Validated @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getDesigners(request));
-    }
-
-    /**
-     * 사업자 소속된 디자이너 상세 조회
-     */
-    @GetMapping("/designer/detail")
-    public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(designerService.getDesigner(request));
-    }
-
-    /**
-     * 사업자 디자이너 추가
+     * 사업자 소속 디자이너 추가
      */
     @PostMapping("/designer/join")
     public ResponseEntity<String> joinDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
@@ -213,7 +197,39 @@ public class ShopController {
     }
 
     /**
-     * 사업자 디자이너 삭제
+     * 사업자 소속 디자이너 목록 조회
+     */
+    @GetMapping("/designers")
+    public ResponseEntity<List<ShopDesignerListResponseDto>> getDesigners(@Validated @RequestBody ShopEmailRequestDto request) {
+        return ResponseEntity.ok(shopService.getDesigners(request));
+    }
+
+    /**
+     * 사업자 소속 디자이너 상세 조회
+     */
+    @GetMapping("/designer/detail")
+    public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
+        return ResponseEntity.ok(shopService.getDesigner(request));
+    }
+
+    /**
+     * 사업자 소속 디자이너 수정(출퇴근, 정기휴무일)
+     */
+    @PostMapping("/designer/detail")
+    public ResponseEntity<String> postDesignser(@Validated @RequestBody ShopDesignerUpdateRequestDto request) {
+        return ResponseEntity.ok(shopService.updateDesigner(request));
+    }
+
+    /**
+     * 사업자 소속 디자이너 휴일 추가
+     */
+    @PostMapping("/designer/holiday")
+    public ResponseEntity<String> postDesignerHoliday(@Validated @RequestBody ShopDesignerHolidayRequestDto request) {
+        return ResponseEntity.ok(shopService.createDesignerHoliday(request));
+    }
+
+    /**
+     * 사업자 소속 디자이너 삭제
      */
     @PostMapping("/designer/delete")
     public ResponseEntity<String> deleteDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {

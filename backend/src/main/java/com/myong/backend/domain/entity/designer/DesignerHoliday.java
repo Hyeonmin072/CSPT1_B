@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.designer;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -16,15 +17,16 @@ public class DesignerHoliday {
 
     @Id
     @Column(name = "dh_id")
-    private UUID id = UUID.randomUUID(); //
+    private UUID id = UUID.randomUUID(); // 디자이너 휴무일 고유 아이디
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false)
-    private Designer designer;
+    private Designer designer; // 대상 디자이너
 
-    @Column(name = "dh_date", nullable = false)
-    private LocalDate date;
+    @Column(name = "dh_date")
+    private LocalDate date; // 디사이너 휴무일 날짜
 
+    @Builder
     public DesignerHoliday(Designer designer, LocalDate date) {
         this.designer = designer;
         this.date = date;
