@@ -11,7 +11,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -37,10 +36,10 @@ public class Coupon {
     private Integer price; // 할인값
 
     @Column(name = "c_get_date", nullable = false)
-    private Period getDate; // 수령가능한 기간
+    private LocalDate getDate; // 수령가능한 기간
 
     @Column(name = "c_use_date", nullable = false)
-    private Period useDate; // 수령 후 사용 가능 기간
+    private Integer useDate; // 수령 후 사용 가능 기간
 
     @CreatedDate
     @Column(name = "c_create_date", updatable = false)
@@ -54,7 +53,7 @@ public class Coupon {
     private List<UserCoupon> userCoupons; // 받은 유저들
 
     @Builder
-    public Coupon(String name, DiscountType type, Integer price, Period getDate, Period useDate, Shop shop) { // 고정금액 할인 쿠폰
+    public Coupon(String name, DiscountType type, Integer price, LocalDate getDate, Integer useDate, Shop shop) { // 고정금액 할인 쿠폰
         this.name = name;
         this.type = type;
         this.price = price;

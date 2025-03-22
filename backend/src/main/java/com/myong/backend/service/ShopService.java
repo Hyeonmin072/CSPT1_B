@@ -9,8 +9,8 @@ import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponseDto;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
@@ -37,8 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -162,7 +162,7 @@ public class ShopService {
                     coupon.getName(),
                     coupon.getType().toString(),
                     coupon.getPrice(),
-                    coupon.getGetDate(),
+                    ChronoUnit.DAYS.between(coupon.getCreateDate(), coupon.getGetDate()),
                     coupon.getUseDate()
             );
             response.add(couponListResponseDto);
@@ -186,8 +186,8 @@ public class ShopService {
                 request.getName(),
                 DiscountType.valueOf(request.getType()),
                 request.getPrice(),
-                Period.ofDays(request.getGetDate()),
-                Period.ofDays(request.getUseDate()),
+                LocalDate.now().plusDays(request.getGetDate()),
+                request.getUseDate(),
                 shop
         );
         couponRepository.save(coupon); // 쿠폰 저장
