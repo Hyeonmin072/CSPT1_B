@@ -3,6 +3,7 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
+import com.myong.backend.domain.dto.reservation.response.AvailableTimeResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
@@ -229,6 +230,27 @@ public class ReservationService {
                 availableTimes,
                 unavailableTimes
         );
+    }
+
+    // 예약페이지2 디자이너 의 예약가능날짜 얻기
+    public AvailableTimeResponseDto getAvailableTime(String designerEmail, LocalDate day){
+         Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
+
+         LocalTime openTime = designer.getShop().getOpenTime();
+         LocalTime closeTime = designer.getShop().getCloseTime();
+
+         List<LocalTime> availableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(
+                 day,designer,openTime,closeTime
+         ).get("available");
+
+         List<LocalTime> unavailableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(
+                 day,designer,openTime,closeTime
+         ).get("unavailable");
+
+         return new AvailableTimeResponseDto(
+                 availableTimes,
+                 unavailableTimes
+         );
 
     }
 

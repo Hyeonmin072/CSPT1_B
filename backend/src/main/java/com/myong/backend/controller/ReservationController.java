@@ -2,6 +2,7 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
+import com.myong.backend.domain.dto.reservation.response.AvailableTimeResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -54,6 +56,11 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.loadReservationPage2(designeremail));
     }
 
+    @GetMapping("reservationpage2/available-time")
+    public ResponseEntity<AvailableTimeResponseDto> getAvailableTime(@RequestParam(name = "designeremail")String designeremail,
+                                                                    @RequestParam(name = "day") LocalDate day){
+        return ResponseEntity.ok(reservationService.getAvailableTime(designeremail,day));
+    }
 
 
 }
