@@ -70,6 +70,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         System.out.println("!!");
         UserDetailsDto userDetailsDto = (UserDetailsDto) authentication.getPrincipal();
         String username = userDetailsDto.getUsername();
+        String name = userDetailsDto.getName();
         String role = userDetailsDto.getAuthorities().iterator().next().getAuthority();
 
         System.out.println("successfulAuthentication :"+username);
@@ -77,7 +78,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
         // JWT 토큰 생성
-        String accessToken = jwtService.createAccessToken(username, role);
+        String accessToken = jwtService.createAccessToken(username,name, role);
 
         // RefreshToken 엔티티를 Redis에 저장 (TTL 기반 만료)
         jwtService.saveRedisRefreshToken(username);

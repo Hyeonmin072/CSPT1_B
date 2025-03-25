@@ -40,15 +40,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         System.out.println(request.getRequestURI());
 
-        // Swagger UI 경로를 무시하고, JWT 토큰 검증을 생략
-        if (request.getRequestURI().contains("/swagger-ui") || request.getRequestURI().contains("/v3/api-docs")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        System.out.println(" !! ");
-
-
         if (request.getRequestURI().equals("/signin")) {
             System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
@@ -75,9 +66,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
                 }
                 String userName = jwtService.getUserName(token);
+                String name = jwtService.getName(token);
                 String role = jwtService.getUserRole(token);
                 if(jwtService.refreshTokenIsExpired(userName)){
-                    String newAccessToken = jwtService.createAccessToken(userName,role);
+                    String newAccessToken = jwtService.createAccessToken(userName,name,role);
                     jwtService.deleteRedisRefreshToken(userName);
                     jwtService.saveRedisRefreshToken(userName);
 

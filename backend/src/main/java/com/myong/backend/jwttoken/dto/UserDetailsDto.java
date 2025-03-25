@@ -17,6 +17,7 @@ import java.util.List;
 
 public class UserDetailsDto implements UserDetails {
     private String userId;
+    private String name;
     private String username;
     private String password;
     private List<GrantedAuthority> authorities;
