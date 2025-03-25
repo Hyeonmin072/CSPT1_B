@@ -236,7 +236,7 @@ public class ShopService {
             EventListResponseDto eventListResponseDto = new EventListResponseDto(
                     event.getId().toString(),
                     event.getName(),
-                    event.getAmount(),
+                    event.getPrice(),
                     event.getType().toString(),
                     event.getStartDate().toString(),
                     event.getEndDate().toString()
@@ -258,7 +258,7 @@ public class ShopService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         Event event = new Event( // 이벤트 생성
                 request.getName(),
-                request.getAmount(),
+                request.getPrice(),
                 DiscountType.valueOf(request.getType()),
                 LocalDate.parse(request.getStartDate(), formatter), // YYYY-MM-DD 형식으로 저장
                 LocalDate.parse(request.getEndDate(), formatter), // YYYY-MM-DD 형식으로 저장

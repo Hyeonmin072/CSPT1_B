@@ -30,17 +30,21 @@ public class Menu {
     @Column(name = "m_price")
     private Integer price = 0; // 금액
 
+    @Column(name = "m_image")
+    private String image = ""; // 메뉴이미지
+
     @Column(name = "m_estimated_time")
     private String estimatedTime = ""; // 소요시간
 
     @Column(name = "m_common", nullable = false)
     private String common; // 공통여부
 
-    @Column(name = "m_category")
-    private String category=""; // 메뉴 카테고리
+    @Column(name = "m_category", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MenuCategory category = MenuCategory.NONE; // 메뉴 카테고리
 
     @Column(name = "m_recommend")
-    private String recommend=""; // 추천 메뉴 여부
+    private boolean recommend = false; // 추천 메뉴 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
@@ -49,6 +53,10 @@ public class Menu {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false )
     private Designer designer; // 디자이너 고유 키
+
+    @OneToOne
+    @JoinColumn(name = "e_id", nullable = true)
+    private Event event;
 
     @Builder
     public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer) {

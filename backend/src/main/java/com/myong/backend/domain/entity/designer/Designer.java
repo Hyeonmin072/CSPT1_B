@@ -94,6 +94,7 @@ public class Designer {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
     private List<Review> reviews = new ArrayList<>();//리뷰
 
+
     public Designer(String name, String nickName, String email, String password, String tel, LocalDate birth, Gender gender) {
         this.name = name;
         this.nickName = nickName;

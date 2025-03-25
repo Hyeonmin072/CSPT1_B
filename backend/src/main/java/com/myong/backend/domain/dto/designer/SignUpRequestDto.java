@@ -31,7 +31,7 @@ public class SignUpRequestDto {
     private String password;
 
     @NotBlank
-    private String confirmPassword;//비밀번호 확인용
+    private String confirmPassword; //비밀번호 확인용
 
     @NotBlank
     @PhoneNumber

@@ -1,12 +1,10 @@
 package com.myong.backend.service;
 
 
+import com.myong.backend.domain.dto.reservation.MenuListData;
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
-import com.myong.backend.domain.dto.reservation.response.AvailableTimeResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
+import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.domain.entity.business.PaymentMethod;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
@@ -14,6 +12,7 @@ import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerHoliday;
 import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
 import com.myong.backend.domain.entity.shop.Menu;
+import com.myong.backend.domain.entity.shop.MenuCategory;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
@@ -94,7 +93,7 @@ public class ReservationService {
 
         Coupon coupon = oc.get();
 
-        int price = usingCoupon(coupon.getPrice(),menu.getPrice(),coupon.getType());
+        int price =  menu.getPrice() - discountPrice(coupon.getPrice(),menu.getPrice(),coupon.getType());
 
         Reservation reservation = new Reservation(
                 requestDto.getServiceDate(),
@@ -170,7 +169,7 @@ public class ReservationService {
     }
 
     // 예약 페이지1
-    public List<ReservationPage1ResponseDto> loadReservationPage1(String email){
+    public List<ReservationPage1ResponseDto> loadSelectDesignerPage(String email){
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게가 존재하지 않습니다."));
 
         List<Designer> desingers = shop.getDesigners();
@@ -188,7 +187,7 @@ public class ReservationService {
     }
 
     // 예약페이지 2번 (디자이너 시간선택)
-    public ReservationPage2ResponseDto loadReservationPage2(String email){
+    public ReservationPage2ResponseDto loadSelectTimePage(String email){
 
         Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
 
@@ -254,6 +253,57 @@ public class ReservationService {
 
     }
 
+
+    // 예약페이지 3번 메뉴 선택페이지
+    public SelectMenuResponseDto loadSelectMenuPage(String desingeremail){
+        Designer designer = designerRepository.findByEmail(desingeremail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
+
+
+        // 1번~5번까지 커트,파마,염색,클리닉,스타일링 메뉴 초기화
+        int categorySize = MenuCategory.values().length+1;
+        List<MenuListData> [] responseMenus = new ArrayList[categorySize];
+        for (int i = 0; i < categorySize; i++) {
+            responseMenus[i] = new ArrayList<>();
+        }
+
+
+        // 카테고리 별로 리스트 뽑기
+        for (MenuCategory category : MenuCategory.values()){
+            if(category == MenuCategory.NONE){continue;}
+
+            List<Menu> menus = menuRepository.findByDesignerAndCategory(designer,category);
+            if(menus.size() > 0){
+                responseMenus[category.ordinal()] = menus.stream().map(
+                        Menu -> new MenuListData(
+                                Menu.getName(),
+                                Menu.getPrice(),
+                                Menu.getEvent() != null ? discountPrice(Menu.getEvent().getPrice(),Menu.getPrice(),Menu.getEvent().getType()) : 0,
+                                Menu.getEvent() != null ? Menu.getEvent().getPrice()+" "+( Menu.getEvent().getType() == DiscountType.PERCENT ? "%" : "원" )  : "",
+                                Menu.getDesc(),
+                                Menu.getImage()
+                        )).collect(Collectors.toList());
+            }
+        }
+
+        // 추천 메뉴 리스트 뽑기
+        List<Menu> getRecommendMenus = menuRepository.findByDesignerAndRecommend(designer,true);
+        List<MenuListData> recommendMenus = getRecommendMenus.stream().map(
+                Menu -> new MenuListData(
+                        Menu.getName(),
+                        Menu.getPrice(),
+                        Menu.getEvent() != null ? discountPrice(Menu.getEvent().getPrice(),Menu.getPrice(),Menu.getEvent().getType()) : 0,
+                        Menu.getEvent() != null ? Menu.getEvent().getPrice()+" "+( Menu.getEvent().getType() == DiscountType.PERCENT ? "%" : "원" )  : "",
+                        Menu.getDesc(),
+                        Menu.getImage()
+                )
+        ).collect(Collectors.toList());
+
+        return new SelectMenuResponseDto(responseMenus,recommendMenus);
+
+    }
+
+
+
     // 디자이너 로 예약 가능, 불가능 LocalTime 리스트 제공
     public Map<String,List<LocalTime>> getAvailableTimesAndUnavailableTimes_ByDesigner(
             LocalDate date,Designer designer, LocalTime openTime, LocalTime closeTime){
@@ -283,11 +333,11 @@ public class ReservationService {
     }
 
 
-    public int usingCoupon(int discount, int menuPrice, DiscountType discountType){
+    public int discountPrice(int discount, int menuPrice, DiscountType discountType){
         if(discountType == DiscountType.FIXED){
-            return menuPrice - discount;
+            return discount;
         }
-        return menuPrice - (int)(menuPrice * ((double)discount / 100));
+        return (int)(menuPrice * ((double)discount / 100));
 
     }
 

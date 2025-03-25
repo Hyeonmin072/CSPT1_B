@@ -37,4 +37,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     List<Reservation> findByDesignerAndTime(@Param("designer")Designer designer,
                                             @Param("startDate")LocalDateTime startDate,
                                             @Param("endDate")LocalDateTime endDate);
+
+
 }

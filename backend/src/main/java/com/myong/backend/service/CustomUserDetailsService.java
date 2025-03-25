@@ -64,6 +64,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         authorities.add(new SimpleGrantedAuthority("USER"));
         return new UserDetailsDto(
                 user.getId().toString(),
+                user.getName(),
                 user.getEmail(),
                 user.getPwd(),
                 authorities
@@ -75,6 +76,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         authorities.add(new SimpleGrantedAuthority("DESIGNER"));
         return new UserDetailsDto(
                 designer.getId().toString(),
+                designer.getName(),
                 designer.getEmail(),
                 designer.getPassword(),
                 authorities
@@ -86,6 +88,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         authorities.add(new SimpleGrantedAuthority("SHOP"));
         return new UserDetailsDto(
                 shop.getId().toString(),
+                shop.getName(),
                 shop.getEmail(),
                 shop.getPwd(),
                 authorities

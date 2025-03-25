@@ -29,7 +29,7 @@ public class JwtService {
         this.redisTemplate = redisTemplate;
     }
 
-    public String createAccessToken (String userName, String role){
+    public String createAccessToken (String userName,String name, String role){
         long now = (new Date()).getTime();
         System.out.println("토큰생성중 userName:"+userName);
         System.out.println("토큰생성중 role:"+role);
@@ -37,6 +37,7 @@ public class JwtService {
         Date accessTokenExpiresIn = new Date(now + 1800000);
         return Jwts.builder()
                 .setSubject(userName)
+                .claim("name", name)
                 .claim("auth", role)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -81,6 +82,11 @@ public class JwtService {
     public String getUserName(String token){
         Claims claims = parseClaims(token);
         return claims.getSubject();
+    }
+
+    public String getName(String token){
+        Claims claims = parseClaims(token);
+        return claims.get("name",String.class);
     }
 
     public String getUserRole(String token){

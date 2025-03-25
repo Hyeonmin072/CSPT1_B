@@ -1,6 +1,6 @@
 package com.myong.backend.domain.dto.user.response;
 
-import com.myong.backend.domain.dto.user.common.ShopCommonDto;
+import com.myong.backend.domain.dto.user.data.ShopListData;
 import lombok.Data;
 
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.List;
 public class UserHairShopPageResponseDto {
 
     private String location;
-    private List<ShopCommonDto> shops;
+    private List<ShopListData> shops;
 
-    public UserHairShopPageResponseDto(String location, List<ShopCommonDto> shops){
+    public UserHairShopPageResponseDto(String location, List<ShopListData> shops){
         this.location = location;
         this.shops = shops;
     }
