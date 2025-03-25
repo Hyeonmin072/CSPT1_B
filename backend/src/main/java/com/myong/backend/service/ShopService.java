@@ -34,13 +34,14 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -67,6 +68,7 @@ public class ShopService {
     private final DesignerRegularHolidayRepository designerRegularHolidayRepository;
     private final DesignerHolidayRepository designerHolidayRepository;
     private final AttendanceRepository attendanceRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -83,7 +85,7 @@ public class ShopService {
 
             Shop shop = new Shop( // 가게 생성
                     request.getName(),
-                    request.getPassword(),
+                    passwordEncoder.encode(request.getPassword()),
                     request.getEmail(),
                     request.getAddress(),
                     request.getTel(),
@@ -130,12 +132,16 @@ public class ShopService {
 
 
     /**
-     * 사업자번호 인증 로직
+     * 사업자번호 인증 및 중복확인 로직
      * @param request
      * @return
      */
     public String checkBiz(ShopBizRequestDto request) {
-        return "사업자 정보가 확인되었습니다.";
+        Optional<Shop> shop = shopRepository.findByBizId(request.getBizId());
+
+
+        if(shop.isEmpty()) return "사업자 정보가 확인되었습니다.";
+        else throw new RuntimeException("이미 사용중인 사업자번호 입니다.");
     }
 
     /**
@@ -146,9 +152,10 @@ public class ShopService {
     public String checkEmail(ShopEmailRequestDto request) {
         Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
 
-        if (!findShop.isPresent()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
+        if (findShop.isEmpty()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
         else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기
     }
+
 
     /**
      * 사업자 쿠폰 조회 로직
@@ -167,13 +174,15 @@ public class ShopService {
                     coupon.getName(),
                     coupon.getType().toString(),
                     coupon.getPrice(),
-                    ChronoUnit.DAYS.between(coupon.getCreateDate(), coupon.getGetDate()),
+                    coupon.getGetDate(),
                     coupon.getUseDate()
             );
             response.add(couponListResponseDto);
         }
         return response; // 쿠폰 목록 반환
     }
+
+
 
     /**
      * 사업자 쿠폰 등록 로직
@@ -182,7 +191,7 @@ public class ShopService {
      */
     public String addCoupon(CouponRegisterRequestDto request) {
         Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail()); // 이메일로 가게 찾기
-        if(!findShop.isPresent()){
+        if(findShop.isEmpty()){
             throw new NoSuchElementException("해당 가게를 찾지못했습니다");
         }
         Shop shop = findShop.get();
@@ -191,7 +200,7 @@ public class ShopService {
                 request.getName(),
                 DiscountType.valueOf(request.getType()),
                 request.getPrice(),
-                LocalDate.now().plusDays(request.getGetDate()),
+                request.getGetDate(),
                 request.getUseDate(),
                 shop
         );
@@ -199,6 +208,18 @@ public class ShopService {
 
         return "성공적으로 쿠폰이 등록되었습니다."; // 로직 수행결과 반환
     }
+
+    /**
+     * 사업자 쿠폰 마감
+     * @param
+     * @return
+     */
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteCoupon() {
+        couponRepository.deleteByExpireDateBefore(LocalDate.now()); // 쿠폰들 삭제
+        log.info("날짜가 지난 쿠폰 마감됨");// 로직 수행결과 반환
+    }
+
 
     /**
      * 사업자 이벤트 조회 로직
@@ -246,6 +267,17 @@ public class ShopService {
         eventRepository.save(event); // 이벤트 저장
 
         return "성공적으로 이벤트가 등록되었습니다."; // 로직 수행결과 반환
+    }
+
+    /**
+     * 사업자 이벤트 종료
+     * @param
+     * @return
+     */
+    @Scheduled(cron = "0 0 0 * * *")
+    public void deleteEvent() {
+        eventRepository.deleteByEndDateBefore(LocalDate.now()); // 현재날짜보다 이전인 이벤트들 삭제
+        log.info("날짜가 지난 이벤트 종료됨");// 로직 수행결과 반환
     }
 
     /**

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
+import java.time.LocalDate;
+
 @Value
 public class CouponListResponseDto {
 
@@ -20,8 +22,8 @@ public class CouponListResponseDto {
     Integer price;
 
     @NotNull
-    Long getDate; // 수령 가능 기간
+    LocalDate getDate; // 유저가 수령 가능한 날짜
 
     @NotNull
-    Integer useDate; // 수령 후 사용 가능 기간
+    Integer useDate; // 유저가 수령 후 사용 가능한 기간
 }

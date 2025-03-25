@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
@@ -36,14 +35,13 @@ public class Coupon {
     private Integer price; // 할인값
 
     @Column(name = "c_get_date", nullable = false)
-    private LocalDate getDate; // 수령가능한 기간
+    private LocalDate getDate; // 유저가 수령가능한 날짜
 
     @Column(name = "c_use_date", nullable = false)
-    private Integer useDate; // 수령 후 사용 가능 기간
+    private Integer useDate; // 유저가 수령 후 사용가능한 기간
 
-    @CreatedDate
-    @Column(name = "c_create_date", updatable = false)
-    private LocalDate createDate; // 생성일
+    @Column(name = "c_expire_date", nullable = false)
+    private LocalDate expireDate; // 삭제되기 전 살아있을 날짜
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
@@ -57,8 +55,9 @@ public class Coupon {
         this.name = name;
         this.type = type;
         this.price = price;
-        this.getDate =  getDate;
+        this.getDate = getDate;
         this.useDate = useDate;
+        this.expireDate = getDate.plusDays(useDate);
         this.shop = shop;
     }
 

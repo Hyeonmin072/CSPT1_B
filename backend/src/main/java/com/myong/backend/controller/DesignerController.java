@@ -1,11 +1,8 @@
 package com.myong.backend.controller;
 
 
-import com.myong.backend.domain.dto.designer.Api;
-import com.myong.backend.domain.dto.designer.ResumeRequestDto;
+import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
-import com.myong.backend.domain.dto.designer.SignUpRequestDto;
-import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -20,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -95,9 +93,9 @@ public class DesignerController {
 
     //디자이너 프로필 불러오기
     @GetMapping("/profile/{email}")
-    public ResponseEntity<Designer> profile(@PathVariable String email){
-        Designer designer = designerService.getProfile(email);
-        return ResponseEntity.ok(designer);
+    public ResponseEntity<ProfileResponseDto> profile(@PathVariable String email){
+        ProfileResponseDto responseDto = designerService.getProfile(email);
+        return ResponseEntity.ok(responseDto);
     }
 
     //디자이너 프로필 수정
@@ -128,9 +126,27 @@ public class DesignerController {
 
     //디자이너 이력서 가져오기
     @GetMapping("/resume/{email}")
-    public ResponseEntity<Resume> getResume(@PathVariable String email){
+    public ResponseEntity<ResumeResponseDto> getResume(@PathVariable String email){
         Resume resume = designerService.getResume(email);
-        return ResponseEntity.ok(resume);
+
+        int currentYear = LocalDate.now().getYear();
+        int birthYear = Integer.parseInt(resume.getDesigner().getBirth().toString().substring(0, 4));
+        int age = currentYear - birthYear;
+
+        ResumeResponseDto resumeResponseDto = ResumeResponseDto.builder()
+                .name(resume.getDesigner().getName())
+                .tel(resume.getDesigner().getTel())
+                .image(resume.getImage())
+                .exp(resume.getExp())
+                .gender(resume.getDesigner().getGender())
+                .age(age)
+                .content(resume.getContent())
+                .careers(resume.getCareers())
+                .certifications(resume.getCertifications())
+                .wantedDays(resume.getWantedDays())
+                .build();
+
+        return ResponseEntity.ok(resumeResponseDto);
     }
 
 }
