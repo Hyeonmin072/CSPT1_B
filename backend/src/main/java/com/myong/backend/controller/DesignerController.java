@@ -40,11 +40,10 @@ public class DesignerController {
     public ResponseEntity<SignUpRequestDto> signup(
             @Valid
             @RequestBody
-            SignUpRequestDto request,
-            ResumeRequestDto resumeDto){
+            SignUpRequestDto request){
         log.info("signup request: {}", request); //디버깅용 로그찍기
 
-        designerService.signUp(request,resumeDto);
+        designerService.signUp(request);
 
         ResponseEntity<SignUpRequestDto> response = ResponseEntity.status(HttpStatus.OK).body(request);
 

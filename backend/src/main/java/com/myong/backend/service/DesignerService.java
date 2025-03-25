@@ -27,7 +27,7 @@ public class DesignerService {
     private final ShopRepository shopRepository;
     private final ResumeService resumeService;
 
-    public void signUp(SignUpRequestDto request, ResumeRequestDto resumeRequestDto) {
+    public void signUp(SignUpRequestDto request ) {
         // 이메일 중복 체크
         if (checkEmailDuplication(request.getEmail())) {
             throw new IllegalArgumentException("이미 존재하는 이메일입니다.");

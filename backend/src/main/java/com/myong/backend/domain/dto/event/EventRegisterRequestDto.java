@@ -13,7 +13,7 @@ public class EventRegisterRequestDto implements Serializable {
     String name;
 
     @NotNull
-    Long amount;
+    Integer price;
 
     @NotBlank
     String type;

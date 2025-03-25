@@ -2,13 +2,11 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
-import com.myong.backend.domain.dto.reservation.response.AvailableTimeResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
+import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.service.ReservationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,21 +44,29 @@ public class ReservationController {
 
     // 예약 페이지 1번(디자이너 선택)
     @GetMapping("/selectdesigner/{shopemail}")
-    public ResponseEntity<List<ReservationPage1ResponseDto>> loadReservationPage1(@PathVariable(name = "shopemail")String shopemail) {
-        return ResponseEntity.ok(reservationService.loadReservationPage1(shopemail));
+    public ResponseEntity<List<ReservationPage1ResponseDto>> loadSelectDesignerPage(@PathVariable(name = "shopemail")String shopemail) {
+        return ResponseEntity.ok(reservationService.loadSelectDesignerPage(shopemail));
     }
 
 
     // 예약 페이지 2번(시간 선택)
     @GetMapping("/selecttime/{designeremail}")
-    public ResponseEntity<ReservationPage2ResponseDto> loadReservationPage2(@PathVariable(name = "designeremail")String designeremail){
-        return ResponseEntity.ok(reservationService.loadReservationPage2(designeremail));
+    public ResponseEntity<ReservationPage2ResponseDto> loadSelectTimePage(@PathVariable(name = "designeremail")String designeremail){
+        return ResponseEntity.ok(reservationService.loadSelectTimePage(designeremail));
     }
 
-    @GetMapping("reservationpage2/available-time")
+
+    // 예약 페이지 2번(날짜 별 예약정보 가져오기)
+    @GetMapping("selecttime/available-time")
     public ResponseEntity<AvailableTimeResponseDto> getAvailableTime(@RequestParam(name = "designeremail")String designeremail,
                                                                     @RequestParam(name = "day") LocalDate day){
         return ResponseEntity.ok(reservationService.getAvailableTime(designeremail,day));
+    }
+
+    // 예약 페이지 3번(메뉴 선택)
+    @GetMapping("/selectmenu/{designeremail}")
+    public ResponseEntity<SelectMenuResponseDto> loadSelectMenuPage(@PathVariable(name = "designeremail")String designeremail){
+        return ResponseEntity.ok(reservationService.loadSelectMenuPage(designeremail));
     }
 
 
