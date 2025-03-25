@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
+import java.time.LocalDate;
+
 @Value
 public class CouponRegisterRequestDto {
 
@@ -11,7 +13,7 @@ public class CouponRegisterRequestDto {
     String name;
 
     @NotNull
-    Integer getDate;
+    LocalDate getDate;
 
     @NotNull
     Integer useDate;
