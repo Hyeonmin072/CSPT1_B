@@ -34,6 +34,7 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +68,7 @@ public class ShopService {
     private final DesignerRegularHolidayRepository designerRegularHolidayRepository;
     private final DesignerHolidayRepository designerHolidayRepository;
     private final AttendanceRepository attendanceRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -83,7 +85,7 @@ public class ShopService {
 
             Shop shop = new Shop( // 가게 생성
                     request.getName(),
-                    request.getPassword(),
+                    passwordEncoder.encode(request.getPassword()),
                     request.getEmail(),
                     request.getAddress(),
                     request.getTel(),
