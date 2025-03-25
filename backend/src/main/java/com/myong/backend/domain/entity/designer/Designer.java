@@ -3,6 +3,7 @@ package com.myong.backend.domain.entity.designer;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.usershop.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,7 +74,7 @@ public class Designer {
     private Shop shop;   // 소속된 가게
 
     @OneToOne(mappedBy = "designer", cascade = CascadeType.ALL)
-    private Resume resume;
+    private Resume resume;//이력서
 
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<DesignerHoliday> holidays = new ArrayList<>();  // 휴무일(LocalDate)
@@ -82,7 +83,9 @@ public class Designer {
     private List<DesignerRegularHoliday> regularHolidays = new ArrayList<>(); //정기 휴무일(DayOfWeek)
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
-    private List<Attendance> attendance = new ArrayList<>();
+    private List<Attendance> attendance = new ArrayList<>();//출결
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
+    private List<Review> reviews = new ArrayList<>();//리뷰
 
     public Designer(String name, String nickName, String email, String password, String tel, LocalDate birth, Gender gender) {
         this.name = name;
