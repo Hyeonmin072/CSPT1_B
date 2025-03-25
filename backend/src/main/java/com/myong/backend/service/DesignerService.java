@@ -21,9 +21,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+
 
 @Slf4j
 @Service
@@ -170,22 +172,5 @@ public class DesignerService {
     //이력서 불러오기
     public Resume getResume(String email) {
         return resumeService.getResume(email);
-    }
-
-    //가게에 소속된 디자이너 찾기
-    public ShopDesignerDetailResponseDto getDesigner(ShopDesignerRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
-
-        Shop shop = shopRepository.findByEmail(request.getShopEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
-
-
-        return ShopDesignerDetailResponseDto.builder() // 디자이너 상세정보를 dto에 담아 반환
-                .name(designer.getName())
-                .gender(designer.getGender().toString())
-                .like(designer.getLike())
-                .email(request.getDesignerEmail())
-                .build();
     }
 }

@@ -1,9 +1,10 @@
 package com.myong.backend.domain.dto.coupon;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
-import java.time.Period;
+import java.time.LocalDate;
 
 @Value
 public class CouponListResponseDto {
@@ -17,12 +18,12 @@ public class CouponListResponseDto {
     @NotBlank
     String type;
 
-    @NotBlank
+    @NotNull
     Integer price;
 
-    @NotBlank
-    Period getDate;
+    @NotNull
+    LocalDate getDate; // 유저가 수령 가능한 날짜
 
-    @NotBlank
-    Period useDate;
+    @NotNull
+    Integer useDate; // 유저가 수령 후 사용 가능한 기간
 }

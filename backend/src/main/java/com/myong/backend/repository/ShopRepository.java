@@ -25,4 +25,5 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
 
     List<Shop> findTop10ByOrderByLikeDesc();
 
+    Optional<Shop> findByBizId(String bizId);
 }

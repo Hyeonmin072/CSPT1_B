@@ -3,12 +3,16 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
+import com.myong.backend.domain.dto.reservation.response.AvailableTimeResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationInfoResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ReservationPage1ResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ReservationPage2ResponseDto;
 import com.myong.backend.domain.entity.business.PaymentMethod;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.DesignerHoliday;
+import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
@@ -19,10 +23,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +39,8 @@ public class ReservationService {
     private final DesignerRepository designerRepository;
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
+    private final DesignerRegularHolidayRepository designerRegularHolidayRepository;
+    private final DesignerHolidayRepository designerHolidayRepository;
 
 
     //예약생성
@@ -179,6 +185,101 @@ public class ReservationService {
                 )).collect(Collectors.toList());
 
         return responseDtos;
+    }
+
+    // 예약페이지 2번 (디자이너 시간선택)
+    public ReservationPage2ResponseDto loadReservationPage2(String email){
+
+        Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+
+        // 정규 휴일 (ex: SUNDAY)
+        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer).orElse(null);
+        String holidays = "";
+        holidays += (designerRegularHoliday != null) ? designerRegularHoliday.getDay() : "";
+
+        // 지정 휴일
+        List<LocalDate> designerHolidays = new ArrayList<>();
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+
+        List<DesignerHoliday> Holidays = designerHolidayRepository.findAllByDesignerAndMonth(designer,startDate,endDate);
+
+        for(DesignerHoliday holiyday : Holidays){
+            designerHolidays.add(holiyday.getDate());
+        }
+
+        // 예약 가능한 및 불가능한 시간 찾기
+        List<LocalTime> availableTimes ;  // 가능한 시간
+        List<LocalTime> unavailableTimes; // 불가능한 시간
+        LocalTime openTime = designer.getShop().getOpenTime();
+        LocalTime closeTime = designer.getShop().getCloseTime();
+        availableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(LocalDate.now(),designer,openTime,closeTime)
+                .get("available");
+        unavailableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(LocalDate.now(),designer,openTime,closeTime)
+                .get("unavailable");
+        System.out.println(availableTimes);
+        System.out.println(unavailableTimes);
+
+        return new ReservationPage2ResponseDto(
+                designer.getName(),
+                designer.getDesc(),
+                designer.getImage(),
+                holidays,
+                designerHolidays,
+                availableTimes,
+                unavailableTimes
+        );
+    }
+
+    // 예약페이지2 디자이너 의 예약가능날짜 얻기
+    public AvailableTimeResponseDto getAvailableTime(String designerEmail, LocalDate day){
+         Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
+
+         LocalTime openTime = designer.getShop().getOpenTime();
+         LocalTime closeTime = designer.getShop().getCloseTime();
+
+         List<LocalTime> availableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(
+                 day,designer,openTime,closeTime
+         ).get("available");
+
+         List<LocalTime> unavailableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(
+                 day,designer,openTime,closeTime
+         ).get("unavailable");
+
+         return new AvailableTimeResponseDto(
+                 availableTimes,
+                 unavailableTimes
+         );
+
+    }
+
+    // 디자이너 로 예약 가능, 불가능 LocalTime 리스트 제공
+    public Map<String,List<LocalTime>> getAvailableTimesAndUnavailableTimes_ByDesigner(
+            LocalDate date,Designer designer, LocalTime openTime, LocalTime closeTime){
+
+        LocalDateTime startDate = date.atTime(openTime);
+        LocalDateTime endDate = date.atTime(closeTime);
+        List<Reservation> reservations = reservationRepository.findByDesignerAndTime(designer,startDate,endDate);
+
+        // 예약이된 시간대를 LocalTime 으로 변환
+        List<LocalTime> servedTime = reservations.stream()
+                .map(reservation -> reservation.getServiceDate().toLocalTime()).toList();
+
+
+        List<LocalTime> availableTimes = new ArrayList<>();  // 가능한 시간
+        List<LocalTime> unavailableTimes = new ArrayList<>(); // 불가능한 시간
+        // 예약이 가능한 및 불가능한 시간대를 체크하고 저장
+        LocalTime currentTime = openTime;
+        while(currentTime.isBefore(closeTime)){
+            if(!servedTime.contains(currentTime)){
+                availableTimes.add(currentTime);
+            }else{
+                unavailableTimes.add(currentTime);
+            }
+            currentTime = currentTime.plusMinutes(30);
+        }
+        return Map.of("available", availableTimes, "unavailable", unavailableTimes);
     }
 
 

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -68,6 +69,12 @@ public class Designer {
     @Column(name = "d_review_count")
     private Integer reviewCount = 0;  // 리뷰 개수
 
+    @Column(name = "d_work_time", nullable = false)
+    private LocalTime workTime = LocalTime.of(0,0);  // 출근 시간(가게 소속일때만 활성화)
+
+    @Column(name = "d_leave_time", nullable = false)
+    private LocalTime leaveTime = LocalTime.of(0,0);  // 출근 시간(가게 소속일때만 활성화)
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id")
     @JsonManagedReference
@@ -95,10 +102,6 @@ public class Designer {
         this.tel = tel;
         this.birth = birth;
         this.gender = gender;
-    }
-
-    public void registerDesigner(Shop shop){
-        this.shop = shop;
     }
 
     public void updateRating(Double rating,Double totalRating,Integer reviewCount){
@@ -150,5 +153,12 @@ public class Designer {
 
     public void fire() {
         this.shop = null;
+        this.workTime = LocalTime.of(0, 0);
+        this.leaveTime = LocalTime.of(0, 0);
+    }
+
+    public void updateWorkAndLeave(LocalTime workTime, LocalTime leaveTime) {
+        if(!this.workTime.equals(workTime)) this.workTime = workTime;
+        if(!this.leaveTime.equals(leaveTime)) this.leaveTime = leaveTime;
     }
 }

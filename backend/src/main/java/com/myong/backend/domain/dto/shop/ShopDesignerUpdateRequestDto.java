@@ -4,31 +4,28 @@ import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalTime;
 
 @Getter
-@Builder
-public class ShopDesignerDetailResponseDto {
-    
-    @NotBlank
-    String name; // 디자이너 이름
+public class ShopDesignerUpdateRequestDto {
 
     @NotBlank
     @Email
-    String email;// 디자이너 이메일
+    String shopEmail; // 사업자 이메일
 
     @NotBlank
-    String gender;// 디자이너 성별
+    @Email
+    String designerEmail; // 디자이너 이메일
+
 
     @NotNull
-    Integer like; // 디자이너 좋아요 개수
-
     LocalTime workTime; // 디자이너 정시 출근 시간
 
+    @NotNull
     LocalTime leaveTime; // 디자이너 정시 퇴근 시간
 
+    @NotNull
     RegularHoliday regularHoliday; // 디자이너 정기 휴무일
 }

@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.designer;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -44,6 +45,13 @@ public class Attendance {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
     private Designer designer;
+
+    @Builder
+    public Attendance(LocalTime in, LocalTime out, Designer designer) {
+        this.in = in;
+        this.out = out;
+        this.designer = designer;
+    }
 
     @Override
     public final boolean equals(Object o) {

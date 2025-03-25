@@ -2,12 +2,15 @@ package com.myong.backend.repository;
 
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.entity.business.Reservation;
+import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,4 +31,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
             "join r.designer d " +
             "where r.id = :reservationId")
     Optional<ShopReservationDetailResponseDto> findDetailById(@Param("reservationId") UUID reservationId);
+
+
+    @Query("Select r from Reservation r Where r.designer = :designer and r.serviceDate between :startDate and :endDate")
+    List<Reservation> findByDesignerAndTime(@Param("designer")Designer designer,
+                                            @Param("startDate")LocalDateTime startDate,
+                                            @Param("endDate")LocalDateTime endDate);
 }

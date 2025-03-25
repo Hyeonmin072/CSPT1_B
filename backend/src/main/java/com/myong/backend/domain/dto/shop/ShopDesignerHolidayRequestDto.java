@@ -2,10 +2,13 @@ package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
-public class ShopDesignerRequestDto {
+public class ShopDesignerHolidayRequestDto {
 
     @NotBlank
     @Email
@@ -14,4 +17,7 @@ public class ShopDesignerRequestDto {
     @NotBlank
     @Email
     String designerEmail; // 디자이너 이메일
+
+    @NotNull
+    LocalDate holiday; // 디자이너 휴일
 }
