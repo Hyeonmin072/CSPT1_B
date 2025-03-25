@@ -36,6 +36,12 @@ public class Menu {
     @Column(name = "m_common", nullable = false)
     private String common; // 공통여부
 
+    @Column(name = "m_category")
+    private String category=""; // 메뉴 카테고리
+
+    @Column(name = "m_recommend")
+    private String recommend=""; // 추천 메뉴 여부
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
     private Shop shop; // 가게 고유 키

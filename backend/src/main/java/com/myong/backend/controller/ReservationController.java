@@ -43,16 +43,19 @@ public class ReservationController {
 
 
     // 예약 페이지 1번(디자이너 선택)
-    @GetMapping("/reservationpage1/{shopemail}")
+    @GetMapping("/selectdesigner/{shopemail}")
     public ResponseEntity<List<ReservationPage1ResponseDto>> loadReservationPage1(@PathVariable(name = "shopemail")String shopemail) {
         return ResponseEntity.ok(reservationService.loadReservationPage1(shopemail));
     }
 
 
-    @GetMapping("/reservationpage2/{designeremail}")
+    // 예약 페이지 2번(시간 선택)
+    @GetMapping("/selecttime/{designeremail}")
     public ResponseEntity<ReservationPage2ResponseDto> loadReservationPage2(@PathVariable(name = "designeremail")String designeremail){
         return ResponseEntity.ok(reservationService.loadReservationPage2(designeremail));
     }
+
+    //예약 페이지 3번(메뉴 선택)
 
 
 
