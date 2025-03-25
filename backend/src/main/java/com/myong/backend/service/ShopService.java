@@ -132,12 +132,16 @@ public class ShopService {
 
 
     /**
-     * 사업자번호 인증 로직
+     * 사업자번호 인증 및 중복확인 로직
      * @param request
      * @return
      */
     public String checkBiz(ShopBizRequestDto request) {
-        return "사업자 정보가 확인되었습니다.";
+        Optional<Shop> shop = shopRepository.findByBizId(request.getBizId());
+
+
+        if(shop.isEmpty()) return "사업자 정보가 확인되었습니다.";
+        else throw new RuntimeException("이미 사용중인 사업자번호 입니다.");
     }
 
     /**
@@ -148,7 +152,7 @@ public class ShopService {
     public String checkEmail(ShopEmailRequestDto request) {
         Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
 
-        if (!findShop.isPresent()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
+        if (findShop.isEmpty()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
         else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기
     }
 

@@ -59,16 +59,16 @@ public class ShopController {
     }
 
     /**
-     * 사업자번호 인증
+     * 사업자번호 인증 및 중복확인
      */
     @GetMapping("/checkbiz")
-    public ResponseEntity<String> checkBiz(@Valid @RequestBody ShopBizRequestDto request) {
+    public ResponseEntity<String> checkBiz(@Validated @RequestBody ShopBizRequestDto request) {
         return ResponseEntity.ok(shopService.checkBiz(request)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
     }
 
 
     /**
-     * 사업자 이메일 중복 확인
+     * 사업자 이메일 중복확인
      */
     @GetMapping("/checkemail")
     public ResponseEntity<String> checkEmail(@Valid @RequestBody ShopEmailRequestDto request) {
