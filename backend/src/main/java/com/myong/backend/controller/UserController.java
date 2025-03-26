@@ -9,6 +9,7 @@ import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequest
 import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
+import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.response.DesignerPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -100,6 +102,15 @@ public class UserController {
     public ResponseEntity<List<DesignerPageResponseDto>> loadDesignerPage(){
         return ResponseEntity.ok(userService.loadDesignerPage());
     }
+
+    /*
+     *   디자이너 좋아요 토글처리
+     */
+    @PostMapping("/designerlike")
+    public ResponseEntity<Boolean> requestLikeForDesigner (@RequestBody DesignerLikeRequestDto request){
+        return ResponseEntity.ok(userService.requestLikeForDesigner(request.getDesignerEmail()));
+    }
+
 
 
     // 예약 카테고리 =================================================================

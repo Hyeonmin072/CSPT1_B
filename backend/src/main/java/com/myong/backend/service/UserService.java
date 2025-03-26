@@ -49,8 +49,7 @@ public class UserService {
     private final KakaoMapApi kakaoMapApi;
     private final ShopRepository shopRepository;
     private final AdvertisementRepository advertisementRepository;
-    private final ReservationRepository reservationRepository;
-    private final ReviewRepository reviewRepository;
+    private final UserDesignerLikeRepository userDesignerLikeRepository;
     private final DesignerRepository designerRepository;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
@@ -322,6 +321,40 @@ public class UserService {
                 )).collect(Collectors.toList());
 
         return responseDtos;
+    }
+
+
+    /*
+     *  디자이너 좋아요 토글 처리
+     */
+    public boolean requestLikeForDesigner(String designerEmail){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        UserDesignerLike findUserDesignerLike = userDesignerLikeRepository.findByDesignerAndUser(designer,user).orElse(null);
+
+
+        UserDesignerLike.UserDesignerLikeId id = UserDesignerLike.UserDesignerLikeId.builder()
+                        .designerId(designer.getId())
+                        .userId(user.getId())
+                        .build();
+
+        if(findUserDesignerLike == null){
+            UserDesignerLike userDesignerLike = UserDesignerLike.builder()
+                    .id(id)
+                    .designer(designer)
+                    .user(user)
+            .build();
+            userDesignerLikeRepository.save(userDesignerLike);
+            return true;
+        }
+        userDesignerLikeRepository.delete(findUserDesignerLike);
+        return false;
     }
 
 }
