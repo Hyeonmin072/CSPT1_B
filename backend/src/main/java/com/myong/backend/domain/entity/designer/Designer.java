@@ -50,6 +50,9 @@ public class Designer {
     @Column(name = "d_image")
     private String image; // 사진
 
+    @Column(name = "d_back_image")
+    private String backgroundImage; // 디자이너 배경 사진
+
     @Column(name = "d_birth_date", nullable = false)
     private LocalDate birth; // 생년월일
 
@@ -151,6 +154,8 @@ public class Designer {
     public void getJob(Shop shop) {
         this.shop = shop;
     }
+
+    public void updateBackgroundImage(String backgroundImage) {this.backgroundImage = backgroundImage;}
 
     public void fire() {
         this.shop = null;

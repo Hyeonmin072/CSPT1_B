@@ -1,9 +1,6 @@
 package com.myong.backend.service;
 
-import com.myong.backend.domain.dto.designer.CareerRequestDto;
-import com.myong.backend.domain.dto.designer.CertificationRequestDto;
-import com.myong.backend.domain.dto.designer.DesignerWantedDayRequestDto;
-import com.myong.backend.domain.dto.designer.ResumeRequestDto;
+import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.entity.designer.*;
 import com.myong.backend.repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -73,8 +70,29 @@ public class ResumeService {
     }
 
     //이력서 불러오기
-    public Resume getResume(String email) {
-        return resumeRepository.findByDesignerEmail(email).orElseThrow(()-> new IllegalArgumentException("이력서를 찾을 수 없습니다."));
+    public ResumeResponseDto getResume(String email) {
+        Resume resume = resumeRepository.findByDesignerEmail(email)
+                .orElseThrow(()-> new IllegalArgumentException("이력서를 찾을 수 없습니다."));
+
+        Designer designer = designerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
+
+        int currentYear = java.time.LocalDate.now().getYear();
+        int birth = Integer.parseInt(designer.getBirth().toString().substring(0,4));
+        int age = currentYear - birth;
+
+        return ResumeResponseDto.builder()
+                .name(designer.getName())
+                .tel(designer.getTel())
+                .gender(designer.getGender())
+                .age(age)
+                .exp(resume.getExp())
+                .image(resume.getImage())
+                .content(resume.getContent())
+                .careers(resume.getCareers())
+                .certifications(resume.getCertifications())
+                .wantedDays(resume.getWantedDays())
+                .build();
     }
 
 

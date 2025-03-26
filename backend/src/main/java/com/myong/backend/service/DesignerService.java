@@ -22,7 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 
@@ -100,6 +99,21 @@ public class DesignerService {
                 .build();
     }
 
+    public UpdateProfileResponseDto getUpdateProfile(String email) {
+
+        Designer designer = designerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
+
+        return UpdateProfileResponseDto.builder()
+                .name(designer.getName())
+                .email(designer.getEmail())
+                .tel(designer.getTel())
+                .description(designer.getDesc())
+                .image(designer.getImage())
+                .backgroundImage(designer.getBackgroundImage())
+                .build();
+    }
+
 
     @Transactional
     public Designer updateProfile(String email, UpdateProfileRequestDto updateProfileRequest) {
@@ -147,6 +161,12 @@ public class DesignerService {
             log.info("updateImage : {}", updateProfileRequest.getUpdateImage());
         }
 
+        //백그라운드이미지 변경
+        if (updateProfileRequest.getUpdateBackgroundImage() != null) {
+            designer.updateImage(updateProfileRequest.getUpdateBackgroundImage());
+            log.info("updateImage : {}", updateProfileRequest.getUpdateBackgroundImage());
+        }
+
         // 명시적으로 save 호출하지 않아도 됨 (@Transactional 때문)
         return designerRepository.save(designer);
     }
@@ -162,7 +182,7 @@ public class DesignerService {
     }
 
     //이력서 불러오기
-    public Resume getResume(String email) {
+    public ResumeResponseDto getResume(String email) {
         return resumeService.getResume(email);
     }
 
