@@ -3,10 +3,7 @@ package com.myong.backend.domain.entity.userdesigner;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.io.Serializable;
@@ -15,11 +12,13 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UserDesignerLike {
 
     @EmbeddedId
-    private LoveId id; // 좋아요 아이디
+    private UserDesignerLikeId id; // 좋아요 아이디
 
     @JoinColumn(name = "u_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,11 +28,6 @@ public class UserDesignerLike {
     @ManyToOne(fetch = FetchType.LAZY)
     private Designer designer; // 디자이너 고유 키
 
-    public UserDesignerLike(User user, Designer designer) {
-        this.id = new LoveId(user.getId(), designer.getId());
-        this.user = user;
-        this.designer = designer;
-    }
 
     @Override
     public final boolean equals(Object o) {
@@ -56,10 +50,11 @@ public class UserDesignerLike {
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
+    @Builder
     /**
      * 복합키(직렬화 사용)
      */
-    static class LoveId implements Serializable {
+    public static class UserDesignerLikeId implements Serializable {
         private UUID userId;
         private UUID designerId;
     }
