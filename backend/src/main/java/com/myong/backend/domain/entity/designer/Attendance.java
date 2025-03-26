@@ -30,26 +30,30 @@ public class Attendance {
     private Status status = Status.NO;;
 
     //출근일시
-    @Column(name = "at_in")
-    private LocalTime in;
+    @Column(name = "at_work_time")
+    private LocalTime workTime;
 
     //퇴근일시
-    @Column(name = "at_out")
-    private LocalTime out;
+    @Column(name = "at_leave_time")
+    private LocalTime leaveTime;
 
     //생성일(근무 날짜)
     @CreatedDate
     @Column(name = "at_date", updatable = false)
     private LocalDate date;
+    
+    //비고
+    @Column(name = "at_note", nullable = false)
+    private String note = "";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
     private Designer designer;
 
     @Builder
-    public Attendance(LocalTime in, LocalTime out, Designer designer) {
-        this.in = in;
-        this.out = out;
+    public Attendance(LocalTime workTime, LocalTime leaveTime, Designer designer) {
+        this.workTime = workTime;
+        this.leaveTime = leaveTime;
         this.designer = designer;
     }
 

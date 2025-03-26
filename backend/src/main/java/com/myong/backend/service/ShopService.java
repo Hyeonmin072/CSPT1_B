@@ -25,6 +25,7 @@ import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
 import com.myong.backend.repository.*;
+import com.myong.backend.repository.mybatis.AttendanceMapper;
 import com.myong.backend.repository.mybatis.ReservationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +66,7 @@ public class ShopService {
     private final JobPostRepository jobPostRepository;
     private final BlackListRepository blackListRepository;
     private final ReservationMapper reservationMapper;
+    private final AttendanceMapper attendanceMapper;
     private final DesignerRegularHolidayRepository designerRegularHolidayRepository;
     private final DesignerHolidayRepository designerHolidayRepository;
     private final AttendanceRepository attendanceRepository;
@@ -690,5 +692,15 @@ public class ShopService {
         // 예약 상세 조회 결과 반환
         return reservationRepository.findDetailById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException("해당 예약을 찾을 수 없습니다."));
+    }
+
+    /**
+     * 사업자 근태 상세 조회
+     * @param request
+     * @return
+     */
+    public List<ShopAttendanceResponseDto> getAttendance(ShopAttendanceRequestDto request) {
+        // 가게 찾기
+        return attendanceMapper.findAll(request);
     }
 }

@@ -51,7 +51,7 @@
                 <when test="request.order.name() == 'TIME'">
                     r.r_service_date
                 </when>
-                <when test="request.order.name() == 'CUSTOMER_NAME'">
+                <when test="request.order.name() == 'DESIGNERNAME'">
                     u.u_name
                 </when>
                 <when test="request.order.name() == 'DESIGNER_NAME'">
