@@ -1,16 +1,13 @@
 package com.myong.backend.domain.dto.designer;
 
 
-import com.myong.backend.domain.dto.user.common.ReviewCommonDto;
+
 import com.myong.backend.domain.entity.Gender;
-import com.myong.backend.domain.entity.designer.Designer;
-import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.usershop.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Profile;
 
 import java.util.List;
 
