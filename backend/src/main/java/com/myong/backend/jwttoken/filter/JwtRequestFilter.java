@@ -1,9 +1,7 @@
 package com.myong.backend.jwttoken.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.myong.backend.domain.dto.UserLoginRequestDto;
 import com.myong.backend.jwttoken.JwtService;
-import com.myong.backend.jwttoken.dto.TokenDto;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.micrometer.common.util.StringUtils;
@@ -15,15 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 
 public class JwtRequestFilter extends OncePerRequestFilter {
