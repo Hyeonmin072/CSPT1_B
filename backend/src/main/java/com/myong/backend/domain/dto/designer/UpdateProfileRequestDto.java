@@ -19,6 +19,8 @@ public class UpdateProfileRequestDto {
 
     private String updateImage; // 사진
 
+    private String updateBackgroundImage;
+
     private String oldPwd;
 
     private String newPwd;

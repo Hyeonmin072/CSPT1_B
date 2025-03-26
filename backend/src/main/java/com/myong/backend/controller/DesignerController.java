@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -92,61 +94,80 @@ public class DesignerController {
     }
 
     //디자이너 프로필 불러오기
-    @GetMapping("/profile/{email}")
-    public ResponseEntity<ProfileResponseDto> profile(@PathVariable(value = "email") String email){
-        ProfileResponseDto responseDto = designerService.getProfile(email);
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponseDto> profile(){
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+
+        ProfileResponseDto responseDto = designerService.getProfile(designerEmail);
         return ResponseEntity.ok(responseDto);
     }
 
+
+    //디자이너 프로필 수정 페이지
+    @GetMapping("/profile/update")
+    public ResponseEntity<UpdateProfileResponseDto> updateProfile(
+    ){
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+        return ResponseEntity.ok(designerService.getUpdateProfile(designerEmail));
+    }
+
+
     //디자이너 프로필 수정
-    @PostMapping("/profile/update/{email}")
+    @PostMapping("/profile/update")
     public ResponseEntity<Designer> updateProfile(
-            @PathVariable String email,
             @Valid @RequestBody UpdateProfileRequestDto request
             ){
             log.info("update profile: {}", request);
 
-            Designer updatedesigner = designerService.updateProfile(email, request);
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+            String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+
+            Designer updatedesigner = designerService.updateProfile(designerEmail, request);
             return ResponseEntity.ok(updatedesigner);
     }
+
+
+
     //디자이너 이력서 수정
-
-
-    @PostMapping("/resume/update/{email}")
+    @PostMapping("/resume/update")
     public ResponseEntity<Resume> updateResume(
-            @PathVariable(value = "email") String email,
             @Valid  @RequestBody ResumeRequestDto resumeDto ){
-        log.info("update resume: {}", resumeDto);
 
-        Resume resume = resumeService.updateResume(email, resumeDto);
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+            String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+            log.info("update resume: {}", resumeDto);
+
+        Resume resume = resumeService.updateResume(designerEmail, resumeDto);
         return ResponseEntity.ok(resume);
     }
 
 
 
     //디자이너 이력서 가져오기
-    @GetMapping("/resume/{email}")
-    public ResponseEntity<ResumeResponseDto> getResume(@PathVariable(value = "email") String email){
-        Resume resume = designerService.getResume(email);
+    @GetMapping("/resume")
+    public ResponseEntity<ResumeResponseDto> getResume(){
 
-        int currentYear = LocalDate.now().getYear();
-        int birthYear = Integer.parseInt(resume.getDesigner().getBirth().toString().substring(0, 4));
-        int age = currentYear - birthYear;
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
 
-        ResumeResponseDto resumeResponseDto = ResumeResponseDto.builder()
-                .name(resume.getDesigner().getName())
-                .tel(resume.getDesigner().getTel())
-                .image(resume.getImage())
-                .exp(resume.getExp())
-                .gender(resume.getDesigner().getGender())
-                .age(age)
-                .content(resume.getContent())
-                .careers(resume.getCareers())
-                .certifications(resume.getCertifications())
-                .wantedDays(resume.getWantedDays())
-                .build();
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
 
-        return ResponseEntity.ok(resumeResponseDto);
+        ResumeResponseDto responseDto = designerService.getResume(designerEmail);
+
+
+
+        return ResponseEntity.ok(responseDto);
     }
 
 }
