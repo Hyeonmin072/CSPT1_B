@@ -12,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,28 +47,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 요청 헤더에서 Authorization 값 추출
-        String authorization = request.getHeader(AUTHORIZATION);
+        // 쿠키에서 "accessToken" 값을 추출
+        String token = jwtService.getTokenFromCookie(request);
 
-        // 헤더가 없거나 Bearer 토큰이 아닌 경우 다음 필터로 전달
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        // 쿠키에 토큰이 없거나 비어있는 경우 다음 필터로 전달
+        if (StringUtils.isBlank(token)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // "Bearer " 이후의 실제 토큰 값 추출
-        String token = authorization.split(" ")[1];
-        System.out.println("token : "+token);
 
         try {
-            // 토큰이 비어있거나 만료된 경우 다음 필터로 전달
-            if (StringUtils.isBlank(token) || jwtService.isExpired(token)) {
-                if(!jwtService.isValidToken(token)){
+            // 토큰이 만료되었거나 유효하지 않으면 새 토큰 발급
+            if (jwtService.isExpired(token)) {
+                if (!jwtService.isValidToken(token)) {
                     throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
                 }
+
                 String userName = jwtService.getUserName(token);
                 String name = jwtService.getName(token);
                 String role = jwtService.getUserRole(token);
+
                 if(jwtService.refreshTokenIsExpired(userName)){
                     String newAccessToken = jwtService.createAccessToken(userName,name,role);
                     jwtService.deleteRedisRefreshToken(userName);
@@ -78,10 +78,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    // 응답으로 새 토큰 반환
-                    TokenDto tokenDto = new TokenDto(newAccessToken); // newAccessToken 반환
-                    response.setContentType("application/json");
-                    objectMapper.writeValue(response.getWriter(), tokenDto);
+                    ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                            .httpOnly(true)
+                            .secure(false)                       // 테스트환경에선 false
+                            .path("/")
+                            .maxAge(60 * 60)        // 1시간 유효
+                            .sameSite("Lax")                     // CSRF 방지
+                            .build();
+
+                    response.addHeader("Set-Cookie", accessTokenCookie.toString());
 
                     return ;
                 }
