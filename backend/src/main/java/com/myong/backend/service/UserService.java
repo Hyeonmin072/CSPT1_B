@@ -4,6 +4,7 @@ import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.user.data.DesignerListData;
 import com.myong.backend.domain.dto.user.data.ReviewListData;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.response.DesignerPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.data.ShopListData;
@@ -14,6 +15,7 @@ import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
@@ -115,14 +117,13 @@ public class UserService {
         return ResponseEntity.ok("로그아웃에 성공하셨습니다");
 
     }
-//
+
     public Boolean checkEmailDuplication(String email) {
         return userRepository.existsByEmail(email);
     }
 
 
     //유저 홈페이지 로딩
-
     public UserHairShopPageResponseDto loadHairShopPage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -236,6 +237,8 @@ public class UserService {
         );
     }
 
+
+    // 헤어샵 페이지 상세보기
     public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다"));
 
@@ -303,6 +306,22 @@ public class UserService {
         );
     }
 
+    public List<DesignerPageResponseDto> loadDesignerPage() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
 
+        List<UserDesignerLike> designers = user.getUserDesignerLikes();
+
+        List<DesignerPageResponseDto> responseDtos = designers.stream().map(
+                UserDesignerLike -> new DesignerPageResponseDto(
+                        UserDesignerLike.getDesigner().getName(),
+                        UserDesignerLike.getDesigner().getDesc(),
+                        UserDesignerLike.getDesigner().getShop().getName(),
+                        UserDesignerLike.getDesigner().getImage()
+                )).collect(Collectors.toList());
+
+        return responseDtos;
+    }
 
 }

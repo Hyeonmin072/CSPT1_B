@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -70,6 +71,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserShop> shops = new ArrayList<>(); // 예약한 샵들
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserDesignerLike> userDesignerLikes = new ArrayList<>(); // 유저가 좋아요 누른 디자이너
 
     public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Integer post ,Double longitude, Double latitude,String location) {
         this.name = name;
