@@ -10,12 +10,14 @@ import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.repository.DesignerRepository;
 import com.myong.backend.repository.ShopRepository;
 import jakarta.transaction.Transactional;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -28,11 +30,15 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Builder
 public class DesignerService {
     private final DesignerRepository designerRepository;
     private final PasswordEncoder passwordEncoder;
     private final ShopRepository shopRepository;
     private final ResumeService resumeService;
+
+
+
 
     public void signUp(SignUpRequestDto request) {
 
@@ -55,21 +61,8 @@ public class DesignerService {
             throw new IllegalArgumentException("invalid birth date format : yyyy-MM-dd으로 형태를 맞춰주세요");
         }
 
+        Designer designer = DesignerService.signupDesigner(request, birthday, passwordEncoder);
 
-        Designer designer = Designer.builder()
-                        .id(UUID.randomUUID())
-                        .name(request.getName())
-                        .nickName(request.getNickname())
-                        .email(request.getEmail())
-                        .password(passwordEncoder.encode(request.getPassword()))
-                        .tel(request.getTel())
-                        .birth(birthday)
-                        .gender(request.getGender())
-                        .rating(0.0)
-                        .like(0)
-                        .totalRating(0.0)
-                        .reviewCount(0)
-                        .build();
 
         designerRepository.save(designer);
 
@@ -172,4 +165,24 @@ public class DesignerService {
     public Resume getResume(String email) {
         return resumeService.getResume(email);
     }
+
+    public static Designer signupDesigner(SignUpRequestDto request, LocalDate birthday, PasswordEncoder passwordEncoder){
+        return Designer.builder()
+                .id(UUID.randomUUID())
+                .name(request.getName())
+                .nickName(request.getNickname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .tel(request.getTel())
+                .birth(birthday)
+                .gender(request.getGender())
+                .rating(0.0)
+                .like(0)
+                .totalRating(0.0)
+                .reviewCount(0)
+                .workTime(LocalTime.of(0,0))
+                .leaveTime(LocalTime.of(0,0))
+                .build();
+    }
+
 }
