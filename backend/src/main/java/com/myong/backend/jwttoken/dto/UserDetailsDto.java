@@ -22,7 +22,8 @@ public class UserDetailsDto implements UserDetails {
     private String password;
     private List<GrantedAuthority> authorities;
 
-    public UserDetailsDto (String username,String role){
+    public UserDetailsDto (String username,String role,String name){
+        this.name = name;
         this.username = username;
         this.authorities = new ArrayList<>();
         this.authorities.add(new SimpleGrantedAuthority(role));

@@ -16,12 +16,14 @@ import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -121,8 +123,11 @@ public class UserService {
 
     //유저 홈페이지 로딩
 
-    public UserHairShopPageResponseDto loadHairShopPage(String email){
-        Optional<User> findUser = userRepository.findByEmail(email);
+    public UserHairShopPageResponseDto loadHairShopPage(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        Optional<User> findUser = userRepository.findByEmail(userEmail);
+
         if(!findUser.isPresent()){
             throw new NoSuchElementException("해당 유저가 존재하지않습니다");
         }
@@ -193,8 +198,14 @@ public class UserService {
 
 
     // 유저 홈페이지 로딩
-    public UserHomePageResponseDto loadHomePage(String email){
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다."));
+    public UserHomePageResponseDto loadHomePage(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        UserDetailsDto userDetailsDto = (UserDetailsDto) authentication.getPrincipal();
+        String userName = userDetailsDto.getName();
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다."));
 
         List<Shop> popularShops = shopRepository.findTop10ByOrderByLikeDesc();
 
@@ -217,6 +228,8 @@ public class UserService {
                 )).collect(Collectors.toList());
 
         return new UserHomePageResponseDto(
+                userName,
+                userEmail,
                 user.getLocation(),
                 shopListData,
                 adList

@@ -12,7 +12,6 @@ public class ShopRegisterReviewRequestDto {
     private String reviewImg;
     private String shopEmail;
     private String designerEmail;
-    private String userEmail;
     private UUID reservationId;
 
 

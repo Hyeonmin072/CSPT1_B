@@ -11,6 +11,8 @@ import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -31,8 +33,11 @@ public class ReviewService {
 
     public String registerReview(ShopRegisterReviewRequestDto request){
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
         Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail());
-        Optional<User> findUser = userRepository.findByEmail(request.getUserEmail());
+        Optional<User> findUser = userRepository.findByEmail(userEmail);
         Optional<Designer> findDesigner = designerRepository.findByEmail(request.getDesignerEmail());
         Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
 
