@@ -13,6 +13,7 @@ import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
+import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ReviewService;
@@ -22,7 +23,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -41,8 +45,10 @@ public class UserController {
     private final EmailSendService emailSendService;
     private final ReservationService reservationService;
     private final ReviewService reviewService;
+    private final JwtService jwtService;
 
 
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<String> SignUp(@Valid @RequestBody UserSignUpDto userSignUpDto){
         return userService.SingUp(userSignUpDto);
@@ -56,7 +62,8 @@ public class UserController {
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(userService.checkEmailDuplication(email));
     }
-  
+
+    //로그아웃 요청
    @PostMapping("/signout")
     public ResponseEntity<String> Signout(HttpServletRequest request){
         System.out.println("컨트롤러에 요청이 넘어옮");
@@ -64,16 +71,16 @@ public class UserController {
     }
 
     // 유저 페이지 헤어샵카테고리
-    @GetMapping("/hairshop/{useremail}")
-    public ResponseEntity<UserHairShopPageResponseDto> loadHairShopPage(@PathVariable(name = "useremail")String useremail){
-        return ResponseEntity.ok(userService.loadHairShopPage(useremail));
+    @GetMapping("/hairshop")
+    public ResponseEntity<UserHairShopPageResponseDto> loadHairShopPage(){
+        return ResponseEntity.ok(userService.loadHairShopPage());
     }
 
 
     // 유저 홈페이지
-    @GetMapping("/homepage/{useremail}")
-    public ResponseEntity<UserHomePageResponseDto> loadHomePage(@PathVariable(name = "useremail")String useremail){
-        return ResponseEntity.ok(userService.loadHomePage(useremail));
+    @GetMapping("/homepage")
+    public ResponseEntity<UserHomePageResponseDto> loadHomePage(){
+        return ResponseEntity.ok(userService.loadHomePage());
     }
 
 
@@ -101,9 +108,9 @@ public class UserController {
         return reservationService.refuseReservation(requestDto);
     }
 
-    @GetMapping("/reservation/{userEmail}")
-    public List<ReservationInfoResponseDto> getReservationByUser(@PathVariable("userEmail") String userEmail){
-        return reservationService.getReservationByUser(userEmail);
+    @GetMapping("/reservation")
+    public List<ReservationInfoResponseDto> getReservationByUser(){
+        return reservationService.getReservationByUser();
     }
 
 

@@ -74,7 +74,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     jwtService.saveRedisRefreshToken(userName);
 
                     // 스프링 시큐리티 인증 토큰 생성 및 SecurityContext에 설정
-                    UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role);
+                    UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role,name);
                     Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -97,10 +97,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             // 토큰에서 사용자 정보 추출
             String userName = jwtService.getUserName(token);
             String role = jwtService.getUserRole(token);
+            String name = jwtService.getName(token);
 
             System.out.println("userName : "+userName);
             System.out.println("role : "+role);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role);
+            UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role,name);
 
             System.out.println("사용자 정보 추출:"+userDetailsDto.getAuthorities());
             System.out.println("사용자 정보 추출:"+userDetailsDto.getUsername());

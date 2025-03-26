@@ -16,9 +16,6 @@ public class ReservationCreateRequestDto {
     private PaymentMethod payMethod;  // 결제수단
 
     @NotBlank
-    private String userEmail; //유저 이메일
-
-    @NotBlank
     private String designerEmail; // 디자이너 이메일
 
     @NotBlank

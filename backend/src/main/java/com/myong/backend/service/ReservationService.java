@@ -20,8 +20,11 @@ import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.security.Security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -45,7 +48,10 @@ public class ReservationService {
     //예약생성
     public ResponseEntity<String> createReservation(ReservationCreateRequestDto requestDto){
 
-        Optional<User> ou = userRepository.findByEmail(requestDto.getUserEmail());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        Optional<User> ou = userRepository.findByEmail(userEmail);
         if(!ou.isPresent()){
             throw new IllegalArgumentException("해당 유저가 존재하지 않습니다.");
         }
@@ -145,7 +151,10 @@ public class ReservationService {
 
 
     // 유저 예약 정보 조회
-    public List<ReservationInfoResponseDto> getReservationByUser(String userEmail){
+    public List<ReservationInfoResponseDto> getReservationByUser(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
 
         Optional<User> ou = userRepository.findByEmail(userEmail);
         if(!ou.isPresent()){
