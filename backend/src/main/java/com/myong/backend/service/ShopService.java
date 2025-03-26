@@ -146,11 +146,11 @@ public class ShopService {
 
     /**
      * 사업자 이메일 중복확인 로직
-     * @param request
+     * @param email
      * @return
      */
-    public String checkEmail(ShopEmailRequestDto request) {
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getEmail()); // 이메일로 가게 찾기
+    public String checkEmail(String email) {
+        Optional<Shop> findShop = shopRepository.findByEmail(email); // 이메일로 가게 찾기
 
         if (findShop.isEmpty()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
         else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기

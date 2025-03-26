@@ -34,8 +34,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/signin","/designer/signin","/shop/signin","/v3/api-docs/**","/swagger-ui/**","swagger-ui.html/**").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/user/signin","/designer/signin","/shop/signin","/user/signup","/designer/signup","shop/signup"
+                        ,"/email/**","user/email/check/","/designer/email/check/","/shop/checkemail/**","/user/checkemail/**","/designer/checkemail/**").permitAll()
+//                        .requestMatchers("/user/**").hasRole("USER")
+//                        .requestMatchers("/designer/**").hasRole("DESIGNER")   // 배포환경에선 권한마다 시큐리티부여
+//                        .requestMatchers("/shop/**").hasRole("SHOP")
+                        .anyRequest().permitAll()   // 테스트환경에선 모든 요청 펄밋
                 )
                 .httpBasic(withDefaults())
                 .anonymous(anonymous -> anonymous.disable())
