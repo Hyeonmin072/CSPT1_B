@@ -50,7 +50,7 @@ public class DesignerController {
 
     //이메일 중복검사
     @GetMapping("email/check/{email}")
-    public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable String email){
+    public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable(value = "email") String email){
         log.info("checked email duplicate: {}", email);
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(designerService.checkEmailDuplication(email));
@@ -58,7 +58,7 @@ public class DesignerController {
 
     //닉네임 중복검사
     @GetMapping("nickname/{nickname}/exists")
-    public ResponseEntity<Boolean> checkedNicknameDuplicate(@PathVariable String nickname){
+    public ResponseEntity<Boolean> checkedNicknameDuplicate(@PathVariable(value = "nickname") String nickname){
         log.info("checked nickname duplicate: {}", nickname);
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(designerService.checkNicknameDuplication(nickname));
@@ -93,7 +93,7 @@ public class DesignerController {
 
     //디자이너 프로필 불러오기
     @GetMapping("/profile/{email}")
-    public ResponseEntity<ProfileResponseDto> profile(@PathVariable String email){
+    public ResponseEntity<ProfileResponseDto> profile(@PathVariable(value = "email") String email){
         ProfileResponseDto responseDto = designerService.getProfile(email);
         return ResponseEntity.ok(responseDto);
     }
@@ -114,7 +114,7 @@ public class DesignerController {
 
     @PostMapping("/resume/update/{email}")
     public ResponseEntity<Resume> updateResume(
-            @PathVariable String email,
+            @PathVariable(value = "email") String email,
             @Valid  @RequestBody ResumeRequestDto resumeDto ){
         log.info("update resume: {}", resumeDto);
 
@@ -126,7 +126,7 @@ public class DesignerController {
 
     //디자이너 이력서 가져오기
     @GetMapping("/resume/{email}")
-    public ResponseEntity<ResumeResponseDto> getResume(@PathVariable String email){
+    public ResponseEntity<ResumeResponseDto> getResume(@PathVariable(value = "email") String email){
         Resume resume = designerService.getResume(email);
 
         int currentYear = LocalDate.now().getYear();
