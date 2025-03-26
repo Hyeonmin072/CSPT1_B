@@ -3,9 +3,6 @@ package com.myong.backend.service;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
-import com.myong.backend.domain.dto.shop.ShopDesignerDetailResponseDto;
-import com.myong.backend.domain.dto.shop.ShopDesignerRequestDto;
-import com.myong.backend.domain.dto.user.common.ReviewCommonDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.Shop;
@@ -109,6 +106,7 @@ public class DesignerService {
                 .description(designer.getDesc())
                 .build();
     }
+
 
     @Transactional
     public Designer updateProfile(String email, UpdateProfileRequestDto updateProfileRequest) {
