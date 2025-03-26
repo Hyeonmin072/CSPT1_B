@@ -49,8 +49,8 @@ public class DesignerController {
     }
 
     //이메일 중복검사
-    @GetMapping("email/check/{email}")
-    public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable String email){
+    @GetMapping("/checkemail/{email}")
+    public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable(name = "email") String email){
         log.info("checked email duplicate: {}", email);
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(designerService.checkEmailDuplication(email));
