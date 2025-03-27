@@ -79,8 +79,8 @@ public class ShopController {
      * 등록한 쿠폰 조회
      */
     @GetMapping("/getcoupons")
-    public ResponseEntity<List<CouponListResponseDto>> getCoupons(@Valid @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getCoupons(request)); // 성공적으로 로직이 수행될 경우 쿠폰 목록 반환
+    public ResponseEntity<List<CouponListResponseDto>> getCoupons() {
+        return ResponseEntity.ok(shopService.getCoupons()); // 성공적으로 로직이 수행될 경우 쿠폰 목록 반환
     }
 
     /**
@@ -95,8 +95,8 @@ public class ShopController {
      * 등록한 이벤트 조회
      */
     @GetMapping("/getevents")
-    public ResponseEntity<List<EventListResponseDto>> getEvents(@Valid @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getEvents(request)); // 성공적으로 로직이 수행될 경우 이벤트 목록 반환
+    public ResponseEntity<List<EventListResponseDto>> getEvents() {
+        return ResponseEntity.ok(shopService.getEvents()); // 성공적으로 로직이 수행될 경우 이벤트 목록 반환
     }
 
     /**
@@ -111,8 +111,8 @@ public class ShopController {
      * 사업자 프로필 조회
      */
     @GetMapping("/profile")
-    public ResponseEntity<ShopProfileResponseDto> getProfile(@Valid @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getProfile(request)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
+    public ResponseEntity<ShopProfileResponseDto> getProfile() {
+        return ResponseEntity.ok(shopService.getProfile()); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
     }
 
     /**
@@ -127,8 +127,8 @@ public class ShopController {
      * 사업자 메뉴 조회
      */
     @GetMapping("/getmenu")
-    public ResponseEntity<List<MenuListResponseDto>> getMenu(@Valid @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getMenu(request)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
+    public ResponseEntity<List<MenuListResponseDto>> getMenu() {
+        return ResponseEntity.ok(shopService.getMenu()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
 
     /**
@@ -160,8 +160,8 @@ public class ShopController {
      * 사업자 구인글 목록 조회
      */
     @GetMapping("/getjobposts")
-    public ResponseEntity<List<JobPostListResponseDto>> getJobPosts(@Validated @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getJobPosts(request));
+    public ResponseEntity<List<JobPostListResponseDto>> getJobPosts() {
+        return ResponseEntity.ok(shopService.getJobPosts());
     }
     
     /**
@@ -200,8 +200,8 @@ public class ShopController {
      * 사업자 소속 디자이너 목록 조회
      */
     @GetMapping("/designers")
-    public ResponseEntity<List<ShopDesignerListResponseDto>> getDesigners(@Validated @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getDesigners(request));
+    public ResponseEntity<List<ShopDesignerListResponseDto>> getDesigners() {
+        return ResponseEntity.ok(shopService.getDesigners());
     }
 
     /**
@@ -209,7 +209,7 @@ public class ShopController {
      */
     @GetMapping("/designer/detail")
     public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(shopService.getDesigner(request));
+        return ResponseEntity.ok(shopService.getDesignerDetail(request));
     }
 
     /**
@@ -240,8 +240,8 @@ public class ShopController {
      * 사업자 블랙리스트 목록 조회
      */
     @GetMapping("/blacklists")
-    public ResponseEntity<List<BlackListResponseDto>> getBlackLists(@Validated @RequestBody ShopEmailRequestDto request) {
-        return ResponseEntity.ok(shopService.getBlackLists(request));
+    public ResponseEntity<List<BlackListResponseDto>> getBlackLists() {
+        return ResponseEntity.ok(shopService.getBlackLists());
     }
 
     /**

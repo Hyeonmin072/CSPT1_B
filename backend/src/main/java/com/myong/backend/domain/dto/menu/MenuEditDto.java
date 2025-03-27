@@ -9,9 +9,6 @@ import lombok.Value;
 public class MenuEditDto {
 
     @NotBlank
-    String shopEmail;
-
-    @NotBlank
     String designerEmail;
 
     String id;

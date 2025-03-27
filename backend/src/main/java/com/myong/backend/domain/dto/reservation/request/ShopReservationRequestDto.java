@@ -10,10 +10,6 @@ import java.time.LocalDate;
 @Getter
 @Builder
 public class ShopReservationRequestDto {
-
-    @NotBlank
-    private String shopEmail; // 가게 이메일
-
     @NotNull
     private LocalDate date; // 날짜
 
