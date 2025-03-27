@@ -171,6 +171,11 @@ public class DesignerService {
         return designerRepository.save(designer);
     }
 
+
+
+
+
+
     //이메일 중복검사 매서드
     public Boolean checkEmailDuplication(String email) {
         return designerRepository.existsByEmail(email);
@@ -188,7 +193,6 @@ public class DesignerService {
 
     public static Designer signupDesigner(SignUpRequestDto request, LocalDate birthday, PasswordEncoder passwordEncoder){
         return Designer.builder()
-                .id(UUID.randomUUID())
                 .name(request.getName())
                 .nickName(request.getNickname())
                 .email(request.getEmail())
