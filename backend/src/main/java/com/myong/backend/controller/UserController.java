@@ -15,6 +15,7 @@ import com.myong.backend.domain.dto.user.response.DesignerPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
+import com.myong.backend.domain.dto.user.response.UserProfileResponseDto;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ReservationService;
@@ -92,8 +93,17 @@ public class UserController {
     public ResponseEntity<ShopDetailsResponseDto> loadHairShopDetailsPage(@PathVariable(name = "shopemail")String shopemail){
         return ResponseEntity.ok(userService.loadHairShopDetailsPage(shopemail));
     }
+    // 프로필 시작 =============================================================
 
-    // 디자이너 카테고리 =============================================================
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfileResponseDto> loadUserProfilePage(){
+        return ResponseEntity.ok(userService.loadUserProfilePage());
+    }
+
+    // 프로필 끝 =============================================================
+
+
+    // 디자이너 카테고리 시작 =============================================================
 
     /*
      *   디자이너 누르면 초기화면
@@ -111,9 +121,9 @@ public class UserController {
         return ResponseEntity.ok(userService.requestLikeForDesigner(request.getDesignerEmail()));
     }
 
+    // 디자이너 카테고리 끝 =============================================================
 
-
-    // 예약 카테고리 =================================================================
+    // 예약 카테고리 시작 =================================================================
 
 
     /*
@@ -183,7 +193,7 @@ public class UserController {
         return ResponseEntity.ok(reservationService.loadSelectMenuPage(designeremail));
     }
 
-
+    // 예약 카테고리 끝 =================================================================
 
 
     // 리뷰 ==============================================================

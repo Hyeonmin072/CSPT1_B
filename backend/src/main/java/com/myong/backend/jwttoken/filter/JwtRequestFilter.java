@@ -80,8 +80,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                             .build();
 
                     response.addHeader("Set-Cookie", accessTokenCookie.toString());
-
-                    return ;
+                    filterChain.doFilter(request, response);
                 }
                 filterChain.doFilter(request, response);
                 return;

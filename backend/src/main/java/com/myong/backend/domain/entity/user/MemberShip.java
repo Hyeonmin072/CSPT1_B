@@ -1,8 +1,7 @@
 package com.myong.backend.domain.entity.user;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.util.Objects;
@@ -11,11 +10,13 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MemberShip {
 
     @Id
-    @Column(name = "mbs_id")
-    private UUID id = UUID.randomUUID(); // 멤버쉽 고유 키
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "mbs_id", unique = true, nullable = false)
+    private UUID id ;  // 멤버쉽 고유 키
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "u_id", nullable = false)
@@ -40,7 +41,7 @@ public class MemberShip {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-
+    @Builder
     public MemberShip(User user, Grade grade) {
         this.user = user;
         this.grade = grade;

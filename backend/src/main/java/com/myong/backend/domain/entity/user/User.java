@@ -44,7 +44,7 @@ public class User {
     private String tel; // 연락처
 
     @Column(name = "u_location",nullable = false)
-    private String location; // 위치
+    private String location; // 위치 * 매번 설정하는 유저위치 *
 
     @Column(name = "u_birth_date", nullable = false)
     private LocalDate birthDate = LocalDate.now(); // 생년월일
@@ -73,6 +73,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserDesignerLike> userDesignerLikes = new ArrayList<>(); // 유저가 좋아요 누른 디자이너
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private MemberShip memberShip;   // 유저의 맴버쉽 등급
 
     public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Integer post ,Double longitude, Double latitude,String location) {
         this.name = name;
