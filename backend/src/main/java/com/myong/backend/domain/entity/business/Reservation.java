@@ -24,8 +24,9 @@ import java.util.UUID;
 public class Reservation {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "r_id")
-    private UUID id = UUID.randomUUID(); // 예약 고유 키
+    private UUID id; // 예약 고유 키
 
     @Column(name = "r_status", nullable = false)
     @Enumerated(EnumType.STRING)

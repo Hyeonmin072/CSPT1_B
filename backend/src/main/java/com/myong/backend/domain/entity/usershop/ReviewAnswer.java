@@ -18,8 +18,9 @@ import java.util.UUID;
 public class ReviewAnswer {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "rva_id")
-    private UUID id = UUID.randomUUID(); // 리뷰 답변 고유 키
+    private UUID id; // 리뷰 답변 고유 키
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rv_id", nullable = false)

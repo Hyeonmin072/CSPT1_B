@@ -4,16 +4,17 @@ import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.user.data.DesignerListData;
 import com.myong.backend.domain.dto.user.data.ReviewListData;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.response.DesignerPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
+import com.myong.backend.domain.dto.user.response.UserProfileResponseDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.user.Coupon;
-import com.myong.backend.domain.entity.user.DiscountType;
-import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.user.*;
+import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
@@ -47,9 +48,9 @@ public class UserService {
     private final KakaoMapApi kakaoMapApi;
     private final ShopRepository shopRepository;
     private final AdvertisementRepository advertisementRepository;
-    private final ReservationRepository reservationRepository;
-    private final ReviewRepository reviewRepository;
+    private final UserDesignerLikeRepository userDesignerLikeRepository;
     private final DesignerRepository designerRepository;
+    private final MemberShipRepository memberShipRepository;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
@@ -81,7 +82,13 @@ public class UserService {
                     userSignUpDto.getAddress()
             );
 
+            MemberShip memberShip = MemberShip.builder()
+                    .user(user)
+                    .grade(Grade.NONE)
+                    .build();
+
             userRepository.save(user);
+            memberShipRepository.save(memberShip);
             return ResponseEntity.ok("회원 가입에 성공하셨습니다.");
         }
         return ResponseEntity.status(400).body("회원가입에 실패하셨습니다.");
@@ -115,14 +122,14 @@ public class UserService {
         return ResponseEntity.ok("로그아웃에 성공하셨습니다");
 
     }
-//
+
+    // 이메일 중복 체크
     public Boolean checkEmailDuplication(String email) {
         return userRepository.existsByEmail(email);
     }
 
 
     //유저 홈페이지 로딩
-
     public UserHairShopPageResponseDto loadHairShopPage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -236,6 +243,8 @@ public class UserService {
         );
     }
 
+
+    // 헤어샵 페이지 상세보기
     public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다"));
 
@@ -303,6 +312,74 @@ public class UserService {
         );
     }
 
+    public List<DesignerPageResponseDto> loadDesignerPage() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
 
+        List<UserDesignerLike> designers = user.getUserDesignerLikes();
+
+        List<DesignerPageResponseDto> responseDtos = designers.stream().map(
+                UserDesignerLike -> new DesignerPageResponseDto(
+                        UserDesignerLike.getDesigner().getName(),
+                        UserDesignerLike.getDesigner().getDesc(),
+                        UserDesignerLike.getDesigner().getShop().getName(),
+                        UserDesignerLike.getDesigner().getImage()
+                )).collect(Collectors.toList());
+
+        return responseDtos;
+    }
+
+
+    /*
+     *  디자이너 좋아요 토글 처리
+     */
+    public boolean requestLikeForDesigner(String designerEmail){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        UserDesignerLike findUserDesignerLike = userDesignerLikeRepository.findByDesignerAndUser(designer,user).orElse(null);
+
+
+        UserDesignerLike.UserDesignerLikeId id = UserDesignerLike.UserDesignerLikeId.builder()
+                        .designerId(designer.getId())
+                        .userId(user.getId())
+                        .build();
+
+        if(findUserDesignerLike == null){
+            UserDesignerLike userDesignerLike = UserDesignerLike.builder()
+                    .id(id)
+                    .designer(designer)
+                    .user(user)
+            .build();
+            userDesignerLikeRepository.save(userDesignerLike);
+            return true;
+        }
+        userDesignerLikeRepository.delete(findUserDesignerLike);
+        return false;
+    }
+
+    /*
+     *  유저 프로필 페이지 로드
+     */
+    public UserProfileResponseDto loadUserProfilePage(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        return UserProfileResponseDto.builder()
+                .userName(user.getName())
+                .userEmail(user.getEmail())
+                .userAdress(user.getAddress())
+                .userTel(user.getTel())
+                .userGrade(user.getMemberShip().getGrade())
+                .build();
+
+    }
 
 }

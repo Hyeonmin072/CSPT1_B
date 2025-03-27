@@ -275,4 +275,12 @@ public class ShopController {
     public ResponseEntity<ShopReservationDetailResponseDto> getReservation(@PathVariable UUID reservationId) {
         return ResponseEntity.ok(shopService.getReservation(reservationId));
     }
+
+    /**
+     * 사업자 근태 관리(조회)
+     */
+    @GetMapping("/attendances")
+    public ResponseEntity<List<ShopAttendanceResponseDto>> getAttendance(@Validated @RequestBody ShopAttendanceRequestDto request) {
+        return ResponseEntity.ok(shopService.getAttendance(request));
+    }
 }

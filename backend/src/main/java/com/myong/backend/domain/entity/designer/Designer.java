@@ -5,6 +5,7 @@ import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -97,6 +98,7 @@ public class Designer {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
     private List<Attendance> attendance = new ArrayList<>(); // 출결
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
     private List<Review> reviews = new ArrayList<>(); // 리뷰
 
@@ -105,6 +107,10 @@ public class Designer {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
     private List<Reservation> reservations = new ArrayList<>(); // 예약
+
+    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
+    private List<UserDesignerLike> userDesignerLikes = new ArrayList<>(); // 디자이너를 좋아요한 유저들
+
 
     public Designer(String name, String nickName, String email, String password, String tel, LocalDate birth, Gender gender) {
         this.name = name;

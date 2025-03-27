@@ -15,8 +15,9 @@ import java.util.UUID;
 public class Sales {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "sa_id")
-    private UUID id = UUID.randomUUID(); // 매출 고유 키
+    private UUID id; // 매출 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "p_id", nullable = false)

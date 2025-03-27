@@ -1,7 +1,6 @@
 package com.myong.backend.domain.entity.designer;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +16,9 @@ import java.util.UUID;
 public class Career {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "cr_id")
-    private UUID id = UUID.randomUUID(); // 이전 근무지 고유 키
+    private UUID id; // 이전 근무지 고유 키
 
     //근무지 이름
     @Column(name = "cr_name",nullable = false)

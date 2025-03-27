@@ -22,8 +22,9 @@ public class Resume {
 
     //구직 지원서 고유키
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name ="re_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     //내용
     @Column(name = "re_content")

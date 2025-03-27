@@ -17,8 +17,9 @@ import java.util.UUID;
 public class Event {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "e_id")
-    private UUID id = UUID.randomUUID(); // 이벤트 고유 키
+    private UUID id; // 이벤트 고유 키
     
     @Column(name = "e_name")
     private String name = ""; // 이벤트 이름

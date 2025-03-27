@@ -18,8 +18,9 @@ import java.util.UUID;
 public class Message {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "me_id")
-    private UUID id = UUID.randomUUID(); // 메시지 고유 키
+    private UUID id; // 메시지 고유 키
 
     @Column(name = "me_type", nullable = false)
     @Enumerated(EnumType.STRING)

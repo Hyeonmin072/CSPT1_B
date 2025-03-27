@@ -16,9 +16,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DesignerWantedDay {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "wt_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "wt_day", nullable = false)

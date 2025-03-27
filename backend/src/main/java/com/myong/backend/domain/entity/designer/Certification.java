@@ -1,7 +1,6 @@
 package com.myong.backend.domain.entity.designer;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +15,9 @@ import java.util.UUID;
 public class Certification {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "cr_id")
-    private UUID id = UUID.randomUUID(); // 자격증 고유 키
+    private UUID id; // 자격증 고유 키
 
     @Column(name = "cr_name",nullable = false)
     private String name; // 자격증 이름
