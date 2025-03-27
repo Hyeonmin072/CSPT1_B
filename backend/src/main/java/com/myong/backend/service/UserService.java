@@ -9,12 +9,11 @@ import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
 import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
+import com.myong.backend.domain.dto.user.response.UserProfileResponseDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.user.Coupon;
-import com.myong.backend.domain.entity.user.DiscountType;
-import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.user.*;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.jwttoken.JwtService;
@@ -51,6 +50,7 @@ public class UserService {
     private final AdvertisementRepository advertisementRepository;
     private final UserDesignerLikeRepository userDesignerLikeRepository;
     private final DesignerRepository designerRepository;
+    private final MemberShipRepository memberShipRepository;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
@@ -82,7 +82,13 @@ public class UserService {
                     userSignUpDto.getAddress()
             );
 
+            MemberShip memberShip = MemberShip.builder()
+                    .user(user)
+                    .grade(Grade.NONE)
+                    .build();
+
             userRepository.save(user);
+            memberShipRepository.save(memberShip);
             return ResponseEntity.ok("회원 가입에 성공하셨습니다.");
         }
         return ResponseEntity.status(400).body("회원가입에 실패하셨습니다.");
@@ -117,6 +123,7 @@ public class UserService {
 
     }
 
+    // 이메일 중복 체크
     public Boolean checkEmailDuplication(String email) {
         return userRepository.existsByEmail(email);
     }
@@ -355,6 +362,24 @@ public class UserService {
         }
         userDesignerLikeRepository.delete(findUserDesignerLike);
         return false;
+    }
+
+    /*
+     *  유저 프로필 페이지 로드
+     */
+    public UserProfileResponseDto loadUserProfilePage(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        return UserProfileResponseDto.builder()
+                .userName(user.getName())
+                .userEmail(user.getEmail())
+                .userAdress(user.getAddress())
+                .userTel(user.getTel())
+                .userGrade(user.getMemberShip().getGrade())
+                .build();
+
     }
 
 }
