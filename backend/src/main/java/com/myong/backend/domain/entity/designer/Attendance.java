@@ -21,8 +21,9 @@ public class Attendance {
 
     //근태아이디
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "at_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     //근무 상태
     @Column(name = "at_status", nullable = false)

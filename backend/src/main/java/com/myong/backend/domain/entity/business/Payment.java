@@ -15,9 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Payment {
 
-    @Id()
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "p_id")
-    private UUID id = UUID.randomUUID(); // 결제 고유 키
+    private UUID id; // 결제 고유 키
 
     @Column(name = "p_url", nullable = false)
     private String url; // 결제 URL

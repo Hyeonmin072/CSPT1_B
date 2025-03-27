@@ -16,8 +16,9 @@ import java.util.UUID;
 public class DesignerHoliday {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "dh_id")
-    private UUID id = UUID.randomUUID(); // 디자이너 휴무일 고유 아이디
+    private UUID id; // 디자이너 휴무일 고유 아이디
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false)

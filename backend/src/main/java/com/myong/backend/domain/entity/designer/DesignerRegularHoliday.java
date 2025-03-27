@@ -15,12 +15,14 @@ import java.util.UUID;
 public class DesignerRegularHoliday {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "drh_id")
-    private UUID id = UUID.randomUUID(); // 디자이너 정기휴무일 고유 키
+    private UUID id; // 디자이너 정기휴무일 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id", nullable = false)
     private Designer designer; // 디자이너 고유 키
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "drh_day", nullable = false)

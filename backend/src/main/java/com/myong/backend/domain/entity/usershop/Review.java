@@ -22,8 +22,9 @@ import java.util.UUID;
 public class Review {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "rv_id")
-    private UUID id = UUID.randomUUID(); // 리뷰 고유 키
+    private UUID id; // 리뷰 고유 키
 
     @Column(name = "rv_content", nullable = false)
     private String content; // 내용

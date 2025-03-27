@@ -14,8 +14,8 @@ import java.util.UUID;
 public class MemberShip {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "mbs_id", unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "mbs_id")
     private UUID id ;  // 멤버쉽 고유 키
 
     @OneToOne(fetch = FetchType.LAZY)

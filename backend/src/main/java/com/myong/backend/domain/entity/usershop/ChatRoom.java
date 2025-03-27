@@ -21,8 +21,9 @@ import java.util.UUID;
 public class ChatRoom {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = "cr_id")
-    private UUID id = UUID.randomUUID(); // 채팅방 고유 키
+    private UUID id; // 채팅방 고유 키
 
     @CreatedDate
     @Column(name = "cr_create_date", updatable = false)

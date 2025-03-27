@@ -23,10 +23,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class JobPost {
+
     //구인 게시물 고유키
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "jp_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     //제목
     @Column(name = "jp_title", nullable = false)

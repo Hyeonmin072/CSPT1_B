@@ -18,8 +18,9 @@ import java.util.UUID;
 public class Menu {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "m_id")
-    private UUID id = UUID.randomUUID(); // 메뉴 고유 키
+    private UUID id; // 메뉴 고유 키
 
     @Column(name = "m_name", nullable = false)
     private String name; // 이름

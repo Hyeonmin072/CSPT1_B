@@ -21,8 +21,9 @@ import java.util.UUID;
 public class Coupon {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "c_id")
-    private UUID id = UUID.randomUUID(); // 쿠폰 고유 키
+    private UUID id; // 쿠폰 고유 키
 
     @Column(name = "c_name", nullable = false)
     private String name; // 이름

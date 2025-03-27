@@ -17,8 +17,9 @@ import java.util.UUID;
 public class BlackList {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "b_id")
-    private UUID id = UUID.randomUUID(); // 고유 키
+    private UUID id; // 고유 키
 
     @Column(name = "b_reason", nullable = false, updatable = false)
     private String reason; // 차단 사유
