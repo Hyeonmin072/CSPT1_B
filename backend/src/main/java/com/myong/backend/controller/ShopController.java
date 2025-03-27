@@ -209,7 +209,7 @@ public class ShopController {
      */
     @GetMapping("/designer/detail")
     public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(shopService.getDesigner(request));
+        return ResponseEntity.ok(shopService.getDesignerDetail(request));
     }
 
     /**

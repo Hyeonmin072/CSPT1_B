@@ -84,23 +84,24 @@ public class ShopService {
      */
     public String shopSignUp(ShopSignUpRequestDto request) {
         String result = kakaoMapApi.getCoordinatesFromAddress(request.getAddress());
-        System.out.println("위도와 경도:"+result);
+        System.out.println("위도와 경도:" + result);
         String latitude = result.split(" ")[0];
         String longitude = result.split(" ")[1];
 
-            Shop shop = new Shop( // 가게 생성
-                    request.getName(),
-                    passwordEncoder.encode(request.getPassword()),
-                    request.getEmail(),
-                    request.getAddress(),
-                    request.getTel(),
-                    request.getBizId(),
-                    request.getPost(),
-                    Double.parseDouble(longitude),
-                    Double.parseDouble(latitude)
-            );
-            shopRepository.save(shop); // 가게 저장
-            return "사업자 회원가입에 성공했습니다.";
+        // 가게 생성 후 저장
+        Shop shop = new Shop(
+                request.getName(),
+                passwordEncoder.encode(request.getPassword()),
+                request.getEmail(),
+                request.getAddress(),
+                request.getTel(),
+                request.getBizId(),
+                request.getPost(),
+                Double.parseDouble(longitude),
+                Double.parseDouble(latitude)
+        );
+        shopRepository.save(shop);
+        return "사업자 회원가입에 성공했습니다.";
     }
 
 
@@ -118,8 +119,11 @@ public class ShopService {
         int verifyCode = 100000 + random.nextInt(900000); // 100000 ~ 999999사이 랜덤 코드 생성
         message.setText("[Hairism] 인증코드를 입력해주세요 : " + verifyCode); // 메시지 내용 설정
 
-        redisTemplate.opsForValue().set(request.getTel(), verifyCode, 5, TimeUnit.MINUTES); // redis에 키, 값 각각 전화번호, 인증번호 형태로 저장, 5분 시간제한
-        return messageService.sendOne(new SingleMessageSendingRequest(message)); // 보내고 난 후 response 반환
+        // redis에 키, 값 각각 전화번호, 인증번호 형태로 저장, 5분의 시간제한 설정
+        redisTemplate.opsForValue().set(request.getTel(), verifyCode, 5, TimeUnit.MINUTES);
+
+        // 보내고 난 후의 응답 객체 반환
+        return messageService.sendOne(new SingleMessageSendingRequest(message)); 
     }
 
 
@@ -129,10 +133,14 @@ public class ShopService {
      * @return
      */
     public String checkVerifyCode(ShopVerifyCodeRequestDto request) {
-        Integer verifyCode = (Integer) redisTemplate.opsForValue().get(request.getTel());// redis에서 키 값으로 인증번호 꺼내기
+        // redis에서 키로 값(인증번호) 꺼내기
+        Integer verifyCode = (Integer) redisTemplate.opsForValue().get(request.getTel());
 
-        if(verifyCode.equals(request.getVerifyCode())) return "인증이 완료되었습니다."; // request의 인증코드가 redis에 저장된 값이랑 같을때
-        else throw new NotEqualVerifyCodeException("인증코드가 일치하지 않습니다."); // request의 인증코드가 redis에 저장된 값이랑 인증코드가 다르면 예외 던지기
+        // request의 인증코드가 redis에 저장된 값이랑 같을때
+        if(verifyCode.equals(request.getVerifyCode())) return "인증이 완료되었습니다.";
+
+        // request의 인증코드가 redis에 저장된 값이랑 인증코드가 다르면 예외 던지기
+        else throw new NotEqualVerifyCodeException("인증코드가 일치하지 않습니다.");
     }
 
 
@@ -168,7 +176,8 @@ public class ShopService {
      * @return
      */
     public List<CouponListResponseDto> getCoupons() {
-        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 가져오기
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
 
@@ -195,7 +204,10 @@ public class ShopService {
      * @return
      */
     public String addCoupon(CouponRegisterRequestDto request) {
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail()); // 이메일로 가게 찾기
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        Optional<Shop> findShop = shopRepository.findByEmail(email); // 이메일로 가게 찾기
         if(findShop.isEmpty()){
             throw new NoSuchElementException("해당 가게를 찾지못했습니다");
         }
@@ -232,7 +244,8 @@ public class ShopService {
      * @return
      */
     public List<EventListResponseDto> getEvents() {
-        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 가져오기
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
 
@@ -258,7 +271,11 @@ public class ShopService {
      * @return
      */
     public String addEvent(EventRegisterRequestDto request) {
-        Shop shop = getShop(request.getShopEmail());
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        // 가게 조회
+        Shop shop = getShop(email);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         Event event = new Event( // 이벤트 생성
@@ -291,7 +308,8 @@ public class ShopService {
      * @return
      */ 
     public ShopProfileResponseDto getProfile() {
-        String email = getAuthenticatedEmail();// 로그인 인증 정보에서 이메일 가져오기
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
         return new ShopProfileResponseDto(
@@ -313,7 +331,10 @@ public class ShopService {
      * @return
      */
     public String updateProflie(ShopProfileRequestDto request) {
-        Shop shop = getShop(request.getEmail());
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
         shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
@@ -324,7 +345,8 @@ public class ShopService {
      * @return
      */
     public List<MenuListResponseDto> getMenu() {
-        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 가져오기
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
 
         Shop shop = shopRepository.findByEmail(email)
                 .orElseThrow(() ->  new NoSuchElementException("가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
@@ -350,10 +372,16 @@ public class ShopService {
      * @return
      */
     public String addMenu(@Valid MenuEditDto request) {
-        Shop shop = getShop(request.getShopEmail());
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 이메일로 디자이너 찾기
-        Menu menu = Menu.builder() // 메뉴 엔티티 개체 생성
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
+
+        // 디자이너 이메일로 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
+
+        // 메뉴 엔티티 개체 생성 후 저장
+        Menu menu = Menu.builder()
                 .name(request.getName())
                 .desc(request.getDesc())
                 .price(request.getPrice())
@@ -363,8 +391,8 @@ public class ShopService {
                 .designer(designer)
                 .build();
 
-        menuRepository.save(menu); // 메뉴를 영속성 컨텍스트에 저장
-        return "성공적으로 메뉴가 등록되었습니다."; // 성공 구문 반환
+        menuRepository.save(menu);
+        return "성공적으로 메뉴가 등록되었습니다.";
     }
 
     /**
@@ -401,7 +429,8 @@ public class ShopService {
      * @return
      */
     public List<JobPostListResponseDto> getJobPosts() {
-        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 가져오기
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
@@ -431,7 +460,10 @@ public class ShopService {
      * @return
      */
     public String addJobPost(JobPostEditDto request) {
-        Shop shop = getShop(request.getShopEmail());
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm"); // 날짜 포매터 만들기
         JobPost jobPost = JobPost.builder() //빌더를 통해 구인글 생성
@@ -479,7 +511,8 @@ public class ShopService {
      * @return
      */
     public List<ShopDesignerListResponseDto> getDesigners() {
-        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 가져오기
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
 
@@ -502,14 +535,16 @@ public class ShopService {
      * @param request
      * @return
      */
-    public ShopDesignerDetailResponseDto getDesigner(ShopDesignerRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+    public ShopDesignerDetailResponseDto getDesignerDetail(ShopDesignerRequestDto request) {
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
 
+        // 디자이너 정기 휴무일 찾기
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));
 
-        return ShopDesignerDetailResponseDto.builder() // 디자이너 상세정보를 dto에 담아 반환
+        // 디자이너 상세정보를 dto에 담아 반환
+        return ShopDesignerDetailResponseDto.builder()
                 .name(designer.getName())
                 .gender(designer.getGender().toString())
                 .like(designer.getLike())
@@ -526,8 +561,8 @@ public class ShopService {
      * @return
      */
     public String updateDesigner(ShopDesignerUpdateRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
 
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
@@ -544,14 +579,15 @@ public class ShopService {
      * @return
      */
     public String createDesignerHoliday(ShopDesignerHolidayRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 디자이너 찾기
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
 
+        // 디자이너 휴무일 생성 후 저장
         DesignerHoliday designerHoliday = DesignerHoliday.builder()
                 .designer(designer)
                 .date(request.getHoliday())
-                .build();// 디자이너 휴무일 생성
-        designerHolidayRepository.save(designerHoliday); // 생성된 휴무일 개체 저장
+                .build();
+        designerHolidayRepository.save(designerHoliday); 
 
         return "성공적으로 소속 디자이너 휴일이 추가되었습니다."; // 성공 구문 반환
     }
@@ -562,20 +598,26 @@ public class ShopService {
      * @return
      */
     public String joinDesigner(ShopDesignerRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 가입될 디자이너 찾기
+        // 다자이너 조회
+        Designer designer = getDesigner(request.getDesignerEmail());
 
-        Shop shop = getShop(request.getShopEmail());
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
 
-        designer.getJob(shop); // 둘 다 찾았다면, 가게에 디자이너 추가
+        // 가게 조회
+        Shop shop = getShop(email);
 
+        // 둘 다 찾으면 가게에 디자이너 추가
+        designer.getJob(shop);
+
+        // 가게에 디자이너가 추가된 후, 디자이너 정기 휴무일 생성 및 저장
         DesignerRegularHoliday designerRegularHoliday = DesignerRegularHoliday.builder()
                 .designer(designer)
-                .build();// 가게에 디자이너가 추가된 후, 디자이너 정기 휴무일 생성
-        designerRegularHolidayRepository.save(designerRegularHoliday); // 생성된 정기휴무일 개체 저장
+                .build();
+        designerRegularHolidayRepository.save(designerRegularHoliday);
 
 
-        return "성공적으로 디자이너가 추가되었습니다."; // 성공 구문 반환
+        return "성공적으로 디자이너가 추가되었습니다.";
     }
 
     /**
@@ -584,18 +626,25 @@ public class ShopService {
      * @return
      */
     public String deleteDesigner(ShopDesignerRequestDto request) {
-        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다.")); // 삭제될 디자이너 찾기
+        // 디자이너 조회
+        Designer designer = getDesigner(request.getDesignerEmail());
 
-        getShop(request.getShopEmail());
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
 
-        designer.fire(); // 둘 다 찾았다면, 가게에서 디자이너 삭제 및 출퇴근 시간 초기화
+        // 가게 조회
+        getShop(email);
 
-        designerRegularHolidayRepository.deleteByDesigner(designer); // 이제 가게 소속이 아니므로, 정기 휴무일 개체 삭제
-        designerHolidayRepository.deleteByDesigner(designer); // 이제 가게 소속이 아니므로, 휴무일 개체 삭제
-        attendanceRepository.deleteByDesigner(designer); // 이제 가게 소속이 아니므로, 근태 개체 삭제
+        // 둘 다 찾으면 디자이너 소속 해제 및 출퇴근 시간 초기화
+        designer.fire();
 
-        return "성공적으로 디자이너가 삭제되었습니다."; // 성공 구문 반환
+        // 이제 가게 소속이 아니므로, 정기 휴무일, 휴무일, 근태 개체 삭제
+        designerRegularHolidayRepository.deleteByDesigner(designer);
+        designerHolidayRepository.deleteByDesigner(designer);
+        attendanceRepository.deleteByDesigner(designer);
+
+        // 성공 구문 반환
+        return "성공적으로 디자이너가 삭제되었습니다.";
     }
 
     /**
@@ -604,13 +653,18 @@ public class ShopService {
      * @return
      */
     public List<BlackListResponseDto> getBlackLists() {
-        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 가져오기
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
 
+        //가게 조회
         Shop shop = getShop(email);
 
-        List<BlackList> blackLists = blackListRepository.findByShop(shop); // 가게의 블랙리스트 페치 조인으로 조회
+        // 가게의 블랙리스트 조회
+        List<BlackList> blackLists = blackListRepository.findByShop(shop);
+
+        // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
         List<BlackListResponseDto> dtos = new ArrayList<>(); 
-        for (BlackList blackList : blackLists) { // 가져온 블랙리스트들을 dto에 담은 뒤 리스트로 반환
+        for (BlackList blackList : blackLists) {
             BlackListResponseDto dto = BlackListResponseDto.builder()
                     .reason(blackList.getReason())
                     .userName(blackList.getUser().getName())
@@ -628,25 +682,30 @@ public class ShopService {
      * @return
      */
     public String createBlackList(BlackListRequestDto request) {
-        Shop shop = getShop(request.getShopEmail());
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
 
-        User user = userRepository.findByEmail(request.getUserEmail())
-                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다.")); // 유저 찾기
+        // 가게 조회
+        Shop shop = getShop(email);
+        
+        // 유저 조회
+        User user = getUser(request.getUserEmail());
 
-        if(blackListRepository.findByShopAndUser(shop,user).isPresent()) {
-            throw new RuntimeException("이미 블랙리스트에 추가된 유저입니다."); // 이미 블랙리스트에 등록되었는지 검증
-        }
+        // 이미 블랙리스트에 등록되었는지 검증
+        blackListRepository.findByShopAndUser(shop,user)
+                .orElseThrow(() -> new RuntimeException("이미 블랙리스트에 추가된 유저입니다."));
 
-        // 등록되지 않았을 경우
-        BlackList blackList = BlackList.builder() // 블랙리스트 개체 생성
+        // 등록되지 않았을 경우 -> 블랙리스트 개체 생성 후 저장
+        BlackList blackList = BlackList.builder()
                 .shop(shop)
                 .user(user)
                 .reason(request.getReason())
                 .build();
 
-        blackListRepository.save(blackList); // 블랙리스트 개체 저장
-        
-        return "성공적으로 블랙리스트에 추가되었습니다."; // 성공 구문 반환
+        blackListRepository.save(blackList);
+
+        // 성공 구문 반환
+        return "성공적으로 블랙리스트에 추가되었습니다.";
     }
 
     /**
@@ -656,12 +715,14 @@ public class ShopService {
      */
     public String deleteBlackList(List<BlackListRequestDto> requests) {
         for (BlackListRequestDto request : requests) {
-            // 가게 찾기
-            Shop shop = getShop(request.getShopEmail());
+            // 인증 정보에서 사업자 이메일 꺼내기
+            String email = getAuthenticatedEmail();
 
-            // 유저 찾기
-            User user = userRepository.findByEmail(request.getUserEmail())
-                    .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+            // 가게 조회
+            Shop shop = getShop(email);
+
+            // 유저 조회
+            User user = getUser(request.getUserEmail());
 
             // 찾은 가게와 유저를 통해 해당 블랙리스트 개체 찾기
             BlackList blackList = blackListRepository.findByShopAndUser(shop, user)
@@ -681,8 +742,11 @@ public class ShopService {
      * @return
      */
     public List<ShopReservationResponseDto> getReservations(ShopReservationRequestDto request) {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
         // 가게 찾기
-        getShop(request.getShopEmail());
+        getShop(email);
         // MyBatis SqlMapper를 통해 예약 조회하기
         return reservationMapper.findAll(request);
     }
@@ -722,11 +786,30 @@ public class ShopService {
     /**
      * 사업자 이메일로 사업자 조회
      * @param email 사업자의 이메일
-     * @return
+     * @return Shop 찾은 가게
      */
     private Shop getShop(String email) {
-        Shop shop = shopRepository.findByEmail(email)
-                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다.")); // 가게 찾기
-        return shop;
+        return shopRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다."));
+    }
+
+    /**
+     * 유저 이메일로 유저 조회
+     * @param email 유저의 이메일
+     * @return User 찾은 유저
+     */
+    private User getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+    }
+
+    /**
+     * 디자이너 이메일로 디자이너 조회
+     * @param email 디자이너의 이메일
+     * @return Designer 찾은 디자이너
+     */
+    private Designer getDesigner(String email) {
+        return designerRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
     }
 }

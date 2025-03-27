@@ -1,16 +1,11 @@
 package com.myong.backend.domain.dto.shop;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 @Value
 public class ShopProfileRequestDto {
-    @Email
-    @NotBlank
-    String email;
-
     @NotBlank
     String name;
 

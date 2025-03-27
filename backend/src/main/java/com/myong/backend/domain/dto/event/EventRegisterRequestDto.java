@@ -23,7 +23,4 @@ public class EventRegisterRequestDto implements Serializable {
 
     @NotBlank
     String endDate;
-
-    @NotBlank
-    String shopEmail;
 }

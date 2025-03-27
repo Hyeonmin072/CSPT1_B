@@ -24,6 +24,4 @@ public class CouponRegisterRequestDto {
     @NotNull
     Integer price;
 
-    @NotBlank
-    String shopEmail;
 }

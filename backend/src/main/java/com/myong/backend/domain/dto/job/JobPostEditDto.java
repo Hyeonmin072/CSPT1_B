@@ -8,9 +8,6 @@ import lombok.Value;
  */
 @Value
 public class JobPostEditDto {
-    @NotBlank
-    String shopEmail;
-
     String id;
 
     @NotBlank
