@@ -2,6 +2,8 @@ package com.myong.backend.domain.entity.designer;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.business.Reservation;
+import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
@@ -28,7 +30,8 @@ public class Designer {
 
     @Id
     @Column(name = "d_id")
-    private UUID id = UUID.randomUUID(); // 고유 키
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id; // 고유 키
 
     @Column(name = "d_name", nullable = false)
     private String name; // 이름
@@ -94,13 +97,20 @@ public class Designer {
     private List<DesignerRegularHoliday> regularHolidays = new ArrayList<>(); //정기 휴무일(DayOfWeek)
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
-    private List<Attendance> attendance = new ArrayList<>();//출결
+    private List<Attendance> attendance = new ArrayList<>(); // 출결
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
-    private List<Review> reviews = new ArrayList<>();//리뷰
+    private List<Review> reviews = new ArrayList<>(); // 리뷰
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
+    private List<Menu> menus = new ArrayList<>(); // 메뉴
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "designer")
+    private List<Reservation> reservations = new ArrayList<>(); // 예약
 
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<UserDesignerLike> userDesignerLikes = new ArrayList<>(); // 디자이너를 좋아요한 유저들
+
 
     public Designer(String name, String nickName, String email, String password, String tel, LocalDate birth, Gender gender) {
         this.name = name;
