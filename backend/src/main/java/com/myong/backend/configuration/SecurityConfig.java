@@ -41,10 +41,20 @@ public class SecurityConfig {
 //                        .requestMatchers("/shop/**").hasRole("SHOP")
                         .anyRequest().permitAll()   // 테스트환경에선 모든 요청 펄밋
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login") // 로그인 페이지 경로 (필요한 경우 설정)
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/oauth2/authorization") // OAuth2 인증 요청 URL
+                        )
+                        .redirectionEndpoint(redirection -> redirection
+                                .baseUri("http://localhost:1271/api/sociallogin/kakao") // 카카오에서 인증 후 리다이렉트될 URI (단, 실제 경로는 "/login/oauth2/code/kakao")
+                        )
+                )
                 .httpBasic(withDefaults())
                 .anonymous(anonymous -> anonymous.disable())
                 .addFilterAt(new JwtRequestFilter(jwtService, objectMapper), JwtLoginFilter.class)
                 .addFilterBefore(new JwtLoginFilter(authenticationManager, jwtService, objectMapper), UsernamePasswordAuthenticationFilter.class);
+
 
 
         System.out.println("Security filter chain setup complete");
