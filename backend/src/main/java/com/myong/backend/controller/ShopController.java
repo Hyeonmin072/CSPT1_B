@@ -44,7 +44,7 @@ public class ShopController {
     /**
      * 사업자 전화번호 인증코드 보내기
      */
-    @PostMapping("/sendverifycode")
+    @PostMapping("/certification/tel")
     public SingleMessageSentResponse sendVerifyCode(@Valid @RequestBody ShopTelRequestDto request) {
         return shopService.sendOne(request); // 성공적으로 로직이 수행될 경우 정보 반환
     }
@@ -52,7 +52,7 @@ public class ShopController {
     /**
      * 사업자 전화번호 인증코드 확인하기
      */
-    @GetMapping("/verifycodecheck")
+    @GetMapping("/certification/tel")
     public ResponseEntity<String> verifyCode(@Valid @RequestBody ShopVerifyCodeRequestDto request) {
         return ResponseEntity.ok(shopService.checkVerifyCode(request)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
     }
@@ -60,7 +60,7 @@ public class ShopController {
     /**
      * 사업자번호 인증 및 중복확인
      */
-    @GetMapping("/checkbiz")
+    @GetMapping("/bizid")
     public ResponseEntity<String> checkBiz(@Validated @RequestBody ShopBizRequestDto request) {
         return ResponseEntity.ok(shopService.checkBiz(request)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
     }
@@ -76,7 +76,7 @@ public class ShopController {
     /**
      * 쿠폰 등록
      */
-    @PostMapping("/addcoupon")
+    @PostMapping("/coupon")
     public ResponseEntity<String> addCoupon(@Valid @RequestBody CouponRegisterRequestDto request) {
         return ResponseEntity.ok(shopService.addCoupon(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -84,7 +84,7 @@ public class ShopController {
     /**
      * 등록한 쿠폰목록 조회
      */
-    @GetMapping("/getcoupons")
+    @GetMapping("/coupons")
     public ResponseEntity<List<CouponListResponseDto>> getCoupons() {
         return ResponseEntity.ok(shopService.getCoupons()); // 성공적으로 로직이 수행될 경우 쿠폰 목록 반환
     }
@@ -92,7 +92,7 @@ public class ShopController {
     /**
      * 이벤트 등록
      */
-    @PostMapping("/addevent")
+    @PostMapping("/event")
     public ResponseEntity<String> addEvent(@Valid @RequestBody EventRegisterRequestDto request) {
         return ResponseEntity.ok(shopService.addEvent(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -100,7 +100,7 @@ public class ShopController {
     /**
      * 등록한 이벤트목록 조회
      */
-    @GetMapping("/getevents")
+    @GetMapping("/events")
     public ResponseEntity<List<EventListResponseDto>> getEvents() {
         return ResponseEntity.ok(shopService.getEvents()); // 성공적으로 로직이 수행될 경우 이벤트 목록 반환
     }
@@ -124,7 +124,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 등록
      */
-    @PostMapping("/addmenu")
+    @PostMapping("/menu")
     public ResponseEntity<String> addMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.addMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -132,7 +132,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 조회
      */
-    @GetMapping("/getmenu")
+    @GetMapping("/menu")
     public ResponseEntity<List<MenuListResponseDto>> getMenu() {
         return ResponseEntity.ok(shopService.getMenu()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
@@ -153,11 +153,10 @@ public class ShopController {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
-
     /**
      * 사업자 구인글 등록
      */
-    @PostMapping("/addjobpost")
+    @PostMapping("/jobpost")
     public ResponseEntity<String> addJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.addJobPost(request));
     }
@@ -165,7 +164,7 @@ public class ShopController {
     /**
      * 사업자 구인글 목록 조회
      */
-    @GetMapping("/getjobposts")
+    @GetMapping("/jobposts")
     public ResponseEntity<List<JobPostListResponseDto>> getJobPosts() {
         return ResponseEntity.ok(shopService.getJobPosts());
     }
@@ -173,7 +172,7 @@ public class ShopController {
     /**
      * 사업자 구인글 수정
      */
-    @PostMapping("/updatejobpost")
+    @PostMapping("/jobpost/update")
     public ResponseEntity<String> updateJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.updateJobPost(request));
     }
@@ -181,7 +180,7 @@ public class ShopController {
     /**
      * 사업자 구인글 마감
      */
-    @PostMapping("/deletejobpost")
+    @PostMapping("/jobpost/delete")
     public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.deleteJobPost(request));
     }
@@ -189,7 +188,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 추가
      */
-    @PostMapping("/designer/join")
+    @PostMapping("/designer")
     public ResponseEntity<String> joinDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
         return ResponseEntity.ok(shopService.joinDesigner(request));
     }
@@ -213,7 +212,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 상세 조회
      */
-    @GetMapping("/designer/detail")
+    @GetMapping("/designer")
     public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
         return ResponseEntity.ok(shopService.getDesignerDetail(request));
     }
@@ -221,7 +220,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 수정(출퇴근, 정기휴무일)
      */
-    @PostMapping("/designer/detail")
+    @PostMapping("/designer/update")
     public ResponseEntity<String> postDesignser(@Validated @RequestBody ShopDesignerUpdateRequestDto request) {
         return ResponseEntity.ok(shopService.updateDesigner(request));
     }
@@ -237,7 +236,7 @@ public class ShopController {
     /**
      * 사업자 블랙리스트 추가
      */
-    @PostMapping("/blacklist/create")
+    @PostMapping("/blacklist")
     public ResponseEntity<String> createBlackList(@Validated @RequestBody BlackListRequestDto request) {
         return ResponseEntity.ok(shopService.createBlackList(request));
     }
