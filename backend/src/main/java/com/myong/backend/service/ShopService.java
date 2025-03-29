@@ -75,12 +75,89 @@ public class ShopService {
     private final AttendanceRepository attendanceRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 사업자 이메일 중복 확인
+     * 이메일을 사용 중인지 확인하고 결과를 반환
+     *
+     * @param email 중복 확인할 이메일
+     * @return 이메일 사용 가능 여부 메시지
+     * @throws ExistSameEmailException 이미 사용 중인 이메일일 때 발생
+     */
+
+    public String checkEmail(String email) {
+        Optional<Shop> findShop = shopRepository.findByEmail(email); // 이메일로 가게 찾기
+
+        if (findShop.isEmpty()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
+        else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기
+    }
+
+    /**
+     * 사업자 전화번호로 인증코드 발송
+     * 인증코드를 전화번호로 발송하고 결과를 반환
+     *
+     * @param request 인증코드를 보낼 전화번호 정보가 담긴 DTO
+     * @return 인증코드 전송 응답 객체
+     */
+    public SingleMessageSentResponse sendOne(ShopTelRequestDto request) {
+        Message message = new Message(); // 메시지 객체 생성(외부 라이브러리에서 가져옴)
+        message.setFrom("01033791271"); // 보낼 전화번호
+        message.setTo(request.getTel()); // 받을 전화번호
+
+        Random random = new Random();
+        int verifyCode = 100000 + random.nextInt(900000); // 100000 ~ 999999사이 랜덤 코드 생성
+        message.setText("[Hairism] 인증코드를 입력해주세요 : " + verifyCode); // 메시지 내용 설정
+
+        // redis에 키, 값 각각 전화번호, 인증번호 형태로 저장, 5분의 시간제한 설정
+        redisTemplate.opsForValue().set(request.getTel(), verifyCode, 5, TimeUnit.MINUTES);
+
+        // 보내고 난 후의 응답 객체 반환
+        return messageService.sendOne(new SingleMessageSendingRequest(message));
+    }
 
 
     /**
-     * 사업자 회원가입 로직
-     * @param request
-     * @return
+     * 사업자 전화번호 인증코드 확인
+     * 전화번호와 인증코드를 확인하고 결과를 반환
+     *
+     * @param request 인증코드 확인할 전화번호 정보가 담긴 DTO
+     * @return 인증코드 확인 결과 메시지
+     * @throws NotEqualVerifyCodeException 인증코드가 다를 경우 발생
+     */
+
+    public String checkVerifyCode(ShopVerifyCodeRequestDto request) {
+        // redis에서 키로 값(인증번호) 꺼내기
+        Integer verifyCode = (Integer) redisTemplate.opsForValue().get(request.getTel());
+
+        // request의 인증코드가 redis에 저장된 값이랑 같을때
+        if(verifyCode.equals(request.getVerifyCode())) return "인증이 완료되었습니다.";
+
+            // request의 인증코드가 redis에 저장된 값이랑 인증코드가 다르면 예외 던지기
+        else throw new NotEqualVerifyCodeException("인증코드가 일치하지 않습니다.");
+    }
+
+    /**
+     * 사업자번호 인증 및 중복 확인
+     * 사업자번호를 기반으로 중복 여부를 확인
+     *
+     * @param request 사업자번호 정보가 담긴 DTO
+     * @return 인증 성공 메시지 또는 예외 발생
+     * @throws RuntimeException 이미 사용 중인 사업자번호일 경우 발생
+     */
+    public String checkBiz(ShopBizRequestDto request) {
+        Optional<Shop> shop = shopRepository.findByBizId(request.getBizId());
+
+
+        if(shop.isEmpty()) return "사업자 정보가 확인되었습니다.";
+        else throw new RuntimeException("이미 사용중인 사업자번호 입니다.");
+    }
+
+
+    /**
+     * 사업자 회원가입
+     * 회원 정보를 이용하여 회원가입 처리
+     *
+     * @param request 회원가입 요청 정보가 담긴 DTO
+     * @return 회원가입 성공 메시지
      */
     public String shopSignUp(ShopSignUpRequestDto request) {
         String result = kakaoMapApi.getCoordinatesFromAddress(request.getAddress());
@@ -106,103 +183,13 @@ public class ShopService {
 
 
     /**
-     * 사업자 전화번호 인증코드 보내기 로직
-     * @param request
-     * @return
+     * 사업자 쿠폰 등록
+     * 쿠폰 정보를 저장
+     *
+     * @param request 쿠폰 정보가 담긴 DTO
+     * @return 쿠폰 등록 결과 메시지
      */
-    public SingleMessageSentResponse sendOne(ShopTelRequestDto request) {
-        Message message = new Message(); // 메시지 객체 생성(외부 라이브러리에서 가져옴)
-        message.setFrom("01033791271"); // 보낼 전화번호
-        message.setTo(request.getTel()); // 받을 전화번호
 
-        Random random = new Random();
-        int verifyCode = 100000 + random.nextInt(900000); // 100000 ~ 999999사이 랜덤 코드 생성
-        message.setText("[Hairism] 인증코드를 입력해주세요 : " + verifyCode); // 메시지 내용 설정
-
-        // redis에 키, 값 각각 전화번호, 인증번호 형태로 저장, 5분의 시간제한 설정
-        redisTemplate.opsForValue().set(request.getTel(), verifyCode, 5, TimeUnit.MINUTES);
-
-        // 보내고 난 후의 응답 객체 반환
-        return messageService.sendOne(new SingleMessageSendingRequest(message)); 
-    }
-
-
-    /**
-     * 사업자 전화번호 인증코드 확인 로직
-     * @param request
-     * @return
-     */
-    public String checkVerifyCode(ShopVerifyCodeRequestDto request) {
-        // redis에서 키로 값(인증번호) 꺼내기
-        Integer verifyCode = (Integer) redisTemplate.opsForValue().get(request.getTel());
-
-        // request의 인증코드가 redis에 저장된 값이랑 같을때
-        if(verifyCode.equals(request.getVerifyCode())) return "인증이 완료되었습니다.";
-
-        // request의 인증코드가 redis에 저장된 값이랑 인증코드가 다르면 예외 던지기
-        else throw new NotEqualVerifyCodeException("인증코드가 일치하지 않습니다.");
-    }
-
-
-    /**
-     * 사업자번호 인증 및 중복확인 로직
-     * @param request
-     * @return
-     */
-    public String checkBiz(ShopBizRequestDto request) {
-        Optional<Shop> shop = shopRepository.findByBizId(request.getBizId());
-
-
-        if(shop.isEmpty()) return "사업자 정보가 확인되었습니다.";
-        else throw new RuntimeException("이미 사용중인 사업자번호 입니다.");
-    }
-
-    /**
-     * 사업자 이메일 중복확인 로직
-     * @param email
-     * @return
-     */
-    public String checkEmail(String email) {
-        Optional<Shop> findShop = shopRepository.findByEmail(email); // 이메일로 가게 찾기
-
-        if (findShop.isEmpty()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
-        else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기
-    }
-
-
-    /**
-     * 사업자 쿠폰 조회 로직
-     * @param
-     * @return
-     */
-    public List<CouponListResponseDto> getCoupons() {
-        // 인증 정보에서 사업자 이메일 꺼내기
-        String email = getAuthenticatedEmail();
-
-        Shop shop = getShop(email);
-
-        List<Coupon> coupons = couponRepository.findByShop(shop);// 가게를 통해 가져온 쿠폰들 반환
-        List<CouponListResponseDto> response = new ArrayList<>(); // 쿠폰 목록 리스트 생성
-        for (Coupon coupon : coupons) { // 쿠폰 목록에 쿠폰 담기
-            CouponListResponseDto couponListResponseDto = new CouponListResponseDto(
-                    coupon.getId().toString(),
-                    coupon.getName(),
-                    coupon.getType().toString(),
-                    coupon.getPrice(),
-                    coupon.getGetDate(),
-                    coupon.getUseDate()
-            );
-            response.add(couponListResponseDto);
-        }
-        return response; // 쿠폰 목록 반환
-    }
-
-
-    /**
-     * 사업자 쿠폰 등록 로직
-     * @param request
-     * @return
-     */
     public String addCoupon(CouponRegisterRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
@@ -227,9 +214,36 @@ public class ShopService {
     }
 
     /**
-     * 사업자 쿠폰 마감
-     * @param
-     * @return
+     * 사업자 쿠폰 조회
+     * 등록된 쿠폰 목록을 반환
+     *
+     * @return 쿠폰 목록
+     */
+    public List<CouponListResponseDto> getCoupons() {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
+
+        List<Coupon> coupons = couponRepository.findByShop(shop);// 가게를 통해 가져온 쿠폰들 반환
+        List<CouponListResponseDto> response = new ArrayList<>(); // 쿠폰 목록 리스트 생성
+        for (Coupon coupon : coupons) { // 쿠폰 목록에 쿠폰 담기
+            CouponListResponseDto couponListResponseDto = new CouponListResponseDto(
+                    coupon.getId().toString(),
+                    coupon.getName(),
+                    coupon.getType().toString(),
+                    coupon.getPrice(),
+                    coupon.getGetDate(),
+                    coupon.getUseDate()
+            );
+            response.add(couponListResponseDto);
+        }
+        return response; // 쿠폰 목록 반환
+    }
+
+    /**
+     * 사업자 쿠폰 마감 처리
+     * 만료된 쿠폰 삭제
      */
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteCoupon() {
@@ -237,12 +251,42 @@ public class ShopService {
         log.info("날짜가 지난 쿠폰 마감됨");// 로직 수행결과 반환
     }
 
+    /**
+     * 사업자 이벤트 등록
+     * 이벤트 정보를 저장
+     *
+     * @param request 이벤트 등록 요청 정보가 담긴 DTO
+     * @return 이벤트 등록 결과 메시지
+     */
+
+    public String addEvent(EventRegisterRequestDto request) {
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        // 가게 조회
+        Shop shop = getShop(email);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
+        Event event = new Event( // 이벤트 생성
+                request.getName(),
+                request.getPrice(),
+                DiscountType.valueOf(request.getType()),
+                LocalDate.parse(request.getStartDate(), formatter), // YYYY-MM-DD 형식으로 저장
+                LocalDate.parse(request.getEndDate(), formatter), // YYYY-MM-DD 형식으로 저장
+                shop
+        );
+        eventRepository.save(event); // 이벤트 저장
+
+        return "성공적으로 이벤트가 등록되었습니다."; // 로직 수행결과 반환
+    }
 
     /**
-     * 사업자 이벤트 조회 로직
-     * @param
-     * @return
+     * 사업자 이벤트 조회
+     * 등록된 이벤트 목록을 반환
+     *
+     * @return 이벤트 목록
      */
+
     public List<EventListResponseDto> getEvents() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
@@ -266,36 +310,10 @@ public class ShopService {
     }
 
     /**
-     * 사업자 이벤트 등록 로직
-     * @param request
-     * @return
-     */
-    public String addEvent(EventRegisterRequestDto request) {
-        // 인증정보에서 사업자 이메일 꺼내기
-        String email = getAuthenticatedEmail();
-
-        // 가게 조회
-        Shop shop = getShop(email);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
-        Event event = new Event( // 이벤트 생성
-                request.getName(),
-                request.getPrice(),
-                DiscountType.valueOf(request.getType()),
-                LocalDate.parse(request.getStartDate(), formatter), // YYYY-MM-DD 형식으로 저장
-                LocalDate.parse(request.getEndDate(), formatter), // YYYY-MM-DD 형식으로 저장
-                shop
-        );
-        eventRepository.save(event); // 이벤트 저장
-
-        return "성공적으로 이벤트가 등록되었습니다."; // 로직 수행결과 반환
-    }
-
-    /**
      * 사업자 이벤트 종료
-     * @param
-     * @return
+     * 만료된 이벤트 삭제
      */
+
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteEvent() {
         eventRepository.deleteByEndDateBefore(LocalDate.now()); // 현재날짜보다 이전인 이벤트들 삭제
@@ -304,9 +322,11 @@ public class ShopService {
 
     /**
      * 사업자 프로필 정보 조회
-     * @param
-     * @return
-     */ 
+     * 사업자 프로필 정보를 반환
+     *
+     * @return 사업자 프로필 정보
+     */
+
     public ShopProfileResponseDto getProfile() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
@@ -327,9 +347,12 @@ public class ShopService {
 
     /**
      * 사업자 프로필 정보 수정
-     * @param request
-     * @return
+     * 기존 프로필 정보를 수정
+     *
+     * @param request 프로필 수정 요청 정보가 담긴 DTO
+     * @return 프로필 수정 결과 메시지
      */
+
     public String updateProflie(ShopProfileRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
@@ -340,37 +363,13 @@ public class ShopService {
     }
 
     /**
-     * 사업자 메뉴 조회
-     * @param
-     * @return
-     */
-    public List<MenuListResponseDto> getMenu() {
-        // 로그인 인증 정보에서 이메일 가져오기
-        String email = getAuthenticatedEmail();
-
-        Shop shop = shopRepository.findByEmail(email)
-                .orElseThrow(() ->  new NoSuchElementException("가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
-
-
-        List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
-        List<MenuListResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
-        for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
-            MenuListResponseDto menuListResponseDto = new MenuListResponseDto(
-                    menu.getId().toString(),
-                    menu.getName(),
-                    menu.getDesigner().getName(),
-                    menu.getPrice()
-            );
-            response.add(menuListResponseDto); 
-        }
-        return response; // 메뉴 목록 반환
-    }
-    
-    /**
      * 사업자 메뉴 추가
-     * @param request
-     * @return
+     * 새로운 메뉴를 등록
+     *
+     * @param request 메뉴 등록 요청 정보가 담긴 DTO
+     * @return 메뉴 등록 결과 메시지
      */
+
     public String addMenu(@Valid MenuEditDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
@@ -396,10 +395,41 @@ public class ShopService {
     }
 
     /**
-     * 사업자 메뉴 수정
-     * @param request
-     * @return
+     * 사업자 메뉴 조회
+     * 등록된 메뉴 목록 반환
+     *
+     * @return 메뉴 목록
      */
+    public List<MenuListResponseDto> getMenu() {
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = shopRepository.findByEmail(email)
+                .orElseThrow(() ->  new NoSuchElementException("가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
+
+
+        List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
+        List<MenuListResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
+        for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
+            MenuListResponseDto menuListResponseDto = new MenuListResponseDto(
+                    menu.getId().toString(),
+                    menu.getName(),
+                    menu.getDesigner().getName(),
+                    menu.getPrice()
+            );
+            response.add(menuListResponseDto);
+        }
+        return response; // 메뉴 목록 반환
+    }
+
+    /**
+     * 사업자 메뉴 수정
+     * 기존 메뉴 정보 수정
+     *
+     * @param request 메뉴 수정 요청 정보가 담긴 DTO
+     * @return 메뉴 수정 결과 메시지
+     */
+
     public String updateMenu(@Valid MenuEditDto request) {
         Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
@@ -410,9 +440,12 @@ public class ShopService {
 
     /**
      * 사업자 메뉴 삭제
-     * @param request
-     * @return
+     * 메뉴 정보 삭제
+     *
+     * @param request 메뉴 삭제 요청 정보가 담긴 DTO
+     * @return 메뉴 삭제 결과 메시지
      */
+
     public String deleteMenu(@Valid MenuEditDto request) {
         Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
@@ -420,13 +453,42 @@ public class ShopService {
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
 
+    /**
+     * 사업자 구인글 등록
+     * 새로운 구인글 등록
+     *
+     * @param request 구인글 등록 요청 정보가 담긴 DTO
+     * @return 구인글 등록 결과 메시지
+     */
 
+    public String addJobPost(JobPostEditDto request) {
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm"); // 날짜 포매터 만들기
+        JobPost jobPost = JobPost.builder() //빌더를 통해 구인글 생성
+                .shop(shop)
+                .title(request.getTitle())
+                .gender(Gender.valueOf(request.getGender()))
+                .work(Work.valueOf(request.getWork()))
+                .workTime(LocalTime.parse(request.getWorkTime(), formatter))
+                .leaveTime(LocalTime.parse(request.getWorkTime(), formatter))
+                .content(request.getContent())
+                .salary(request.getSalary())
+                .build();
+
+        jobPostRepository.save(jobPost); // 구인글 개체를 영속성 컨텍스트에 저장
+        return "성공적으로 구인글이 등록되었습니다."; // 성공 구문 반환
+    }
 
 
     /**
      * 사업자 구인글 목록 조회
-     * @param
-     * @return
+     * 등록된 구인글 목록 반환
+     *
+     * @return 구인글 목록
      */
     public List<JobPostListResponseDto> getJobPosts() {
         // 로그인 인증 정보에서 이메일 가져오기
@@ -455,37 +517,13 @@ public class ShopService {
     }
 
     /**
-     * 사업자 구인글 등록
-     * @param request
-     * @return
-     */
-    public String addJobPost(JobPostEditDto request) {
-        // 로그인 인증 정보에서 이메일 가져오기
-        String email = getAuthenticatedEmail();
-
-        Shop shop = getShop(email);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm"); // 날짜 포매터 만들기
-        JobPost jobPost = JobPost.builder() //빌더를 통해 구인글 생성
-                .shop(shop)
-                .title(request.getTitle())
-                .gender(Gender.valueOf(request.getGender()))
-                .work(Work.valueOf(request.getWork()))
-                .workTime(LocalTime.parse(request.getWorkTime(), formatter))
-                .leaveTime(LocalTime.parse(request.getWorkTime(), formatter))
-                .content(request.getContent())
-                .salary(request.getSalary())
-                .build();
-
-        jobPostRepository.save(jobPost); // 구인글 개체를 영속성 컨텍스트에 저장
-        return "성공적으로 구인글이 등록되었습니다."; // 성공 구문 반환
-    }
-
-    /**
      * 사업자 구인글 수정
-     * @param request
-     * @return
+     * 기존 구인글 정보 수정
+     *
+     * @param request 구인글 수정 요청 정보가 담긴 DTO
+     * @return 구인글 수정 결과 메시지
      */
+
     public String updateJobPost(JobPostEditDto request) {// 가게 찾기
         JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
@@ -495,9 +533,12 @@ public class ShopService {
 
     /**
      * 사업자 구인글 삭제
-     * @param request
-     * @return
+     * 구인글 정보 삭제
+     *
+     * @param request 구인글 삭제 요청 정보가 담긴 DTO
+     * @return 구인글 삭제 결과 메시지
      */
+
     public String deleteJobPost(JobPostEditDto request) {
         JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
@@ -506,97 +547,13 @@ public class ShopService {
     }
 
     /**
-     * 사업자 소속된 디자이너 목록 조회
-     * @param
-     * @return
+     * 사업자 소속 디자이너 추가
+     * 소속 디자이너 등록
+     *
+     * @param request 디자이너 추가 요청 정보가 담긴 DTO
+     * @return 디자이너 등록 결과 메시지
      */
-    public List<ShopDesignerListResponseDto> getDesigners() {
-        // 인증 정보에서 사업자 이메일 꺼내기
-        String email = getAuthenticatedEmail();
 
-        Shop shop = getShop(email);
-
-        List<Designer> designers = shop.getDesigners();// 디자이너들 가져오기
-        List<ShopDesignerListResponseDto> dtos = new ArrayList<>();
-        for (Designer designer : designers) { // 가져온 디자이너들의 정보를 dto에 담은 뒤 리스트로 반환
-            ShopDesignerListResponseDto dto = ShopDesignerListResponseDto.builder()
-                    .email(designer.getEmail())
-                    .name(designer.getName())
-                    .like(designer.getLike())
-                    .gender(designer.getGender().toString())
-                    .build();
-            dtos.add(dto);
-        }
-        return dtos;
-    }
-
-    /**
-     * 사업자 소속 디자이너 상세 조회
-     * @param request
-     * @return
-     */
-    public ShopDesignerDetailResponseDto getDesignerDetail(ShopDesignerRequestDto request) {
-        // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
-
-        // 디자이너 정기 휴무일 찾기
-        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));
-
-        // 디자이너 상세정보를 dto에 담아 반환
-        return ShopDesignerDetailResponseDto.builder()
-                .name(designer.getName())
-                .gender(designer.getGender().toString())
-                .like(designer.getLike())
-                .email(request.getDesignerEmail())
-                .workTime(designer.getWorkTime())
-                .leaveTime(designer.getLeaveTime())
-                .regularHoliday(designerRegularHoliday.getDay())
-                .build();
-    }
-
-    /**
-     * 사업자 소속 디자이너 수정
-     * @param request
-     * @return
-     */
-    public String updateDesigner(ShopDesignerUpdateRequestDto request) {
-        // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
-
-        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
-                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
-
-
-        designer.updateWorkAndLeave(request.getWorkTime(), request.getLeaveTime()); // 춡퇴근 시간 다르면 업데이트
-        designerRegularHoliday.updateHoliday(request.getRegularHoliday()); // 정기 휴무일 다르면 업데이트
-        return "성공적으로 소속 디자이너 정보가 수정되었습니다."; // 성공 구문 반환
-    }
-
-    /**
-     * 사업자 소속 디자이너 휴일 추가
-     * @param request
-     * @return
-     */
-    public String createDesignerHoliday(ShopDesignerHolidayRequestDto request) {
-        // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
-
-        // 디자이너 휴무일 생성 후 저장
-        DesignerHoliday designerHoliday = DesignerHoliday.builder()
-                .designer(designer)
-                .date(request.getHoliday())
-                .build();
-        designerHolidayRepository.save(designerHoliday); 
-
-        return "성공적으로 소속 디자이너 휴일이 추가되었습니다."; // 성공 구문 반환
-    }
-
-    /**
-     * 사업자 디자이너 추가
-     * @param request
-     * @return
-     */
     public String joinDesigner(ShopDesignerRequestDto request) {
         // 다자이너 조회
         Designer designer = getDesigner(request.getDesignerEmail());
@@ -621,10 +578,111 @@ public class ShopService {
     }
 
     /**
-     * 사업자 디자이너 삭제
-     * @param request
-     * @return
+     * 사업자 소속 디자이너의 휴일 추가
+     * 디자이너 휴일 정보 저장
+     *
+     * @param request 디자이너 휴일 추가 요청 정보가 담긴 DTO
+     * @return 디자이너 휴일 추가 결과 메시지
      */
+
+    public String createDesignerHoliday(ShopDesignerHolidayRequestDto request) {
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
+
+        // 디자이너 휴무일 생성 후 저장
+        DesignerHoliday designerHoliday = DesignerHoliday.builder()
+                .designer(designer)
+                .date(request.getHoliday())
+                .build();
+        designerHolidayRepository.save(designerHoliday);
+
+        return "성공적으로 소속 디자이너 휴일이 추가되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 소속 디자이너 목록 조회
+     * 등록된 디자이너 목록 반환
+     *
+     * @return 디자이너 목록
+     */
+
+    public List<ShopDesignerListResponseDto> getDesigners() {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
+
+        List<Designer> designers = shop.getDesigners();// 디자이너들 가져오기
+        List<ShopDesignerListResponseDto> dtos = new ArrayList<>();
+        for (Designer designer : designers) { // 가져온 디자이너들의 정보를 dto에 담은 뒤 리스트로 반환
+            ShopDesignerListResponseDto dto = ShopDesignerListResponseDto.builder()
+                    .email(designer.getEmail())
+                    .name(designer.getName())
+                    .like(designer.getLike())
+                    .gender(designer.getGender().toString())
+                    .build();
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    /**
+     * 사업자 소속 디자이너 상세 조회
+     * 특정 디자이너의 상세 정보 반환
+     *
+     * @param request 디자이너 상세 조회 요청 정보가 담긴 DTO
+     * @return 디자이너 상세 정보
+     */
+
+    public ShopDesignerDetailResponseDto getDesignerDetail(ShopDesignerRequestDto request) {
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
+
+        // 디자이너 정기 휴무일 찾기
+        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));
+
+        // 디자이너 상세정보를 dto에 담아 반환
+        return ShopDesignerDetailResponseDto.builder()
+                .name(designer.getName())
+                .gender(designer.getGender().toString())
+                .like(designer.getLike())
+                .email(request.getDesignerEmail())
+                .workTime(designer.getWorkTime())
+                .leaveTime(designer.getLeaveTime())
+                .regularHoliday(designerRegularHoliday.getDay())
+                .build();
+    }
+
+    /**
+     * 사업자 소속 디자이너 수정
+     * 디자이너 정보 및 정기 휴무일 수정
+     *
+     * @param request 디자이너 수정 요청 정보가 담긴 DTO
+     * @return 디자이너 수정 결과 메시지
+     */
+
+    public String updateDesigner(ShopDesignerUpdateRequestDto request) {
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
+
+        DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
+
+
+        designer.updateWorkAndLeave(request.getWorkTime(), request.getLeaveTime()); // 춡퇴근 시간 다르면 업데이트
+        designerRegularHoliday.updateHoliday(request.getRegularHoliday()); // 정기 휴무일 다르면 업데이트
+        return "성공적으로 소속 디자이너 정보가 수정되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 사업자 소속 디자이너 해고
+     * 디자이너 소속 해제 및 관련 정보 삭제
+     *
+     * @param request 디자이너 삭제 요청 정보가 담긴 DTO
+     * @return 디자이너 삭제 결과 메시지
+     */
+
     public String deleteDesigner(ShopDesignerRequestDto request) {
         // 디자이너 조회
         Designer designer = getDesigner(request.getDesignerEmail());
@@ -648,46 +706,20 @@ public class ShopService {
     }
 
     /**
-     * 사업자 블랙리스트 목록 조회
-     * @param
-     * @return
-     */
-    public List<BlackListResponseDto> getBlackLists() {
-        // 인증 정보에서 사업자 이메일 꺼내기
-        String email = getAuthenticatedEmail();
-
-        //가게 조회
-        Shop shop = getShop(email);
-
-        // 가게의 블랙리스트 조회
-        List<BlackList> blackLists = blackListRepository.findByShop(shop);
-
-        // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
-        List<BlackListResponseDto> dtos = new ArrayList<>(); 
-        for (BlackList blackList : blackLists) {
-            BlackListResponseDto dto = BlackListResponseDto.builder()
-                    .reason(blackList.getReason())
-                    .userName(blackList.getUser().getName())
-                    .userEmail(blackList.getUser().getEmail())
-                    .build();
-            dtos.add(dto);
-        }
-
-        return dtos;
-    }
-
-    /**
      * 사업자 블랙리스트 추가
-     * @param request
-     * @return
+     * 특정 유저를 블랙리스트에 등록
+     *
+     * @param request 블랙리스트 추가 요청 정보가 담긴 DTO
+     * @return 블랙리스트 추가 결과 메시지
      */
+
     public String createBlackList(BlackListRequestDto request) {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
         // 가게 조회
         Shop shop = getShop(email);
-        
+
         // 유저 조회
         User user = getUser(request.getUserEmail());
 
@@ -709,10 +741,43 @@ public class ShopService {
     }
 
     /**
-     * 사업자 블랙리스트 삭제
-     * @param requests
-     * @return
+     * 사업자 블랙리스트 목록 조회
+     * 등록된 블랙리스트 목록 반환
+     *
+     * @return 블랙리스트 목록
      */
+    public List<BlackListResponseDto> getBlackLists() {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        //가게 조회
+        Shop shop = getShop(email);
+
+        // 가게의 블랙리스트 조회
+        List<BlackList> blackLists = blackListRepository.findByShop(shop);
+
+        // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
+        List<BlackListResponseDto> dtos = new ArrayList<>();
+        for (BlackList blackList : blackLists) {
+            BlackListResponseDto dto = BlackListResponseDto.builder()
+                    .reason(blackList.getReason())
+                    .userName(blackList.getUser().getName())
+                    .userEmail(blackList.getUser().getEmail())
+                    .build();
+            dtos.add(dto);
+        }
+
+        return dtos;
+    }
+
+    /**
+     * 사업자 블랙리스트 삭제
+     * 블랙리스트에서 특정 사용자 정보 삭제
+     *
+     * @param requests 블랙리스트 삭제 요청 정보가 담긴 DTO 리스트
+     * @return 블랙리스트 삭제 결과 메시지
+     */
+
     public String deleteBlackList(List<BlackListRequestDto> requests) {
         for (BlackListRequestDto request : requests) {
             // 인증 정보에서 사업자 이메일 꺼내기
@@ -738,9 +803,12 @@ public class ShopService {
 
     /**
      * 사업자 예약 조회
-     * @param request
-     * @return
+     * 특정 조건에 해당하는 예약 목록 반환
+     *
+     * @param request 예약 조회 요청 정보가 담긴 DTO
+     * @return 예약 목록
      */
+
     public List<ShopReservationResponseDto> getReservations(ShopReservationRequestDto request) {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
@@ -753,9 +821,12 @@ public class ShopService {
 
     /**
      * 사업자 예약 상세 조회
-     * @param reservationId
-     * @return
+     * 특정 예약의 상세 정보 반환
+     *
+     * @param reservationId 예약의 고유 ID
+     * @return 예약 상세 정보
      */
+
     public ShopReservationDetailResponseDto getReservation(UUID reservationId) {
         // 예약 상세 조회 결과 반환
         return reservationRepository.findDetailById(reservationId)
@@ -764,8 +835,10 @@ public class ShopService {
 
     /**
      * 사업자 근태 상세 조회
-     * @param request
-     * @return
+     * 특정 조건에 해당하는 근태 목록 반환
+     *
+     * @param request 근태 조회 요청 정보가 담긴 DTO
+     * @return 근태 목록
      */
     public List<ShopAttendanceResponseDto> getAttendance(ShopAttendanceRequestDto request) {
         // 가게 찾기
@@ -773,10 +846,12 @@ public class ShopService {
     }
 
     /**
-     * 시큐리티 인증 정보에서 이메일 꺼내기
-     * @param
-     * @return
+     * 시큐리티 인증 정보에서 이메일 가져오기
+     * 현재 인증된 사용자의 이메일 반환
+     *
+     * @return 인증된 사용자 이메일
      */
+
     private static String getAuthenticatedEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsDto principal = (UserDetailsDto) authentication.getPrincipal();
@@ -785,9 +860,12 @@ public class ShopService {
 
     /**
      * 사업자 이메일로 사업자 조회
+     * 특정 이메일로 사업자 정보 반환
+     *
      * @param email 사업자의 이메일
-     * @return Shop 찾은 가게
+     * @return 찾은 사업자 정보
      */
+
     private Shop getShop(String email) {
         return shopRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다."));
@@ -795,9 +873,12 @@ public class ShopService {
 
     /**
      * 유저 이메일로 유저 조회
+     * 특정 이메일로 사용자 정보 반환
+     *
      * @param email 유저의 이메일
-     * @return User 찾은 유저
+     * @return 찾은 유저 정보
      */
+
     private User getUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
@@ -805,9 +886,12 @@ public class ShopService {
 
     /**
      * 디자이너 이메일로 디자이너 조회
+     * 특정 이메일로 디자이너 정보 반환
+     *
      * @param email 디자이너의 이메일
-     * @return Designer 찾은 디자이너
+     * @return 찾은 디자이너 정보
      */
+
     private Designer getDesigner(String email) {
         return designerRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));

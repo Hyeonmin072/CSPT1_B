@@ -34,13 +34,12 @@ public class ShopController {
     private final DesignerService designerService;
 
     /**
-     * 사업자 회원가입
+     * 사업자 이메일 중복확인
      */
-    @PostMapping("/signup")
-    public ResponseEntity<String> shopSignUp(@Valid @RequestBody ShopSignUpRequestDto request) {
-        return ResponseEntity.ok(shopService.shopSignUp(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    @GetMapping("/checkemail/{email}")
+    public ResponseEntity<String> checkEmail(@Valid @PathVariable(name = "email") String email) {
+        return ResponseEntity.ok(shopService.checkEmail(email)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
     }
-
 
     /**
      * 사업자 전화번호 인증코드 보내기
@@ -66,21 +65,12 @@ public class ShopController {
         return ResponseEntity.ok(shopService.checkBiz(request)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
     }
 
-
     /**
-     * 사업자 이메일 중복확인
+     * 사업자 회원가입
      */
-    @GetMapping("/checkemail/{email}")
-    public ResponseEntity<String> checkEmail(@Valid @PathVariable(name = "email") String email) {
-        return ResponseEntity.ok(shopService.checkEmail(email)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
-    }
-
-    /**
-     * 등록한 쿠폰 조회
-     */
-    @GetMapping("/getcoupons")
-    public ResponseEntity<List<CouponListResponseDto>> getCoupons() {
-        return ResponseEntity.ok(shopService.getCoupons()); // 성공적으로 로직이 수행될 경우 쿠폰 목록 반환
+    @PostMapping("/signup")
+    public ResponseEntity<String> shopSignUp(@Valid @RequestBody ShopSignUpRequestDto request) {
+        return ResponseEntity.ok(shopService.shopSignUp(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
@@ -92,11 +82,11 @@ public class ShopController {
     }
 
     /**
-     * 등록한 이벤트 조회
+     * 등록한 쿠폰목록 조회
      */
-    @GetMapping("/getevents")
-    public ResponseEntity<List<EventListResponseDto>> getEvents() {
-        return ResponseEntity.ok(shopService.getEvents()); // 성공적으로 로직이 수행될 경우 이벤트 목록 반환
+    @GetMapping("/getcoupons")
+    public ResponseEntity<List<CouponListResponseDto>> getCoupons() {
+        return ResponseEntity.ok(shopService.getCoupons()); // 성공적으로 로직이 수행될 경우 쿠폰 목록 반환
     }
 
     /**
@@ -105,6 +95,14 @@ public class ShopController {
     @PostMapping("/addevent")
     public ResponseEntity<String> addEvent(@Valid @RequestBody EventRegisterRequestDto request) {
         return ResponseEntity.ok(shopService.addEvent(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    }
+
+    /**
+     * 등록한 이벤트목록 조회
+     */
+    @GetMapping("/getevents")
+    public ResponseEntity<List<EventListResponseDto>> getEvents() {
+        return ResponseEntity.ok(shopService.getEvents()); // 성공적으로 로직이 수행될 경우 이벤트 목록 반환
     }
 
     /**
@@ -124,19 +122,19 @@ public class ShopController {
     }
 
     /**
-     * 사업자 메뉴 조회
-     */
-    @GetMapping("/getmenu")
-    public ResponseEntity<List<MenuListResponseDto>> getMenu() {
-        return ResponseEntity.ok(shopService.getMenu()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
-    }
-
-    /**
      * 사업자 메뉴 등록
      */
     @PostMapping("/addmenu")
     public ResponseEntity<String> addMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.addMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 조회
+     */
+    @GetMapping("/getmenu")
+    public ResponseEntity<List<MenuListResponseDto>> getMenu() {
+        return ResponseEntity.ok(shopService.getMenu()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
 
     /**
@@ -148,13 +146,21 @@ public class ShopController {
     }
 
     /**
-     * 사업자 메뉴 삭제f
+     * 사업자 메뉴 삭제
      */
     @PostMapping("/deletemenu")
     public ResponseEntity<String> deleteMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
-   
+
+
+    /**
+     * 사업자 구인글 등록
+     */
+    @PostMapping("/addjobpost")
+    public ResponseEntity<String> addJobPost(@Validated @RequestBody JobPostEditDto request) {
+        return ResponseEntity.ok(shopService.addJobPost(request));
+    }
 
     /**
      * 사업자 구인글 목록 조회
@@ -162,14 +168,6 @@ public class ShopController {
     @GetMapping("/getjobposts")
     public ResponseEntity<List<JobPostListResponseDto>> getJobPosts() {
         return ResponseEntity.ok(shopService.getJobPosts());
-    }
-    
-    /**
-     * 사업자 구인글 등록
-     */
-    @PostMapping("/addjobpost")
-    public ResponseEntity<String> addJobPost(@Validated @RequestBody JobPostEditDto request) {
-        return ResponseEntity.ok(shopService.addJobPost(request));
     }
 
     /**
@@ -197,6 +195,14 @@ public class ShopController {
     }
 
     /**
+     * 사업자 소속 디자이너의 휴일 추가
+     */
+    @PostMapping("/designer/holiday")
+    public ResponseEntity<String> postDesignerHoliday(@Validated @RequestBody ShopDesignerHolidayRequestDto request) {
+        return ResponseEntity.ok(shopService.createDesignerHoliday(request));
+    }
+
+    /**
      * 사업자 소속 디자이너 목록 조회
      */
     @GetMapping("/designers")
@@ -221,14 +227,6 @@ public class ShopController {
     }
 
     /**
-     * 사업자 소속 디자이너 휴일 추가
-     */
-    @PostMapping("/designer/holiday")
-    public ResponseEntity<String> postDesignerHoliday(@Validated @RequestBody ShopDesignerHolidayRequestDto request) {
-        return ResponseEntity.ok(shopService.createDesignerHoliday(request));
-    }
-
-    /**
      * 사업자 소속 디자이너 삭제
      */
     @PostMapping("/designer/delete")
@@ -237,19 +235,19 @@ public class ShopController {
     }
 
     /**
-     * 사업자 블랙리스트 목록 조회
-     */
-    @GetMapping("/blacklists")
-    public ResponseEntity<List<BlackListResponseDto>> getBlackLists() {
-        return ResponseEntity.ok(shopService.getBlackLists());
-    }
-
-    /**
      * 사업자 블랙리스트 추가
      */
     @PostMapping("/blacklist/create")
     public ResponseEntity<String> createBlackList(@Validated @RequestBody BlackListRequestDto request) {
         return ResponseEntity.ok(shopService.createBlackList(request));
+    }
+
+    /**
+     * 사업자 블랙리스트 목록 조회
+     */
+    @GetMapping("/blacklists")
+    public ResponseEntity<List<BlackListResponseDto>> getBlackLists() {
+        return ResponseEntity.ok(shopService.getBlackLists());
     }
 
     /**
