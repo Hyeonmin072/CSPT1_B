@@ -203,7 +203,6 @@ public class UserService {
 
     }
 
-
     // 유저 홈페이지 로딩
     public UserHomePageResponseDto loadHomePage(){
 
@@ -242,7 +241,6 @@ public class UserService {
                 adList
         );
     }
-
 
     // 헤어샵 페이지 상세보기
     public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
@@ -330,7 +328,6 @@ public class UserService {
         return responseDtos;
     }
 
-
     /*
      *  디자이너 좋아요 토글 처리
      */
@@ -379,7 +376,6 @@ public class UserService {
                 .userTel(user.getTel())
                 .userGrade(user.getMemberShip().getGrade())
                 .build();
-
     }
 
 }
