@@ -1,5 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
+import com.myong.backend.domain.dto.shop.ShopNoticeRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -58,5 +59,19 @@ public class Notice {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+
+    /**
+     * 수정 편의 메서드
+     * @param request 공지사항 개체 수정에 필요한 정보가 담긴 DTO
+     */
+    public void update(ShopNoticeRequest request) {
+        if(!this.getTitle().equals(request.getTitle())) { // 현재 공지사항의 제목과 DTO의 제목이 동일하지 않은 경우
+            this.title = request.getTitle();
+        } 
+        if(!this.getContent().equals(request.getContent())) { // 현재 공지사항의 내용과 DTO의 내용이 동일하지 않은 경우
+            this.content = request.getContent();
+        }
     }
 }

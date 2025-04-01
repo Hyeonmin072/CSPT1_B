@@ -280,4 +280,53 @@ public class ShopController {
     public ResponseEntity<List<ShopAttendanceResponseDto>> getAttendance(@Validated @RequestBody ShopAttendanceRequestDto request) {
         return ResponseEntity.ok(shopService.getAttendance(request));
     }
+
+    /**
+     * 사업자 공지사항 생성
+     */
+    @PostMapping("/notice")
+    public ResponseEntity<String> createNotice(@Validated @RequestBody ShopNoticeRequest request) {
+        return ResponseEntity.ok(shopService.createNotice(request));
+    }
+
+    /**
+     * 사업자 공지사항 전체 조회
+     */
+    @GetMapping("/notices")
+    public ResponseEntity<List<ShopNoticeResponse>> getNotices() {
+        return ResponseEntity.ok(shopService.getNotices());
+    }
+
+    /**
+     * 사업자 공지사항 단건 조회
+     */
+    @GetMapping("/notice/{noticeId}")
+    public ResponseEntity<ShopNoticeDetailResponse> getNotice(@PathVariable("noticeId") String id) {
+        return ResponseEntity.ok(shopService.getNotice(id));
+    }
+
+    /**
+     * 사업자 가장 최신의 공지사항 단건 조회
+     */
+    @GetMapping("/notice/latest")
+    public ResponseEntity<ShopNoticeDetailResponse> getNoticeLatest() {
+        return ResponseEntity.ok(shopService.getNoticeLatest());
+    }
+
+    /**
+     * 사업자 공지사항 수정
+     */
+    @PatchMapping("/notice/{noticeId}")
+    public ResponseEntity<String> updateNotice(@PathVariable("noticeId") String id,
+                                               @Validated @RequestBody ShopNoticeRequest request) {
+        return ResponseEntity.ok(shopService.updateNotice(id, request));
+    }
+
+    /**
+     * 사업자 공지사항 삭제
+     */
+    @DeleteMapping("/notice/{noticeId}")
+    public ResponseEntity<String> deleteNotice(@PathVariable("noticeId") String id) {
+        return ResponseEntity.ok(shopService.deleteNotice(id));
+    }
 }

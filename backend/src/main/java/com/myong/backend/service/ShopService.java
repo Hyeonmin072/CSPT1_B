@@ -1,6 +1,7 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.shop.ShopNoticeRequest;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
@@ -74,6 +75,7 @@ public class ShopService {
     private final DesignerHolidayRepository designerHolidayRepository;
     private final AttendanceRepository attendanceRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NoticeRepository noticeRepository;
 
     /**
      * 사업자 이메일 중복 확인
@@ -822,6 +824,121 @@ public class ShopService {
     public List<ShopAttendanceResponseDto> getAttendance(ShopAttendanceRequestDto request) {
         // 가게 찾기
         return attendanceMapper.findAll(request);
+    }
+
+    /**
+     * 공지사항 생성
+     * 현재 로그인한 사업자의 이메일과 공지사항 관련 정보를 가지고 공지사항 개체 생성
+     * @param request 공지사항 개체 생성에 필요한 정보가 담긴 DTO
+     * @return 성공 구문 반환
+     */
+    public String createNotice(ShopNoticeRequest request) {
+        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
+        Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
+
+        Notice notice = Notice.builder() // 공지사항 객체 생성 후 -> 저장(영속성 컨텍스트)
+                .title(request.getTitle())
+                .content(request.getContent())
+                .shop(shop)
+                .build();
+        noticeRepository.save(notice);
+
+        return "공지사항이 성공적으로 생성되었습니다.";
+    }
+
+    /**
+     * 공지사항 전체 조회
+     * 현재 로그인한 사업자의 이메일을 가지고 전체 공지사항 개체 조회
+     * @return 공지사항 정보를 담은 DTO들을 반환
+     */
+    public List<ShopNoticeResponse> getNotices() {
+        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
+        Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
+
+        List<Notice> notices = noticeRepository.findByShop(shop); // 조회한 가게 객체를 통해 공지사항 조회
+
+        // 스트림을 통해 Notice -> DTO 객체로 map 중간연산을 통해 변환한 뒤 반환
+        return notices.stream()
+                .map((n) -> ShopNoticeResponse.builder()
+                        .id(n.getId())
+                        .title(n.getTitle())
+                        .createDate(n.getCreateDate())
+                        .build())
+                .toList();
+    }
+
+    /**
+     * 공지사항 단건 조회
+     * 전체 공지사항 개체 중 단건 조회
+     * @param id 조회하고자 하는 공지사항 개체의 고유 키
+     * @return 공지사항 상세정보를 담은 DTO를 반환
+     */
+    public ShopNoticeDetailResponse getNotice(String id) {
+        Notice notice = noticeRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자 하는 공지사항 글이 없습니다."));
+
+        return ShopNoticeDetailResponse.builder()
+                .id(notice.getId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .createDate(notice.getCreateDate())
+                .build();
+    }
+
+    /**
+     * 가장 최신의 공지사항 단건 조회
+     * 현재 로그인한 사업자의 이메일을 가지고 전체 공지사항 중 가장 최신의 공지사항 개체 조회
+     * @return 공지사항 상세정보를 담은 DTO를 반환
+     */
+    public ShopNoticeDetailResponse getNoticeLatest() {
+        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
+        Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
+
+        List<Notice> notices = noticeRepository.findByShop(shop); // 조회한 가게 객체를 통해 공지사항 조회
+        
+        // 스트림을 통해 Notice 리스트 -> sorted 중간 연산을 통해 생성일 내림차순으로 정렬 -> 첫번째 항목 찾기
+        Notice notice = notices.stream()
+                .sorted(Comparator.comparing(Notice::getCreateDate).reversed())
+                .findFirst()
+                .orElse(null);
+
+        // 찾은 Notice -> DTO로 반환
+        return ShopNoticeDetailResponse.builder()
+                .id(notice.getId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .createDate(notice.getCreateDate())
+                .build();
+    }
+
+    /**
+     * 공지사항 단건 수정
+     * 현재 로그인한 사업자의 이메일을 가지고 전체 공지사항 중 가장 최신의 공지사항 개체 조회
+     * @param id 조회하고자 하는 공지사항 개체의 고유 키
+     * @param request 공지사항 개체 수정에 필요한 정보가 담긴 DTO
+     * @return 성공 구문 반환
+     */
+    public String updateNotice(String id, ShopNoticeRequest request) {
+        Notice notice = noticeRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자 하는 공지사항 글이 없습니다."));
+
+        // Notice 도메인 객체(엔티티)의 수정 편의 메서드 호출 후 성곤구문 반환
+        notice.update(request);
+        return "성공적으로 공지사항이 수정되었습니다.";
+    }
+
+    /**
+     * 공지사항 단건 삭제
+     * 현재 로그인한 사업자의 이메일을 가지고 전체 공지사항 중 가장 최신의 공지사항 개체 조회
+     * @return 공지사항 상세정보를 담은 DTO를 반환
+     */
+    public String deleteNotice(String id) {
+        Notice notice = noticeRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자 하는 공지사항 글이 없습니다."));
+
+        // 삭제 후 성공구문 반환
+        noticeRepository.delete(notice);
+        return "성공적으로 공지사항이 삭제되었습니다.";
     }
 
     /**
