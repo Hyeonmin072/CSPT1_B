@@ -2,9 +2,11 @@ package com.myong.backend.domain.entity.shop;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
@@ -19,19 +21,28 @@ public class Notice {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "n_id")
-    private UUID id;
+    private UUID id; // 공지사항 아이디
 
     @Column(name = "n_title")
-    private String title;
+    private String title; // 공지사항 제목
 
     @Column(name = "n_content")
-    private String content;
+    private String content; // 공지사항 내용
 
     @Column(name = "n_create_date")
-    private LocalDate createDate;
+    @CreatedDate
+    private LocalDate createDate; // 공지사항 생성일
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Shop shop;
+    @JoinColumn(name = "S_id")
+    private Shop shop; // 공지사항이 소속된 가게
+
+    @Builder
+    public Notice(String content, String title, Shop shop) {
+        this.content = content;
+        this.title = title;
+        this.shop = shop;
+    }
 
     @Override
     public final boolean equals(Object o) {
