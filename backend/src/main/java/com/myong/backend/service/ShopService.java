@@ -755,6 +755,36 @@ public class ShopService {
     }
 
     /**
+     * 사업자 블랙리스트 단건 조회
+     * 등록된 블랙리스트 목록 반환
+     *
+     * @return 블랙리스트 목록
+     */
+    public List<BlackListResponseDto> getBlackList(String id) {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        //가게 조회
+        Shop shop = getShop(email);
+
+        // 가게의 블랙리스트 조회
+        List<BlackList> blackLists = blackListRepository.findByShop(shop);
+
+        // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
+        List<BlackListResponseDto> dtos = new ArrayList<>();
+        for (BlackList blackList : blackLists) {
+            BlackListResponseDto dto = BlackListResponseDto.builder()
+                    .reason(blackList.getReason())
+                    .userName(blackList.getUser().getName())
+                    .userEmail(blackList.getUser().getEmail())
+                    .build();
+            dtos.add(dto);
+        }
+
+        return dtos;
+    }
+
+    /**
      * 사업자 블랙리스트 삭제
      * 블랙리스트에서 특정 사용자 정보 삭제
      *
@@ -1016,4 +1046,5 @@ public class ShopService {
         // 회원가입된 가게에 공통 항목 추가
         common.getJob(shop);
     }
+
 }
