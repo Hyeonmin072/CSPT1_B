@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Value;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -15,5 +15,5 @@ import java.util.UUID;
 public class ShopNoticeResponse implements Serializable {
     UUID id;
     String title;
-    LocalDate createDate;
+    LocalDateTime createDate;
 }

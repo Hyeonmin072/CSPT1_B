@@ -10,7 +10,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -32,7 +32,7 @@ public class Notice {
 
     @Column(name = "n_create_date")
     @CreatedDate
-    private LocalDate createDate; // 공지사항 생성일
+    private LocalDateTime createDate; // 공지사항 생성일
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "S_id")
