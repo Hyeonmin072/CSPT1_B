@@ -118,7 +118,7 @@ public class ShopController {
     /**
      * 사업자 프로필 수정
      */
-    @PostMapping("/profile")
+    @PatchMapping("/profile")
     public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request) {
         return ResponseEntity.ok(shopService.updateProflie(request)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
     }
@@ -150,7 +150,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 수정
      */
-    @PostMapping("/updatemenu")
+    @PatchMapping("/menu")
     public ResponseEntity<String> updateMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -158,7 +158,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 삭제
      */
-    @PostMapping("/deletemenu")
+    @DeleteMapping("/menu")
     public ResponseEntity<String> deleteMenu(@Valid @RequestBody MenuEditDto request) {
         return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -190,7 +190,7 @@ public class ShopController {
     /**
      * 사업자 구인글 수정
      */
-    @PostMapping("/jobpost/update")
+    @PatchMapping("/jobpost")
     public ResponseEntity<String> updateJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.updateJobPost(request));
     }
@@ -198,7 +198,7 @@ public class ShopController {
     /**
      * 사업자 구인글 마감
      */
-    @PostMapping("/jobpost/delete")
+    @DeleteMapping("/jobpost")
     public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostEditDto request) {
         return ResponseEntity.ok(shopService.deleteJobPost(request));
     }
@@ -228,7 +228,7 @@ public class ShopController {
     }
 
     /**
-     * 사업자 소속 디자이너 상세 조회
+     * 사업자 소속 디자이너 단건 조회
      */
     @GetMapping("/designer")
     public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
@@ -238,7 +238,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 수정(출퇴근, 정기휴무일)
      */
-    @PostMapping("/designer/update")
+    @PatchMapping("/designer")
     public ResponseEntity<String> postDesignser(@Validated @RequestBody ShopDesignerUpdateRequestDto request) {
         return ResponseEntity.ok(shopService.updateDesigner(request));
     }
@@ -246,7 +246,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 삭제
      */
-    @PostMapping("/designer/delete")
+    @DeleteMapping("/designer")
     public ResponseEntity<String> deleteDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
         return ResponseEntity.ok(shopService.deleteDesigner(request));
     }
@@ -278,7 +278,7 @@ public class ShopController {
     /**
      * 사업자 블랙리스트 삭제
      */
-    @PostMapping("/blacklist/delete")
+    @DeleteMapping("/blacklist")
     public ResponseEntity<String> deleteBlackList(@Validated @RequestBody List<BlackListRequestDto> requests) {
         return ResponseEntity.ok(shopService.deleteBlackList(requests));
     }
