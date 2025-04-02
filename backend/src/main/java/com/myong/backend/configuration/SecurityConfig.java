@@ -44,10 +44,10 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login") // 로그인 페이지 경로 (필요한 경우 설정)
                         .authorizationEndpoint(authorization -> authorization
-                                .baseUri("/oauth2/authorization") // OAuth2 인증 요청 URL
+                                .baseUri("/social-signin") // OAuth2 인증 요청 URL
                         )
                         .redirectionEndpoint(redirection -> redirection
-                                .baseUri("http://localhost:1271/api/sociallogin/kakao") // 카카오에서 인증 후 리다이렉트될 URI (단, 실제 경로는 "/login/oauth2/code/kakao")
+                                .baseUri("http://localhost:1271/api/oauth2/kakao") // 카카오에서 인증 후 리다이렉트될 URI (단, 실제 경로는 "/login/oauth2/code/kakao")
                         )
                 )
                 .httpBasic(withDefaults())

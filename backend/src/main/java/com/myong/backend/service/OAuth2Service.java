@@ -2,11 +2,18 @@ package com.myong.backend.service;
 
 
 
+import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.oauth2.KakaoSigninResponseDto;
+import com.myong.backend.domain.dto.oauth2.KakaoSignupRequestDto;
+import com.myong.backend.domain.entity.user.Grade;
+import com.myong.backend.domain.entity.user.MemberShip;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.jwttoken.JwtService;
+import com.myong.backend.repository.MemberShipRepository;
 import com.myong.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -39,42 +46,89 @@ public class OAuth2Service {
     private final RestTemplate restTemplate = new RestTemplate();
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final KakaoMapApi kakaoMapApi;
+    private final MemberShipRepository memberShipRepository;
 
 
     // 카카오 회원가입 로그인 및 로그인 처리
     public ResponseEntity<?> kakaoSignin(String code){
-        String accessToken = kakaoGetAccessToken(code).toString();
-        if(accessToken == null){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"인가 어세스토큰을 가져오지 못했습니다.");
+        Object tokenObj = kakaoGetAccessToken(code);
+        if (tokenObj == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인가 어세스토큰을 가져오지 못했습니다.");
         }
+        String accessToken = tokenObj.toString();
 
         Map<String,Object> userInfo = getUserInfo(accessToken);
         if(userInfo == null){
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"유저 정보를 찾지 가져오지 못했습니다.");
         }
 
+        // 이메일 추출
         Map<String,Object> kakao_account =  (Map<String, Object>) userInfo.get("kakao_account");
         String email = (String) kakao_account.get("email");
+        System.out.println("카카오 이메일 추출 : "+email);
 
         User user = userRepository.findByEmail(email).orElse(null);
-        // 이미 유저가 회원가입이 되어있음 로그인
-        if(user != null){
-            // 어세스 토큰생성
-            String userAccessToken = jwtService.createAccessToken(user.getEmail(),user.getName(),"USER");
-            // 리프레시 토큰저장
-            jwtService.saveRedisRefreshToken(user.getName());
 
-            ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken"+userAccessToken)
-                    .httpOnly(true)
-                    .secure(false)
-                    .maxAge(60*60)
-                    .path("/")
-                    .sameSite("Lax")
+        // 닉네임 추출
+        Map<String, Object> properties = (Map<String, Object>) userInfo.get("properties");
+        String nickname = (String) properties.get("nickname");
+        System.out.println("카카오 닉네임 추출 : "+nickname);
+
+        // 최초 로그인은 회원가입 폼 을 위한 리스폰스 반환
+        if(user == null){
+            KakaoSigninResponseDto kakaoSigninResponseDto = KakaoSigninResponseDto.builder()
+                    .email(email)
+                    .nickname(nickname)
+                    .status("NEW_USER")
                     .build();
-
+            return ResponseEntity.ok().body(kakaoSigninResponseDto);
         }
 
+        // 가입이 되어있으면 로그인
+        ResponseCookie accessTokenCookie = getAccessTokenCookie(user.getEmail(),user.getName(),"USER");
 
+        KakaoSigninResponseDto kakaoSigninResponseDto = KakaoSigninResponseDto.builder()
+                .status("EXISTING_USER")
+                .build();
+
+        return ResponseEntity.ok().
+                header(HttpHeaders.SET_COOKIE,accessTokenCookie.toString())
+                .body(kakaoSigninResponseDto);
+
+    }
+
+    public ResponseEntity<?> kakaoSignup(KakaoSignupRequestDto requestDto){
+
+        String coordinate = kakaoMapApi.getCoordinatesFromAddress(requestDto.getAddress());
+        System.out.println("좌표 추출 : "+coordinate);
+        String latitude = coordinate.split(" ")[0]; // 위도
+        String longitude = coordinate.split(" ")[1]; // 경도
+
+
+        User user = User.builder()
+                .name(requestDto.getName())
+                .email(requestDto.getEmail())
+                .pwd("")
+                .location(requestDto.getAddress())
+                .tel(requestDto.getTel())
+                .birthDate(requestDto.getBirthDate())
+                .address(requestDto.getAddress())
+                .post(requestDto.getPost())
+                .gender(requestDto.getGender())
+                .latitude(Double.parseDouble(latitude))
+                .longitude(Double.parseDouble(longitude))
+                .build();
+
+        MemberShip memberShip = MemberShip.builder()
+                .user(user)
+                .grade(Grade.NONE)
+                .build();
+
+        userRepository.save(user);
+        memberShipRepository.save(memberShip);
+
+        return ResponseEntity.ok("회원 가입에 성공하셨습니다.");
     }
 
 
@@ -118,5 +172,24 @@ public class OAuth2Service {
 
         return response.getStatusCode() == HttpStatus.OK ? response.getBody() : null;
     }
+
+
+    // 쿠키 생성
+    public ResponseCookie getAccessTokenCookie (String email, String name, String role){
+        // 어세스 토큰생성
+        String userAccessToken = jwtService.createAccessToken(email,name,role);
+        // 리프레시 토큰저장
+        jwtService.saveRedisRefreshToken(email);
+
+        return ResponseCookie.from("accessToken", userAccessToken)
+                .httpOnly(true)
+                .secure(false)
+                .maxAge(60*60)
+                .path("/")
+                .sameSite("Lax")
+                .build();
+
+    }
+
 
 }
