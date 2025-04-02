@@ -15,7 +15,12 @@ public class OAuth2Controller {
 
     private final OAuth2Service oAuth2Service;
 
-    @GetMapping("/kakao")
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code) throws IOException {
+        return oAuth2Service.kakaoCallback(code);
+    }
+
+    @GetMapping("/kakao/signin")
     public ResponseEntity<?> kakaoSignin(@RequestParam("code") String code) throws IOException {
         return oAuth2Service.kakaoSignin(code);
     }
@@ -24,4 +29,5 @@ public class OAuth2Controller {
     public ResponseEntity<?> kakaoSignup(@RequestBody KakaoSignupRequestDto requestDto){
         return oAuth2Service.kakaoSignup(requestDto);
     }
+
 }

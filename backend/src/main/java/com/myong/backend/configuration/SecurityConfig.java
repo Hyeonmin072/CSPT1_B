@@ -47,7 +47,7 @@ public class SecurityConfig {
                                 .baseUri("/social-signin") // OAuth2 인증 요청 URL
                         )
                         .redirectionEndpoint(redirection -> redirection
-                                .baseUri("http://localhost:1271/api/oauth2/kakao") // 카카오에서 인증 후 리다이렉트될 URI (단, 실제 경로는 "/login/oauth2/code/kakao")
+                                .baseUri("http://localhost:1271/api/oauth2/kakao/callback") // 카카오에서 인증 후 리다이렉트될 URI (단, 실제 경로는 "/login/oauth2/code/kakao")
                         )
                 )
                 .httpBasic(withDefaults())
