@@ -2,15 +2,16 @@ package com.myong.backend.domain.dto.menu;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Builder;
 import lombok.Value;
 
+import java.util.UUID;
 
+@Builder
 @Value
-@Data
-public class MenuListResponseDto {
+public class MenuResponse {
     @NotBlank
-    String id;
+    UUID id;
 
     @NotBlank
     String name;
@@ -20,4 +21,9 @@ public class MenuListResponseDto {
 
     @NotNull
     Integer price;
+
+    @NotBlank
+    String desc;
+
+    String image;
 }

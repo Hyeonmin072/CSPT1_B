@@ -2,6 +2,7 @@ package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.job.JobPostResponse;
+import com.myong.backend.domain.dto.menu.MenuResponse;
 import com.myong.backend.domain.dto.shop.ShopNoticeRequest;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
@@ -10,7 +11,7 @@ import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponse;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
-import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.menu.MenuListResponse;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
@@ -392,12 +393,12 @@ public class ShopService {
     }
 
     /**
-     * 사업자 메뉴 조회
-     * 등록된 메뉴 목록 반환
+     * 사업자 메뉴 목록 조회
+     * 로그인 인증 정보를 통해 등록된 메뉴 목록 반환
      *
      * @return 메뉴 목록
      */
-    public List<MenuListResponseDto> getMenu() {
+    public List<MenuListResponse> getMenus() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
 
@@ -406,17 +407,38 @@ public class ShopService {
 
 
         List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
-        List<MenuListResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
+        List<MenuListResponse> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
         for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
-            MenuListResponseDto menuListResponseDto = new MenuListResponseDto(
+            MenuListResponse menuListResponse = new MenuListResponse(
                     menu.getId().toString(),
                     menu.getName(),
                     menu.getDesigner().getName(),
                     menu.getPrice()
             );
-            response.add(menuListResponseDto);
+            response.add(menuListResponse);
         }
         return response; // 메뉴 목록 반환
+    }
+
+    /**
+     * 사업자 메뉴 단건 조회
+     * 등록된 메뉴 단건 개체 반환
+     *
+     * @param id 메뉴의 고유 키
+     * @return 메뉴 목록
+     */
+    public MenuResponse getMenu(String id) {
+        Menu menu = menuRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자 하는 메뉴가 없습니다."));
+
+        return MenuResponse.builder()
+                .id(menu.getId())
+                .name(menu.getName())
+                .designerName(menu.getDesigner().getName())
+                .price(menu.getPrice())
+                .desc(menu.getDesc())
+                .image(menu.getImage())
+                .build();
     }
 
     /**

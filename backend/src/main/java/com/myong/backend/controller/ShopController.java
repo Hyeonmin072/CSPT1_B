@@ -8,7 +8,8 @@ import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponse;
 import com.myong.backend.domain.dto.job.JobPostResponse;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
-import com.myong.backend.domain.dto.menu.MenuListResponseDto;
+import com.myong.backend.domain.dto.menu.MenuListResponse;
+import com.myong.backend.domain.dto.menu.MenuResponse;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
@@ -131,11 +132,19 @@ public class ShopController {
     }
 
     /**
-     * 사업자 메뉴 조회
+     * 사업자 메뉴 목록 조회
      */
-    @GetMapping("/menu")
-    public ResponseEntity<List<MenuListResponseDto>> getMenu() {
-        return ResponseEntity.ok(shopService.getMenu()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
+    @GetMapping("/menus")
+    public ResponseEntity<List<MenuListResponse>> getMenu() {
+        return ResponseEntity.ok(shopService.getMenus()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
+    }
+
+    /**
+     * 사업자 메뉴 단건 조회
+     */
+    @GetMapping("/menu/{menuId}")
+    public ResponseEntity<MenuResponse> getMenu(@PathVariable("menuId") String id) {
+        return ResponseEntity.ok(shopService.getMenu(id)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
 
     /**
