@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class BlackListResponseDto {
+public class BlackListResponse {
 
     @NotBlank
     String userName; // 유저 이름

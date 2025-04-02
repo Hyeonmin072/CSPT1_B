@@ -730,7 +730,7 @@ public class ShopService {
      *
      * @return 블랙리스트 목록
      */
-    public List<BlackListResponseDto> getBlackLists() {
+    public List<BlackListResponse> getBlackLists() {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -741,9 +741,9 @@ public class ShopService {
         List<BlackList> blackLists = blackListRepository.findByShop(shop);
 
         // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
-        List<BlackListResponseDto> dtos = new ArrayList<>();
+        List<BlackListResponse> dtos = new ArrayList<>();
         for (BlackList blackList : blackLists) {
-            BlackListResponseDto dto = BlackListResponseDto.builder()
+            BlackListResponse dto = BlackListResponse.builder()
                     .reason(blackList.getReason())
                     .userName(blackList.getUser().getName())
                     .userEmail(blackList.getUser().getEmail())
@@ -758,9 +758,10 @@ public class ShopService {
      * 사업자 블랙리스트 단건 조회
      * 등록된 블랙리스트 목록 반환
      *
-     * @return 블랙리스트 목록
+     * @param id 블랙리스트 개체의 아이디 
+     * @return 블랙리스트 개체체 정보
      */
-    public List<BlackListResponseDto> getBlackList(String id) {
+    public BlackListResponse getBlackList(String id) {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -768,20 +769,16 @@ public class ShopService {
         Shop shop = getShop(email);
 
         // 가게의 블랙리스트 조회
-        List<BlackList> blackLists = blackListRepository.findByShop(shop);
+        BlackList blackList = blackListRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자하는 블랙리스트가 없습니다."));
 
         // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
-        List<BlackListResponseDto> dtos = new ArrayList<>();
-        for (BlackList blackList : blackLists) {
-            BlackListResponseDto dto = BlackListResponseDto.builder()
-                    .reason(blackList.getReason())
-                    .userName(blackList.getUser().getName())
-                    .userEmail(blackList.getUser().getEmail())
-                    .build();
-            dtos.add(dto);
-        }
+        return BlackListResponse.builder()
+                .reason(blackList.getReason())
+                .userName(blackList.getUser().getName())
+                .userEmail(blackList.getUser().getEmail())
+                .build();
 
-        return dtos;
     }
 
     /**

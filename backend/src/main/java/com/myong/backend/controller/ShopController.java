@@ -245,7 +245,7 @@ public class ShopController {
      * 사업자 블랙리스트 목록 조회
      */
     @GetMapping("/blacklists")
-    public ResponseEntity<List<BlackListResponseDto>> getBlackLists() {
+    public ResponseEntity<List<BlackListResponse>> getBlackLists() {
         return ResponseEntity.ok(shopService.getBlackLists());
     }
 
@@ -253,7 +253,7 @@ public class ShopController {
      * 사업자 블랙리스트 단건 조회
      */
     @GetMapping("/blacklist/{blacklistId}")
-    public ResponseEntity<List<BlackListResponseDto>> getBlackList(@PathVariable("blacklistId") String id) {
+    public ResponseEntity<BlackListResponse> getBlackList(@PathVariable("blacklistId") String id) {
         return ResponseEntity.ok(shopService.getBlackList(id));
     }
 
