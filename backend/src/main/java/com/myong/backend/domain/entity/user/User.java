@@ -37,8 +37,8 @@ public class User {
     @Column(name = "u_email", nullable = false)
     private String email; // 이메일
 
-    @Column(name = "u_pwd", nullable = false)
-    private String pwd; // 비밀번호
+    @Column(name = "u_pwd")
+    private String pwd; // 비밀번호  * 소셜 로그인을 위한 비밀번호널값 허용 *
 
     @Column(name = "u_tel", nullable = false)
     private String tel; // 연락처
