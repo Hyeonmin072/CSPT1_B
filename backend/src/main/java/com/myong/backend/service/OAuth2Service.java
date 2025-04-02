@@ -52,7 +52,8 @@ public class OAuth2Service {
 
     // 인가코드 프론트로 리다이렉트
     public ResponseEntity<?> kakaoCallback(String code){
-        String redirectUrl = "http://localhost:1271/?code="+code;
+        String redirectUrl = "http://localhost:5173/social/signup?code="+code;
+        System.out.println("리다이렉트유알엘:"+redirectUrl);
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION,redirectUrl)
                 .build();

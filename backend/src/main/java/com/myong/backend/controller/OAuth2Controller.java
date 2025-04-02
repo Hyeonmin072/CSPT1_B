@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/oauth2")
@@ -17,12 +18,13 @@ public class OAuth2Controller {
 
     @GetMapping("/kakao/callback")
     public ResponseEntity<?> kakaoCallback(@RequestParam("code") String code) throws IOException {
+        System.out.println("코드받음"+code);
         return oAuth2Service.kakaoCallback(code);
     }
 
-    @GetMapping("/kakao/signin")
-    public ResponseEntity<?> kakaoSignin(@RequestParam("code") String code) throws IOException {
-        return oAuth2Service.kakaoSignin(code);
+    @PostMapping("/kakao/signin")
+    public ResponseEntity<?> kakaoSignin(@RequestBody Map<String,String> request) throws IOException {
+        return oAuth2Service.kakaoSignin(request.get("code"));
     }
 
     @GetMapping("/kakao/signup")
