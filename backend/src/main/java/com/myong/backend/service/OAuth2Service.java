@@ -50,6 +50,15 @@ public class OAuth2Service {
     private final MemberShipRepository memberShipRepository;
 
 
+    // 인가코드 프론트로 리다이렉트
+    public ResponseEntity<?> kakaoCallback(String code){
+        String redirectUrl = "http://localhost:1271/?code="+code;
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION,redirectUrl)
+                .build();
+    }
+
+
     // 카카오 회원가입 로그인 및 로그인 처리
     public ResponseEntity<?> kakaoSignin(String code){
         Object tokenObj = kakaoGetAccessToken(code);
