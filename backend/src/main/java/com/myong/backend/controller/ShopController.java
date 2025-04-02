@@ -300,6 +300,14 @@ public class ShopController {
     }
 
     /**
+     * 사업자 오늘 남은 예약 개수 조회
+     */
+    @GetMapping("/reservations/today")
+    public ResponseEntity<Long> getReservationsToday() {
+        return ResponseEntity.ok(shopService.getReservationsToday());
+    }
+
+    /**
      * 사업자 근태 관리(조회)
      */
     @GetMapping("/attendances")

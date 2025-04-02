@@ -1,22 +1,22 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
-import com.myong.backend.domain.dto.job.JobPostResponse;
-import com.myong.backend.domain.dto.menu.MenuResponse;
-import com.myong.backend.domain.dto.shop.ShopNoticeRequest;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
 import com.myong.backend.domain.dto.job.JobPostListResponse;
+import com.myong.backend.domain.dto.job.JobPostResponse;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponse;
+import com.myong.backend.domain.dto.menu.MenuResponse;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerHoliday;
 import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -884,6 +885,26 @@ public class ShopService {
         // 예약 상세 조회 결과 반환
         return reservationRepository.findDetailById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException("해당 예약을 찾을 수 없습니다."));
+    }
+
+    /**
+     * 사업자 오늘 남은 예약 개수 조회
+     * 오늘 날짜와 시분초를 기준으로 하루동안 남은 예약건 수를 조회 -> 1, 3, 5
+     *
+     * @return 예약 상세 정보
+     */
+    public Long getReservationsToday() {
+        String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
+        Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
+
+        // 찾은 가게로 전체 예약 조회
+        List<Reservation> reservations = reservationRepository.findByShop(shop);
+
+        // 스트림을 이용해 오늘 중 현재시각 이후의 예약들을 가져온 후 항목 갯수 반환
+        return reservations.stream()
+                .filter(r -> r.getServiceDate().toLocalDate().equals(LocalDate.now())) // 오늘 날짜로 필터링
+                .filter(r -> r.getServiceDate().isAfter(LocalDateTime.now())) // 현재 시점 이후 필터링
+                .count();
     }
 
     /**
