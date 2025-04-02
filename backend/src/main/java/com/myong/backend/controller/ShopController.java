@@ -5,7 +5,8 @@ import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
-import com.myong.backend.domain.dto.job.JobPostListResponseDto;
+import com.myong.backend.domain.dto.job.JobPostListResponse;
+import com.myong.backend.domain.dto.job.JobPostResponse;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
@@ -165,8 +166,16 @@ public class ShopController {
      * 사업자 구인글 목록 조회
      */
     @GetMapping("/jobposts")
-    public ResponseEntity<List<JobPostListResponseDto>> getJobPosts() {
+    public ResponseEntity<List<JobPostListResponse>> getJobPosts() {
         return ResponseEntity.ok(shopService.getJobPosts());
+    }
+
+    /**
+     * 사업자 구인글 단건 조회
+     */
+    @GetMapping("/jobpost/{jobpostId}")
+    public ResponseEntity<JobPostResponse> getJobPost(@PathVariable("jobpostId") String id) {
+        return ResponseEntity.ok(shopService.getJobPost(id));
     }
 
     /**

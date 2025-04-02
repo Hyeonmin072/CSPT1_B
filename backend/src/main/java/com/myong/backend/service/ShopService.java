@@ -1,13 +1,14 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.job.JobPostResponse;
 import com.myong.backend.domain.dto.shop.ShopNoticeRequest;
 import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
 import com.myong.backend.domain.dto.event.EventListResponseDto;
 import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
 import com.myong.backend.domain.dto.job.JobPostEditDto;
-import com.myong.backend.domain.dto.job.JobPostListResponseDto;
+import com.myong.backend.domain.dto.job.JobPostListResponse;
 import com.myong.backend.domain.dto.menu.MenuEditDto;
 import com.myong.backend.domain.dto.menu.MenuListResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
@@ -483,17 +484,17 @@ public class ShopService {
      *
      * @return 구인글 목록
      */
-    public List<JobPostListResponseDto> getJobPosts() {
+    public List<JobPostListResponse> getJobPosts() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
 
-        List<JobPostListResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
+        List<JobPostListResponse> response = new ArrayList<>(); // 구인글 목록 리스트 생성
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
-            JobPostListResponseDto jobPostListResponseDto = new JobPostListResponseDto(
+            JobPostListResponse jobPostListResponse = new JobPostListResponse(
                     jobPost.getShop().getName(),
                     jobPost.getId().toString(),
                     jobPost.getTitle(),
@@ -501,12 +502,34 @@ public class ShopService {
                     jobPost.getGender().toString(),
                     jobPost.getWork().toString(),
                     jobPost.getWorkTime().toString(),
-                    jobPost.getLeaveTime().toString(),
-                    jobPost.getContent()
+                    jobPost.getLeaveTime().toString()
             );
-            response.add(jobPostListResponseDto); // 구인글 목록 dto 반환
+            response.add(jobPostListResponse); // 구인글 목록 dto 반환
         }
         return response;
+    }
+
+    /**
+     * 사업자 구인글 단건 조회
+     * 등록된 구인글 목록 반환
+     *
+     * @param id 구인글의 고유 키
+     * @return 구인글 개체 반환
+     */
+    public JobPostResponse getJobPost(String id) {
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자 하는 구인글이 없습니다."));
+
+        return JobPostResponse.builder()
+                .shopName(jobPost.getShop().getName())
+                .id(jobPost.getId())
+                .title(jobPost.getTitle())
+                .salary(jobPost.getSalary())
+                .gender(jobPost.getGender())
+                .work(jobPost.getWork())
+                .workTime(jobPost.getWorkTime())
+                .leaveTime(jobPost.getLeaveTime())
+                .build();
     }
 
     /**
@@ -758,7 +781,7 @@ public class ShopService {
      * 사업자 블랙리스트 단건 조회
      * 등록된 블랙리스트 목록 반환
      *
-     * @param id 블랙리스트 개체의 아이디 
+     * @param id 블랙리스트 개체의 아이디
      * @return 블랙리스트 개체체 정보
      */
     public BlackListResponse getBlackList(String id) {
@@ -922,7 +945,7 @@ public class ShopService {
         Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
 
         List<Notice> notices = noticeRepository.findByShop(shop); // 조회한 가게 객체를 통해 공지사항 조회
-        
+
         // 스트림을 통해 Notice 리스트 -> sorted 중간 연산을 통해 생성일 내림차순으로 정렬 -> 첫번째 항목 찾기
         Notice notice = notices.stream()
                 .sorted(Comparator.comparing(Notice::getCreateDate).reversed())
@@ -1043,5 +1066,4 @@ public class ShopService {
         // 회원가입된 가게에 공통 항목 추가
         common.getJob(shop);
     }
-
 }
