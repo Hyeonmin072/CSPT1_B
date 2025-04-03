@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.filter.JwtLoginFilter;
 import com.myong.backend.jwttoken.filter.JwtRequestFilter;
+import com.myong.backend.oauth2.OAuth2SigninFailedHandler;
+import com.myong.backend.oauth2.OAuth2SigninSuccessHandler;
+import com.myong.backend.oauth2.PrincipalOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +29,12 @@ public class SecurityConfig {
 
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
+    private final OAuth2SigninFailedHandler oAuth2SigninFailedHandler;
+    private final OAuth2SigninSuccessHandler oAuth2SigninSuccessHandler;
+    private final PrincipalOauth2UserService principalOauth2UserService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, PrincipalOauth2UserService principalOauth2UserService) throws Exception {
         System.out.println("Setting up security filter chain");
         http
                 .csrf(csrf -> csrf.disable())
@@ -42,13 +48,16 @@ public class SecurityConfig {
                         .anyRequest().permitAll()   // 테스트환경에선 모든 요청 펄밋
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login") // 로그인 페이지 경로 (필요한 경우 설정)
                         .authorizationEndpoint(authorization -> authorization
                                 .baseUri("/social-signin") // OAuth2 인증 요청 URL
                         )
                         .redirectionEndpoint(redirection -> redirection
-                                .baseUri("http://localhost:1271/api/oauth2/kakao/callback") // 카카오에서 인증 후 리다이렉트될 URI (단, 실제 경로는 "/login/oauth2/code/kakao")
+                                .baseUri("/api/oauth2/callback/*")
                         )
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                                .userService(principalOauth2UserService))  // OAuth2 서비스 진행
+                        .successHandler(oAuth2SigninSuccessHandler)  // 성공 핸들러
+                        .failureHandler(oAuth2SigninFailedHandler)   // 실패 핸들러
                 )
                 .httpBasic(withDefaults())
                 .anonymous(anonymous -> anonymous.disable())
