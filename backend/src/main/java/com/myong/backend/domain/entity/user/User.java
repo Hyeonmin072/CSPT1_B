@@ -29,7 +29,8 @@ public class User {
 
     @Id
     @Column(name = "u_id")
-    private UUID id = UUID.randomUUID(); // 유저 고유 키
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id ; // 유저 고유 키
 
     @Column(name = "u_name",  nullable = false)
     private String name; // 이름
@@ -65,6 +66,9 @@ public class User {
     @Column(name = "u_latitude",nullable = false)
     private Double latitude;    // y : 위도
 
+    @Column(name = "u_signin_type",nullable = false)
+    private SigninType signinType = SigninType.NONE;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들
 
@@ -76,6 +80,8 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private MemberShip memberShip;   // 유저의 맴버쉽 등급
+
+
 
     public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Integer post ,Double longitude, Double latitude,String location) {
         this.name = name;

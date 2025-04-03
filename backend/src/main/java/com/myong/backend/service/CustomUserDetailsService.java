@@ -60,38 +60,30 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetailsDto createUserDetails(User user) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("USER"));
         return new UserDetailsDto(
-                user.getId().toString(),
-                user.getName(),
                 user.getEmail(),
-                user.getPwd(),
-                authorities
+                "USER",
+                user.getName(),
+                user.getPwd()
         );
     }
 
     private UserDetailsDto createDesignerDetails(Designer designer){
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("DESIGNER"));
         return new UserDetailsDto(
-                designer.getId().toString(),
-                designer.getName(),
                 designer.getEmail(),
-                designer.getPassword(),
-                authorities
+                designer.getName(),
+                "DESIGNER",
+                designer.getPassword()
         );
     }
 
     private UserDetailsDto createShopDetails(Shop shop){
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("SHOP"));
         return new UserDetailsDto(
-                shop.getId().toString(),
-                shop.getName(),
                 shop.getEmail(),
-                shop.getPwd(),
-                authorities
+                shop.getName(),
+                "SHOP",
+                shop.getPwd()
+
         );
     }
 }
