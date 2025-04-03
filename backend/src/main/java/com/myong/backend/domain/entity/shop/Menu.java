@@ -1,6 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
-import com.myong.backend.domain.dto.menu.MenuEditDto;
+import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -88,7 +88,7 @@ public class Menu {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void edit(@Valid MenuEditDto request) {
+    public void edit(@Valid MenuRequestDto request) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }

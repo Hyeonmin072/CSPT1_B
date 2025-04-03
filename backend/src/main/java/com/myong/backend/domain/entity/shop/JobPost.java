@@ -1,6 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
-import com.myong.backend.domain.dto.job.JobPostEditDto;
+import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.entity.Gender;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -106,7 +106,7 @@ public class JobPost {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void updateJobPost(JobPostEditDto request) {
+    public void updateJobPost(JobPostRequestDto request) {
         if (!request.getTitle().equals(this.title)) {
             this.title = request.getTitle();  // title이 다르면 업데이트
         }

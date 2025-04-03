@@ -9,7 +9,7 @@ import java.io.Serializable;
  * DTO for {@link com.myong.backend.domain.entity.shop.Notice}
  */
 @Value
-public class ShopNoticeRequest implements Serializable {
+public class ShopNoticeRequestDto implements Serializable {
 
     @NotBlank
     String title;

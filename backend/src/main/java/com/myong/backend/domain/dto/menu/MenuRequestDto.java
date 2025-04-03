@@ -2,11 +2,10 @@ package com.myong.backend.domain.dto.menu;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.Value;
 
 @Data
 
-public class MenuEditDto {
+public class MenuRequestDto {
 
     @NotBlank
     String designerEmail;

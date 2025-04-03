@@ -7,7 +7,7 @@ import lombok.Value;
 import java.time.LocalDate;
 
 @Value
-public class CouponRegisterRequestDto {
+public class CouponRequestDto {
 
     @NotBlank
     String name;

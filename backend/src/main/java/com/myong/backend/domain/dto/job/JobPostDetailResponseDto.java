@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 @Builder
 @Value
-public class JobPostResponse {
+public class JobPostDetailResponseDto {
     @NotBlank
     String shopName; // 가게 이름
 

@@ -8,7 +8,7 @@ import lombok.Value;
 
 @Value
 @Data
-public class MenuListResponse {
+public class MenuResponseDto {
     @NotBlank
     String id;
 

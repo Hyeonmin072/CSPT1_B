@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Builder
 @Value
-public class MenuResponse {
+public class MenuDetailResponseDto {
     @NotBlank
     UUID id;
 

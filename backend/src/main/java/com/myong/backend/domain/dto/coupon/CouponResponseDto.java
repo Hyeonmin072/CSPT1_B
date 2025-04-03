@@ -7,7 +7,7 @@ import lombok.Value;
 import java.time.LocalDate;
 
 @Value
-public class CouponListResponseDto {
+public class CouponResponseDto {
 
     @NotBlank
     String id;

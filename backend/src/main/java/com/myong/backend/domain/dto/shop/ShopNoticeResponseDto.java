@@ -12,9 +12,8 @@ import java.util.UUID;
  */
 @Value
 @Builder
-public class ShopNoticeDetailResponse implements Serializable {
+public class ShopNoticeResponseDto implements Serializable {
     UUID id;
     String title;
-    String content;
     LocalDateTime createDate;
 }

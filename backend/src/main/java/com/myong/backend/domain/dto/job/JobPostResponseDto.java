@@ -7,7 +7,7 @@ import lombok.Value;
  * DTO for {@link com.myong.backend.domain.entity.shop.JobPost}
  */
 @Value
-public class JobPostListResponse {
+public class JobPostResponseDto {
     @NotBlank
     String shopName; // 가게 이름
 

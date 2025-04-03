@@ -1,16 +1,16 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
-import com.myong.backend.domain.dto.coupon.CouponListResponseDto;
-import com.myong.backend.domain.dto.coupon.CouponRegisterRequestDto;
-import com.myong.backend.domain.dto.event.EventListResponseDto;
-import com.myong.backend.domain.dto.event.EventRegisterRequestDto;
-import com.myong.backend.domain.dto.job.JobPostEditDto;
-import com.myong.backend.domain.dto.job.JobPostListResponse;
-import com.myong.backend.domain.dto.job.JobPostResponse;
-import com.myong.backend.domain.dto.menu.MenuEditDto;
-import com.myong.backend.domain.dto.menu.MenuListResponse;
-import com.myong.backend.domain.dto.menu.MenuResponse;
+import com.myong.backend.domain.dto.coupon.CouponResponseDto;
+import com.myong.backend.domain.dto.coupon.CouponRequestDto;
+import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.event.EventRequestDto;
+import com.myong.backend.domain.dto.job.JobPostRequestDto;
+import com.myong.backend.domain.dto.job.JobPostResponseDto;
+import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
+import com.myong.backend.domain.dto.menu.MenuRequestDto;
+import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
@@ -195,7 +195,7 @@ public class ShopService {
      * @param request 쿠폰 정보가 담긴 DTO
      * @return 쿠폰 등록 결과 메시지
      */
-    public String addCoupon(CouponRegisterRequestDto request) {
+    public String addCoupon(CouponRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -224,16 +224,16 @@ public class ShopService {
      *
      * @return 쿠폰 목록
      */
-    public List<CouponListResponseDto> getCoupons() {
+    public List<CouponResponseDto> getCoupons() {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
 
         List<Coupon> coupons = couponRepository.findByShop(shop);// 가게를 통해 가져온 쿠폰들 반환
-        List<CouponListResponseDto> response = new ArrayList<>(); // 쿠폰 목록 리스트 생성
+        List<CouponResponseDto> response = new ArrayList<>(); // 쿠폰 목록 리스트 생성
         for (Coupon coupon : coupons) { // 쿠폰 목록에 쿠폰 담기
-            CouponListResponseDto couponListResponseDto = new CouponListResponseDto(
+            CouponResponseDto couponResponseDto = new CouponResponseDto(
                     coupon.getId().toString(),
                     coupon.getName(),
                     coupon.getType().toString(),
@@ -241,7 +241,7 @@ public class ShopService {
                     coupon.getGetDate(),
                     coupon.getUseDate()
             );
-            response.add(couponListResponseDto);
+            response.add(couponResponseDto);
         }
         return response; // 쿠폰 목록 반환
     }
@@ -263,7 +263,7 @@ public class ShopService {
      * @param request 이벤트 등록 요청 정보가 담긴 DTO
      * @return 이벤트 등록 결과 메시지
      */
-    public String addEvent(EventRegisterRequestDto request) {
+    public String addEvent(EventRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -290,16 +290,16 @@ public class ShopService {
      *
      * @return 이벤트 목록
      */
-    public List<EventListResponseDto> getEvents() {
+    public List<EventResponseDto> getEvents() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
 
         List<Event> events = eventRepository.findByShop(shop);// 가게를 통해 가져온 이벤트들 반환
-        List<EventListResponseDto> response = new ArrayList<>(); // 이벤트 목록 리스트 생성
+        List<EventResponseDto> response = new ArrayList<>(); // 이벤트 목록 리스트 생성
         for (Event event : events) { // 이벤트 목록에 이벤트 담기
-            EventListResponseDto eventListResponseDto = new EventListResponseDto(
+            EventResponseDto eventResponseDto = new EventResponseDto(
                     event.getId().toString(),
                     event.getName(),
                     event.getPrice(),
@@ -307,7 +307,7 @@ public class ShopService {
                     event.getStartDate().toString(),
                     event.getEndDate().toString()
             );
-            response.add(eventListResponseDto);
+            response.add(eventResponseDto);
         }
         return response; // 이벤트 목록 반환
     }
@@ -369,7 +369,7 @@ public class ShopService {
      * @param request 메뉴 등록 요청 정보가 담긴 DTO
      * @return 메뉴 등록 결과 메시지
      */
-    public String addMenu(@Valid MenuEditDto request) {
+    public String addMenu(@Valid MenuRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -399,7 +399,7 @@ public class ShopService {
      *
      * @return 메뉴 목록
      */
-    public List<MenuListResponse> getMenus() {
+    public List<MenuResponseDto> getMenus() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
 
@@ -408,15 +408,15 @@ public class ShopService {
 
 
         List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
-        List<MenuListResponse> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
+        List<MenuResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
         for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
-            MenuListResponse menuListResponse = new MenuListResponse(
+            MenuResponseDto menuResponseDto = new MenuResponseDto(
                     menu.getId().toString(),
                     menu.getName(),
                     menu.getDesigner().getName(),
                     menu.getPrice()
             );
-            response.add(menuListResponse);
+            response.add(menuResponseDto);
         }
         return response; // 메뉴 목록 반환
     }
@@ -428,11 +428,11 @@ public class ShopService {
      * @param id 메뉴의 고유 키
      * @return 메뉴 목록
      */
-    public MenuResponse getMenu(String id) {
+    public MenuDetailResponseDto getMenu(String id) {
         Menu menu = menuRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new RuntimeException("찾고자 하는 메뉴가 없습니다."));
 
-        return MenuResponse.builder()
+        return MenuDetailResponseDto.builder()
                 .id(menu.getId())
                 .name(menu.getName())
                 .designerName(menu.getDesigner().getName())
@@ -449,7 +449,7 @@ public class ShopService {
      * @param request 메뉴 수정 요청 정보가 담긴 DTO
      * @return 메뉴 수정 결과 메시지
      */
-    public String updateMenu(@Valid MenuEditDto request) {
+    public String updateMenu(@Valid MenuRequestDto request) {
         Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정
@@ -464,7 +464,7 @@ public class ShopService {
      * @param request 메뉴 삭제 요청 정보가 담긴 DTO
      * @return 메뉴 삭제 결과 메시지
      */
-    public String deleteMenu(@Valid MenuEditDto request) {
+    public String deleteMenu(@Valid MenuRequestDto request) {
         Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menuRepository.delete(menu); // 메뉴 삭제
@@ -478,7 +478,7 @@ public class ShopService {
      * @param request 구인글 등록 요청 정보가 담긴 DTO
      * @return 구인글 등록 결과 메시지
      */
-    public String addJobPost(JobPostEditDto request) {
+    public String addJobPost(JobPostRequestDto request) {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
 
@@ -507,17 +507,17 @@ public class ShopService {
      *
      * @return 구인글 목록
      */
-    public List<JobPostListResponse> getJobPosts() {
+    public List<JobPostResponseDto> getJobPosts() {
         // 로그인 인증 정보에서 이메일 가져오기
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
 
-        List<JobPostListResponse> response = new ArrayList<>(); // 구인글 목록 리스트 생성
+        List<JobPostResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
-            JobPostListResponse jobPostListResponse = new JobPostListResponse(
+            JobPostResponseDto jobPostResponseDto = new JobPostResponseDto(
                     jobPost.getShop().getName(),
                     jobPost.getId().toString(),
                     jobPost.getTitle(),
@@ -527,7 +527,7 @@ public class ShopService {
                     jobPost.getWorkTime().toString(),
                     jobPost.getLeaveTime().toString()
             );
-            response.add(jobPostListResponse); // 구인글 목록 dto 반환
+            response.add(jobPostResponseDto); // 구인글 목록 dto 반환
         }
         return response;
     }
@@ -539,11 +539,11 @@ public class ShopService {
      * @param id 구인글의 고유 키
      * @return 구인글 개체 반환
      */
-    public JobPostResponse getJobPost(String id) {
+    public JobPostDetailResponseDto getJobPost(String id) {
         JobPost jobPost = jobPostRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new RuntimeException("찾고자 하는 구인글이 없습니다."));
 
-        return JobPostResponse.builder()
+        return JobPostDetailResponseDto.builder()
                 .shopName(jobPost.getShop().getName())
                 .id(jobPost.getId())
                 .title(jobPost.getTitle())
@@ -562,7 +562,7 @@ public class ShopService {
      * @param request 구인글 수정 요청 정보가 담긴 DTO
      * @return 구인글 수정 결과 메시지
      */
-    public String updateJobPost(JobPostEditDto request) {// 가게 찾기
+    public String updateJobPost(JobPostRequestDto request) {// 가게 찾기
         JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPost.updateJobPost(request); // 구인글 수정 편의 메서드를 통해 수정
@@ -576,7 +576,7 @@ public class ShopService {
      * @param request 구인글 삭제 요청 정보가 담긴 DTO
      * @return 구인글 삭제 결과 메시지
      */
-    public String deleteJobPost(JobPostEditDto request) {
+    public String deleteJobPost(JobPostRequestDto request) {
         JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPostRepository.delete(jobPost); // 구인글 삭제
@@ -640,16 +640,16 @@ public class ShopService {
      *
      * @return 디자이너 목록
      */
-    public List<ShopDesignerListResponseDto> getDesigners() {
+    public List<ShopDesignerResponseDto> getDesigners() {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
 
         List<Designer> designers = shop.getDesigners();// 디자이너들 가져오기
-        List<ShopDesignerListResponseDto> dtos = new ArrayList<>();
+        List<ShopDesignerResponseDto> dtos = new ArrayList<>();
         for (Designer designer : designers) { // 가져온 디자이너들의 정보를 dto에 담은 뒤 리스트로 반환
-            ShopDesignerListResponseDto dto = ShopDesignerListResponseDto.builder()
+            ShopDesignerResponseDto dto = ShopDesignerResponseDto.builder()
                     .email(designer.getEmail())
                     .name(designer.getName())
                     .like(designer.getLike())
@@ -776,7 +776,7 @@ public class ShopService {
      *
      * @return 블랙리스트 목록
      */
-    public List<BlackListResponse> getBlackLists() {
+    public List<BlackListResponseDto> getBlackLists() {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -787,9 +787,9 @@ public class ShopService {
         List<BlackList> blackLists = blackListRepository.findByShop(shop);
 
         // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
-        List<BlackListResponse> dtos = new ArrayList<>();
+        List<BlackListResponseDto> dtos = new ArrayList<>();
         for (BlackList blackList : blackLists) {
-            BlackListResponse dto = BlackListResponse.builder()
+            BlackListResponseDto dto = BlackListResponseDto.builder()
                     .reason(blackList.getReason())
                     .userName(blackList.getUser().getName())
                     .userEmail(blackList.getUser().getEmail())
@@ -807,7 +807,7 @@ public class ShopService {
      * @param id 블랙리스트 개체의 아이디
      * @return 블랙리스트 개체체 정보
      */
-    public BlackListResponse getBlackList(String id) {
+    public BlackListResponseDto getBlackList(String id) {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -819,7 +819,7 @@ public class ShopService {
                 .orElseThrow(() -> new RuntimeException("찾고자하는 블랙리스트가 없습니다."));
 
         // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
-        return BlackListResponse.builder()
+        return BlackListResponseDto.builder()
                 .reason(blackList.getReason())
                 .userName(blackList.getUser().getName())
                 .userEmail(blackList.getUser().getEmail())
@@ -925,7 +925,7 @@ public class ShopService {
      * @param request 공지사항 개체 생성에 필요한 정보가 담긴 DTO
      * @return 성공 구문 반환
      */
-    public String createNotice(ShopNoticeRequest request) {
+    public String createNotice(ShopNoticeRequestDto request) {
         String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
         Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
 
@@ -944,7 +944,7 @@ public class ShopService {
      * 현재 로그인한 사업자의 이메일을 가지고 전체 공지사항 개체 조회
      * @return 공지사항 정보를 담은 DTO들을 반환
      */
-    public List<ShopNoticeResponse> getNotices() {
+    public List<ShopNoticeResponseDto> getNotices() {
         String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
         Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
 
@@ -952,7 +952,7 @@ public class ShopService {
 
         // 스트림을 통해 Notice -> DTO 객체로 map 중간연산을 통해 변환한 뒤 반환
         return notices.stream()
-                .map((n) -> ShopNoticeResponse.builder()
+                .map((n) -> ShopNoticeResponseDto.builder()
                         .id(n.getId())
                         .title(n.getTitle())
                         .createDate(n.getCreateDate())
@@ -966,11 +966,11 @@ public class ShopService {
      * @param id 조회하고자 하는 공지사항 개체의 고유 키
      * @return 공지사항 상세정보를 담은 DTO를 반환
      */
-    public ShopNoticeDetailResponse getNotice(String id) {
+    public ShopNoticeDetailResponseDto getNotice(String id) {
         Notice notice = noticeRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new RuntimeException("찾고자 하는 공지사항 글이 없습니다."));
 
-        return ShopNoticeDetailResponse.builder()
+        return ShopNoticeDetailResponseDto.builder()
                 .id(notice.getId())
                 .title(notice.getTitle())
                 .content(notice.getContent())
@@ -983,7 +983,7 @@ public class ShopService {
      * 현재 로그인한 사업자의 이메일을 가지고 전체 공지사항 중 가장 최신의 공지사항 개체 조회
      * @return 공지사항 상세정보를 담은 DTO를 반환
      */
-    public ShopNoticeDetailResponse getNoticeLatest() {
+    public ShopNoticeDetailResponseDto getNoticeLatest() {
         String email = getAuthenticatedEmail(); // 로그인 인증 정보에서 이메일 꺼내기
         Shop shop = getShop(email); // 꺼낸 이메일 -> 가게 조회
 
@@ -996,7 +996,7 @@ public class ShopService {
                 .orElse(null);
 
         // 찾은 Notice -> DTO로 반환
-        return ShopNoticeDetailResponse.builder()
+        return ShopNoticeDetailResponseDto.builder()
                 .id(notice.getId())
                 .title(notice.getTitle())
                 .content(notice.getContent())
@@ -1011,7 +1011,7 @@ public class ShopService {
      * @param request 공지사항 개체 수정에 필요한 정보가 담긴 DTO
      * @return 성공 구문 반환
      */
-    public String updateNotice(String id, ShopNoticeRequest request) {
+    public String updateNotice(String id, ShopNoticeRequestDto request) {
         Notice notice = noticeRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new RuntimeException("찾고자 하는 공지사항 글이 없습니다."));
 

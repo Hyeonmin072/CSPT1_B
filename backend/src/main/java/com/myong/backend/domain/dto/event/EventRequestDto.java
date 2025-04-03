@@ -7,7 +7,7 @@ import lombok.Value;
 import java.io.Serializable;
 
 @Value
-public class EventRegisterRequestDto implements Serializable {
+public class EventRequestDto implements Serializable {
 
     @NotBlank
     String name;

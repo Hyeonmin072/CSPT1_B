@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ShopDesignerListResponseDto {
+public class ShopDesignerResponseDto {
 
     @NotBlank
     String name; // 디자이너 이름

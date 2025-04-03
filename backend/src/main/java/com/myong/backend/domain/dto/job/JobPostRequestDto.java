@@ -7,7 +7,7 @@ import lombok.Value;
  * DTO for {@link com.myong.backend.domain.entity.shop.JobPost}
  */
 @Value
-public class JobPostEditDto {
+public class JobPostRequestDto {
     String id;
 
     @NotBlank
