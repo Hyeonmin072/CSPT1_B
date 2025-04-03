@@ -12,6 +12,8 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class OAuth2SigninFailedHandler implements AuthenticationFailureHandler {
@@ -23,9 +25,13 @@ public class OAuth2SigninFailedHandler implements AuthenticationFailureHandler {
             String email = customOAuth2AuthenticationException.getEmail();
             String name = customOAuth2AuthenticationException.getName();
 
-            System.out.println("리다이렉션중 url: "+"http://localhost:5173/social/signup?email="+email+"&name="+name);
+            // URL 인코딩
+            String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8.toString());
+            String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8.toString());
+
+            System.out.println("리다이렉션중 url: "+"http://localhost:5173/social/signup?email="+encodedEmail+"&name="+encodedName);
             // 성공시 회원가입 폼 리다이렉트
-            response.sendRedirect("http://localhost:5173/social/signup?email="+email+"&name="+name);
+            response.sendRedirect("http://localhost:5173/social/signup?email="+encodedEmail+"&name="+encodedName);
         }else{
 
             String errorMessage = exception.getMessage();
