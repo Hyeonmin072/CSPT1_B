@@ -4,12 +4,9 @@ import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.user.data.DesignerListData;
 import com.myong.backend.domain.dto.user.data.ReviewListData;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
-import com.myong.backend.domain.dto.user.response.DesignerPageResponseDto;
-import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
-import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
+import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
-import com.myong.backend.domain.dto.user.response.UserProfileResponseDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
@@ -22,6 +19,7 @@ import com.myong.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -51,6 +49,7 @@ public class UserService {
     private final UserDesignerLikeRepository userDesignerLikeRepository;
     private final DesignerRepository designerRepository;
     private final MemberShipRepository memberShipRepository;
+    private final UserCouponRepository userCouponRepository;
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
@@ -378,4 +377,31 @@ public class UserService {
                 .build();
     }
 
+    /*
+     *  유저 모든 쿠폰함 조회
+     */
+    public List<UserGetAllCouponsResponseDto> getAllCoupons() throws NotFoundException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        List<UserCoupon> userCoupons = userCouponRepository.findAllByUser(user);
+
+        if(userCoupons.size() < 1){
+            throw new NotFoundException("쿠폰이 존재하지 않아요");
+        }
+
+        List<UserGetAllCouponsResponseDto> userGetAllCouponsResponseDtos =
+                userCoupons.stream().map(
+                        userCoupon -> UserGetAllCouponsResponseDto.builder()
+                                .price(userCoupon.getCoupon().getPrice())
+                                .shopName(userCoupon.getCoupon().getShop().getName())
+                                .expireDate(userCoupon.getExpireDate())
+                                .build()
+                        ).collect(Collectors.toList());
+
+        return userGetAllCouponsResponseDtos;
+
+    }
 }

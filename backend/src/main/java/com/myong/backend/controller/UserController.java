@@ -27,6 +27,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -209,6 +210,12 @@ public class UserController {
 
     }
 
+    // 쿠폰함 =============================================================
+
+    @GetMapping("/allcoupons")
+    public ResponseEntity<?> getAllCoupons() throws NotFoundException {
+        return ResponseEntity.ok(userService.getAllCoupons());
+    }
 
 
 
