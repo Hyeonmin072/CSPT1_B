@@ -17,10 +17,12 @@ import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -98,7 +100,7 @@ public class UserService {
     /*
      *  유저 로그아웃
      */
-    public ResponseEntity<String> Signout() {
+    public ResponseEntity<String> Signout(HttpServletResponse response) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -110,6 +112,17 @@ public class UserService {
             }
 
             SecurityContextHolder.clearContext();
+
+
+            ResponseCookie deleteCookie = ResponseCookie.from("accessToken",null)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("Lax")
+                    .build();
+
+            response.addHeader("Set-Cookie",deleteCookie.toString());
 
         } catch (Exception e) {
             return ResponseEntity.status(400).body("로그아웃 요청 중 오류가 발생했습니다.");
