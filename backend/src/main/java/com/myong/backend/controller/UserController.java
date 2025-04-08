@@ -20,6 +20,7 @@ import com.myong.backend.service.ReviewService;
 import com.myong.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +68,7 @@ public class UserController {
 
     //로그아웃 요청
    @PostMapping("/signout")
-    public ResponseEntity<String> Signout( ){return userService.Signout();}
+    public ResponseEntity<String> Signout(HttpServletResponse response){return userService.Signout(response);}
 
     // 유저 페이지 헤어샵카테고리
     @GetMapping("/hairshop")
