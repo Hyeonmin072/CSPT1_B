@@ -94,22 +94,19 @@ public class UserService {
 
     }
 
-    public ResponseEntity<String> Signout(HttpServletRequest request) {
-        String authorization = request.getHeader(AUTHORIZATION);
 
-        // 헤더가 없거나 Bearer 토큰이 아닌 경우 다음 필터로 전달
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            return ResponseEntity.status(400).body("잘못된 토큰입니다.");
-        }
+    /*
+     *  유저 로그아웃
+     */
+    public ResponseEntity<String> Signout() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
 
         try {
-            // "Bearer " 이후의 실제 토큰 값 추출
-            String token = authorization.split(" ")[1];
 
-            String userName = jwtService.getUserName(token);
-
-            if (redisTemplate.hasKey(userName)) {
-                redisTemplate.delete(userName);
+            if (redisTemplate.hasKey(userEmail)) {
+                redisTemplate.delete(userEmail);
             }
 
             SecurityContextHolder.clearContext();

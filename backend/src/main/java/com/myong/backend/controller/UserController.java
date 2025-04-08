@@ -67,10 +67,7 @@ public class UserController {
 
     //로그아웃 요청
    @PostMapping("/signout")
-    public ResponseEntity<String> Signout(HttpServletRequest request){
-        System.out.println("컨트롤러에 요청이 넘어옮");
-        return userService.Signout(request);
-    }
+    public ResponseEntity<String> Signout( ){return userService.Signout();}
 
     // 유저 페이지 헤어샵카테고리
     @GetMapping("/hairshop")
@@ -85,6 +82,7 @@ public class UserController {
         return ResponseEntity.ok(userService.loadHomePage());
     }
 
+    // 유저 헤더 로딩
     @GetMapping("/header")
     public ResponseEntity<UserHeaderResponseDto> loadHeader(){
         return ResponseEntity.ok(userService.loadHeader());
@@ -218,6 +216,8 @@ public class UserController {
     public ResponseEntity<?> getAllCoupons() throws NotFoundException {
         return ResponseEntity.ok(userService.getAllCoupons());
     }
+
+
 
 
 
