@@ -241,6 +241,18 @@ public class UserService {
         );
     }
 
+    /*
+     *  유저 헤더 페이지 로딩
+     */
+    public UserHeaderResponseDto loadHeader(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        return new UserHeaderResponseDto(user.getName());
+    }
+
     // 헤어샵 페이지 상세보기
     public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다"));
