@@ -11,11 +11,8 @@ import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
-import com.myong.backend.domain.dto.user.response.DesignerPageResponseDto;
-import com.myong.backend.domain.dto.user.response.UserHairShopPageResponseDto;
-import com.myong.backend.domain.dto.user.response.UserHomePageResponseDto;
+import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
-import com.myong.backend.domain.dto.user.response.UserProfileResponseDto;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ReservationService;
@@ -86,6 +83,11 @@ public class UserController {
     @GetMapping("/homepage")
     public ResponseEntity<UserHomePageResponseDto> loadHomePage(){
         return ResponseEntity.ok(userService.loadHomePage());
+    }
+
+    @GetMapping("/header")
+    public ResponseEntity<UserHeaderResponseDto> loadHeader(){
+        return ResponseEntity.ok(userService.loadHeader());
     }
 
 
@@ -216,6 +218,7 @@ public class UserController {
     public ResponseEntity<?> getAllCoupons() throws NotFoundException {
         return ResponseEntity.ok(userService.getAllCoupons());
     }
+
 
 
 
