@@ -85,14 +85,14 @@ public class ShopService {
      * 이메일을 사용 중인지 확인하고 결과를 반환
      *
      * @param email 중복 확인할 이메일
-     * @return 이메일 사용 가능 여부 메시지
+     * @return 이메일 사용 가능 여부
      * @throws ExistSameEmailException 이미 사용 중인 이메일일 때 발생
      */
-    public String checkEmail(String email) {
+    public boolean checkEmail(String email) {
         Optional<Shop> findShop = shopRepository.findByEmail(email); // 이메일로 가게 찾기
 
-        if (findShop.isEmpty()) return "사용가능한 이메일입니다."; //null이면 사용가능한 이메일
-        else throw new ExistSameEmailException("이미 사용중인 이메일 입니다."); // 이미 있으면 예외 던지기
+        // 이미 있으면 예외 던지기
+        return findShop.isPresent(); //false면 사용가능한 이메일
     }
 
     /**
@@ -233,14 +233,14 @@ public class ShopService {
         List<Coupon> coupons = couponRepository.findByShop(shop);// 가게를 통해 가져온 쿠폰들 반환
         List<CouponResponseDto> response = new ArrayList<>(); // 쿠폰 목록 리스트 생성
         for (Coupon coupon : coupons) { // 쿠폰 목록에 쿠폰 담기
-            CouponResponseDto couponResponseDto = new CouponResponseDto(
-                    coupon.getId().toString(),
-                    coupon.getName(),
-                    coupon.getType().toString(),
-                    coupon.getPrice(),
-                    coupon.getGetDate(),
-                    coupon.getUseDate()
-            );
+            CouponResponseDto couponResponseDto = CouponResponseDto.builder().
+                    id(coupon.getId().toString()).
+                    name(coupon.getName()).
+                    type(coupon.getType().toString()).
+                    price(coupon.getPrice()).
+                    getDate(coupon.getGetDate()).
+                    useDate(coupon.getUseDate())
+                    .build();
             response.add(couponResponseDto);
         }
         return response; // 쿠폰 목록 반환
@@ -299,14 +299,14 @@ public class ShopService {
         List<Event> events = eventRepository.findByShop(shop);// 가게를 통해 가져온 이벤트들 반환
         List<EventResponseDto> response = new ArrayList<>(); // 이벤트 목록 리스트 생성
         for (Event event : events) { // 이벤트 목록에 이벤트 담기
-            EventResponseDto eventResponseDto = new EventResponseDto(
-                    event.getId().toString(),
-                    event.getName(),
-                    event.getPrice(),
-                    event.getType().toString(),
-                    event.getStartDate().toString(),
-                    event.getEndDate().toString()
-            );
+            EventResponseDto eventResponseDto = EventResponseDto.builder().
+                    id(event.getId().toString()).
+                    name(event.getName()).
+                    price(event.getPrice()).
+                    type(event.getType().toString()).
+                    startDate(event.getStartDate().toString()).
+                    endDate(event.getEndDate().toString()).
+                    build();
             response.add(eventResponseDto);
         }
         return response; // 이벤트 목록 반환
@@ -333,17 +333,17 @@ public class ShopService {
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
-        return new ShopProfileResponseDto(
-                shop.getName(),
-                shop.getAddress(),
-                shop.getPost(),
-                shop.getTel(),
-                shop.getPwd(),
-                shop.getDesc(),
-                shop.getOpenTime().toString(),
-                shop.getCloseTime().toString(),
-                shop.getRegularHoliday()
-        );
+        return ShopProfileResponseDto.builder().
+                name(shop.getName()).
+                addres(shop.getAddress()).
+                post(shop.getPost()).
+                tel(shop.getTel()).
+                pwd(shop.getPwd()).
+                desc(shop.getDesc()).
+                open(shop.getOpenTime().toString()).
+                close(shop.getCloseTime().toString()).
+                regularHoliday(shop.getRegularHoliday())
+                .build();
     }
 
     /**
@@ -410,12 +410,12 @@ public class ShopService {
         List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
         List<MenuResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
         for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
-            MenuResponseDto menuResponseDto = new MenuResponseDto(
-                    menu.getId().toString(),
-                    menu.getName(),
-                    menu.getDesigner().getName(),
-                    menu.getPrice()
-            );
+            MenuResponseDto menuResponseDto = MenuResponseDto.builder().
+                    id(menu.getId().toString()).
+                    name(menu.getName()).
+                    designerName(menu.getDesigner().getName()).
+                    price(menu.getPrice())
+                    .build();
             response.add(menuResponseDto);
         }
         return response; // 메뉴 목록 반환
@@ -517,16 +517,16 @@ public class ShopService {
         List<JobPostResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
-            JobPostResponseDto jobPostResponseDto = new JobPostResponseDto(
-                    jobPost.getShop().getName(),
-                    jobPost.getId().toString(),
-                    jobPost.getTitle(),
-                    jobPost.getSalary(),
-                    jobPost.getGender().toString(),
-                    jobPost.getWork().toString(),
-                    jobPost.getWorkTime().toString(),
-                    jobPost.getLeaveTime().toString()
-            );
+            JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder().
+                    shopName(jobPost.getShop().getName()).
+                    id(jobPost.getId().toString()).
+                    title(jobPost.getTitle()).
+                    salary(jobPost.getSalary()).
+                    gender(jobPost.getGender().toString()).
+                    work(jobPost.getWork().toString()).
+                    workTime(jobPost.getWorkTime().toString()).
+                    leaveTime(jobPost.getLeaveTime().toString())
+                    .build();
             response.add(jobPostResponseDto); // 구인글 목록 dto 반환
         }
         return response;
@@ -871,7 +871,7 @@ public class ShopService {
         // 가게 찾기
         getShop(email);
         // MyBatis SqlMapper를 통해 예약 조회하기
-        return reservationMapper.findAll(request);
+        return reservationMapper.findAll(email, request);
     }
 
     /**

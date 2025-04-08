@@ -7,8 +7,8 @@ import lombok.Value;
 
 import java.util.UUID;
 
-@Builder
 @Value
+@Builder
 public class MenuDetailResponseDto {
     @NotBlank
     UUID id;

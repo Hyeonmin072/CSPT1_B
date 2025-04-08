@@ -7,9 +7,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * DTO for {@link com.myong.backend.domain.entity.shop.Notice}
- */
 @Value
 @Builder
 public class ShopNoticeResponseDto implements Serializable {

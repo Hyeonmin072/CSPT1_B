@@ -17,7 +17,7 @@
         <where>
             <!-- 가게 이메일(필수) -->
             <if test="request.shopEmail != null">
-               and s.s_email = #{request.shopEmail}
+               and s.s_email = #{shopEmail}
             </if>
             <!-- 예약받은 날짜(필수) -->
             <if test="request.date != null">
@@ -26,7 +26,7 @@
             <!-- 추가 검색기간(선택) -->
             <if test="request.latest != null">
                 <choose>
-                    <when test="request.latest.name() == 'ONE_WEEK'">
+                    <when test="requesthttp://localhost:1271/shop/checkemail/rlawjggns12@gmail.com.latest.name() == 'ONE_WEEK'">
                         and r.r_service_date >= #{request.date} - interval 1 week
                     </when>
                     <when test="request.latest.name() == 'ONE_MONTH'">

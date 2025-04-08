@@ -9,11 +9,8 @@ import lombok.Value;
 import java.time.LocalTime;
 import java.util.UUID;
 
-/**
- * DTO for {@link com.myong.backend.domain.entity.shop.JobPost}
- */
-@Builder
 @Value
+@Builder
 public class JobPostDetailResponseDto {
     @NotBlank
     String shopName; // 가게 이름

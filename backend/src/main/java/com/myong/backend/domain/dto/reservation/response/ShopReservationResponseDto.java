@@ -2,30 +2,30 @@ package com.myong.backend.domain.dto.reservation.response;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Value;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Value
+@Builder
 public class ShopReservationResponseDto {
 
     @NotNull
-    private LocalDateTime serviceDate; // 예약해놓은 날짜
+    LocalDateTime serviceDate; // 예약해놓은 날짜
 
     @NotBlank
-    private String userName; // 예약한 유저 이름
+    String userName; // 예약한 유저 이름
 
     @NotBlank
-    private String designerName; // 예약받은 디자이너 이름
+    String designerName; // 예약받은 디자이너 이름
 
     @NotBlank
-    private String menuName; // 예약한 메뉴 이름
+    String menuName; // 예약한 메뉴 이름
 
     @NotNull
-    private Integer menuPrice; // 예약한 메뉴 가격
+    Integer menuPrice; // 예약한 메뉴 가격
 
     @NotBlank
-    private String reservationId; // 예약 아이디
+    String reservationId; // 예약 아이디
 }

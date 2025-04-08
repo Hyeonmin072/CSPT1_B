@@ -10,5 +10,5 @@ import java.util.List;
 @Mapper
 public interface ReservationMapper {
 
-    List<ShopReservationResponseDto> findAll(@Param("request") ShopReservationRequestDto request);
+    List<ShopReservationResponseDto> findAll(@Param("shopEmail") String email, @Param("request") ShopReservationRequestDto request);
 }

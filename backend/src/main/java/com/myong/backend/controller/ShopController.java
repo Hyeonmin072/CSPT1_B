@@ -39,7 +39,7 @@ public class ShopController {
      * 사업자 이메일 중복확인
      */
     @GetMapping("/checkemail/{email}")
-    public ResponseEntity<String> checkEmail(@Valid @PathVariable(name = "email") String email) {
+    public ResponseEntity<Boolean> checkEmail(@Valid @PathVariable(name = "email") String email) {
         return ResponseEntity.ok(shopService.checkEmail(email)); // 성공적으로 로직이 수행될 경우 성공 구문 반환
     }
 
