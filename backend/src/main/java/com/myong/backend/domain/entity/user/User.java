@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Getter
 @NoArgsConstructor

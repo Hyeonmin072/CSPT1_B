@@ -1,10 +1,7 @@
 package com.myong.backend.jwttoken;
 
 import com.myong.backend.jwttoken.dto.TokenDto;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
@@ -121,13 +118,17 @@ public class JwtService {
     }
     public boolean isValidToken(String token) {
         try {
+            // 서명만 검증하고 만료일은 무시
             Jwts.parserBuilder()
-                    .setSigningKey(key)
+                    .setSigningKey(key)  // 서명 검증을 위한 키 설정
+                    .setAllowedClockSkewSeconds(0) // 만약 만료시간 차이를 허용하려면 설정
                     .build()
-                    .parseClaimsJws(token);
-            return true; // 정상적으로 파싱되면 유효한 토큰
-        } catch (Exception e) {
-            return false; // 예외 발생 시 유효하지 않은 토큰
+                    .parseClaimsJws(token);  // 서명만 검증하고 만료일 체크는 하지 않음
+
+            return true;  // 서명이 유효하다면 true
+        } catch (JwtException e) {
+            // 서명 검증이 실패한 경우
+            return false;  // 서명이 유효하지 않으면 false
         }
     }
 

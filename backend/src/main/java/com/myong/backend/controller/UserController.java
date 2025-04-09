@@ -11,6 +11,7 @@ import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.jwttoken.JwtService;
@@ -213,13 +214,31 @@ public class UserController {
 
     // 쿠폰함 =============================================================
 
+    /*
+     *   나의 쿠폰함
+     */
     @GetMapping("/allcoupons")
     public ResponseEntity<?> getAllCoupons() throws NotFoundException {
         return ResponseEntity.ok(userService.getAllCoupons());
     }
 
+    // 위치  =============================================================
 
+    /*
+     *   위치 업데이트
+     */
+    @PostMapping("/location/update")
+    public ResponseEntity<?> updateLocation(@RequestBody UserUpdateLocationRequestDto requestDto){
+        return ResponseEntity.ok(userService.updateLocation(requestDto));
+    }
 
+    /*
+     *   위치 업데이트
+     */
+    @GetMapping("/location")
+    public ResponseEntity<?> getUserLocation(){
+        return ResponseEntity.ok(userService.getUserLocation());
+    }
 
 
 
