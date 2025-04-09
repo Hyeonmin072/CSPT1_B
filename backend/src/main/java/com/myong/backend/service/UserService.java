@@ -4,6 +4,7 @@ import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.user.data.DesignerListData;
 import com.myong.backend.domain.dto.user.data.ReviewListData;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
@@ -425,5 +426,36 @@ public class UserService {
 
         return userGetAllCouponsResponseDtos;
 
+    }
+
+    /*
+     *  유저 위치변경
+     */
+    public String updateLocation (UserUpdateLocationRequestDto requestDto){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+
+        User updateUser = user.toBuilder()
+                .location(requestDto.getAddress())
+                .latitude(requestDto.getLat())
+                .longitude(requestDto.getLng())
+                .build();
+
+        userRepository.save(updateUser);
+        return "위치를 성공적으로 변경하였습니다!";
+    }
+
+    public UserGetLocationResponseDto getUserLocation () {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+
+        return UserGetLocationResponseDto.builder()
+                .lat(user.getLatitude())
+                .lng(user.getLongitude())
+                .build();
     }
 }

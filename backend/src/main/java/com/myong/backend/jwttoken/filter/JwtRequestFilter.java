@@ -45,18 +45,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // 쿠키에 토큰이 없거나 비어있는 경우 다음 필터로 전달
         if (StringUtils.isBlank(token)) {
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("인증 토큰이 없습니다.");
             return;
         }
 
-
+        System.out.println(token);
         try {
-            // 토큰이 만료되었거나 유효하지 않으면 새 토큰 발급
-            if (jwtService.isExpired(token)) {
-                if (!jwtService.isValidToken(token)) {
-                    throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-                }
 
+
+            // 서명 검증
+            if (!jwtService.isValidToken(token)) {
+                System.out.println("서명검증 실패");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("유효하지 않은 토큰입니다.");
+                return;
+            }
+            System.out.println("서명검증 통과");
+
+            // 토큰 만료 검증
+            if (jwtService.isExpired(token)) {
+                System.out.println("토큰이 만료되었음.");
                 String userName = jwtService.getUserName(token);
                 String name = jwtService.getName(token);
                 String role = jwtService.getUserRole(token);
@@ -86,6 +95,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 return;
             }
 
+            System.out.println("토큰이 만료되지 않았음");
             // 토큰에서 사용자 정보 추출
             String userName = jwtService.getUserName(token);
             String role = jwtService.getUserRole(token);
