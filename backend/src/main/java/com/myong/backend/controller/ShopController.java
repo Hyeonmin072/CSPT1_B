@@ -76,6 +76,14 @@ public class ShopController {
     }
 
     /**
+     * 로그인후 표시될 사업자 이름 (헤더 반환)
+     */
+    @GetMapping("/loadheader")
+    public ResponseEntity<String> loadHeader() {
+        return ResponseEntity.ok(shopService.loadHeader()); // 성공적으로 로직이 수행될 경우 사업자 이름 반환
+    }
+
+    /**
      * 쿠폰 등록
      */
     @PostMapping("/coupon")

@@ -1109,4 +1109,14 @@ public class ShopService {
         // 회원가입된 가게에 공통 항목 추가
         common.getJob(shop);
     }
+
+    /**
+     * 사업자 이름 조회 (헤더 반환)
+     */
+    public String loadHeader() {
+        return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회 
+    }
+
+
+
 }
