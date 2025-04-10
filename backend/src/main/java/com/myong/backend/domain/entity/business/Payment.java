@@ -91,4 +91,8 @@ public class Payment {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+    public void assignUser(User user) {
+        this.user = user;
+    }
 }

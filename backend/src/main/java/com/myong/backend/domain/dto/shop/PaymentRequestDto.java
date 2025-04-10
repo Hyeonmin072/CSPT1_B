@@ -26,9 +26,9 @@ public class PaymentRequestDto {
     @NotNull
     private String reservMenuName; // 예약한 메뉴명
 
-    private String successUrl; // 성공 시 리다이렉트 할 URL
+    private String yourSuccessUrl; // 성공 시 리다이렉트 할 URL
 
-    private String failUrl; // 실패 시 리다이렉트 할 URL
+    private String yourFailUrl; // 실패 시 리다이렉트 할 URL
 
     public Payment toEntity() {
         return Payment.builder()
