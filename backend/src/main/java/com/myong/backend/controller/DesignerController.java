@@ -13,14 +13,17 @@ import com.myong.backend.service.ResumeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -86,6 +89,7 @@ public class DesignerController {
     @PostMapping("/verifyemail")
     public String authCheck(@RequestBody @Valid EmailCheckDto emailCheckDto){
         Boolean checked = emailSendService.checkAuthNum(emailCheckDto.getEmail(), emailCheckDto.getAuthNum());
+
         if(checked){
             return "이메일 인증 성공!!";
         }else {
@@ -170,4 +174,14 @@ public class DesignerController {
         return ResponseEntity.ok(responseDto);
     }
 
+    //디자이너 예약일 가져오기
+    @GetMapping("/reservation")
+    public List<DesignerReservationResponseDto> getReservation(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+
+        return designerService.getReservations(designerEmail, date);
+    }
 }
