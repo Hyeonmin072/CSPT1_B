@@ -416,9 +416,12 @@ public class UserService {
         }
 
         List<UserGetAllCouponsResponseDto> userGetAllCouponsResponseDtos =
-                userCoupons.stream().map(
+                userCoupons.stream()
+                        .filter(userCoupon -> userCoupon.getCoupon().getStatus() != CouponStatus.USED)
+                        .map(
                         userCoupon -> UserGetAllCouponsResponseDto.builder()
                                 .price(userCoupon.getCoupon().getPrice())
+                                .discountType(userCoupon.getCoupon().getType())
                                 .shopName(userCoupon.getCoupon().getShop().getName())
                                 .expireDate(userCoupon.getExpireDate())
                                 .build()

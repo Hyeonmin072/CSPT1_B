@@ -8,10 +8,11 @@ import lombok.Data;
 @AllArgsConstructor
 public class ReservationPage1ResponseDto {
 
-    private String name;
-    private String desc;
-    private String imageUrl;
-    private Double rating;
-    private Integer like;
-    private Integer reviewCount;
+    private String designerEmail;
+    private String designerName;
+    private String designerDesc;
+    private String designerImage;
+    private Double designerRating;
+    private Integer designerLike;
+    private Integer designerReviewCount;
 }

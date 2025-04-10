@@ -52,8 +52,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         System.out.println(token);
         try {
-
-
             // 서명 검증
             if (!jwtService.isValidToken(token)) {
                 System.out.println("서명검증 실패");

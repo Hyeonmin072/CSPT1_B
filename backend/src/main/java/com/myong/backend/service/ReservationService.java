@@ -15,6 +15,7 @@ import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.MenuCategory;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.Coupon;
+import com.myong.backend.domain.entity.user.CouponStatus;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.repository.*;
@@ -53,19 +54,19 @@ public class ReservationService {
 
         Optional<User> ou = userRepository.findByEmail(userEmail);
         if(!ou.isPresent()){
-            throw new IllegalArgumentException("해당 유저가 존재하지 않습니다.");
+            throw new NoSuchElementException("해당 유저가 존재하지 않습니다.");
         }
         Optional<Shop> os = shopRepository.findByEmail(requestDto.getShopEmail());
         if(!os.isPresent()){
-            throw new IllegalArgumentException("해당 샵이 존재하지 않습니다.");
+            throw new NoSuchElementException("해당 샵이 존재하지 않습니다.");
         }
         Optional<Designer> od = designerRepository.findByEmail(requestDto.getDesignerEmail());
         if(!od.isPresent()){
-            throw new IllegalArgumentException("해당 디자이너가 존재하지 않습니다.");
+            throw new NoSuchElementException("해당 디자이너가 존재하지 않습니다.");
         }
         Optional<Menu> om = menuRepository.findById(UUID.fromString(requestDto.getMenuId()));
         if(!om.isPresent()){
-            throw new IllegalArgumentException("해당 메뉴가 존재하지 않습니다.");
+            throw new NoSuchElementException("해당 메뉴가 존재하지 않습니다.");
         }
 
 
@@ -79,7 +80,7 @@ public class ReservationService {
             Reservation reservation = new Reservation(
                     requestDto.getServiceDate(),
                     requestDto.getPayMethod(),
-                    menu.getPrice(),
+                    requestDto.getPrice(),
                     menu,
                     shop,
                     designer,
@@ -92,19 +93,17 @@ public class ReservationService {
 
         // 쿠폰이 존재할 경우
 
-        Optional<Coupon> oc = couponRepository.findById(UUID.fromString(requestDto.getCouponId()));
-        if(!oc.isPresent()){
-            throw new IllegalArgumentException("해당 쿠폰이 존재하지 않습니다.");
-        }
+        Coupon coupon = couponRepository.findById(UUID.fromString(requestDto.getCouponId())).orElseThrow(() -> new NoSuchElementException("해당 쿠폰이 존재하지 않습니다."));
 
-        Coupon coupon = oc.get();
-
-        int price =  menu.getPrice() - discountPrice(coupon.getPrice(),menu.getPrice(),coupon.getType());
+        Coupon updateCoupon = coupon.toBuilder()
+                .status(CouponStatus.USED)
+                .build();
+        couponRepository.save(updateCoupon);
 
         Reservation reservation = new Reservation(
                 requestDto.getServiceDate(),
                 requestDto.getPayMethod(),
-                price,
+                requestDto.getPrice(),
                 menu,
                 shop,
                 designer,
@@ -120,7 +119,7 @@ public class ReservationService {
         Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
         // 예약이 존재하지않으면 만료된예약
         if(!or.isPresent()){
-            throw new IllegalArgumentException("만료된 예약입니다");
+            throw new NoSuchElementException("만료된 예약입니다");
         }
 
         Reservation reservation = or.get();
@@ -138,13 +137,20 @@ public class ReservationService {
 
     }
 
+
+    // 예약 거절
     public ResponseEntity<String> refuseReservation(ReservationAcceptRequestDto requestDto){
         Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
         if(!or.isPresent()){
-            throw new IllegalArgumentException("이미 만료된 예약입니다.");
+            throw new NoSuchElementException("이미 만료된 예약입니다.");
         }
+        Reservation reservation = or.get();
+        Coupon updateCoupon = reservation.getCoupon().toBuilder()
+                .status(CouponStatus.UNUSED)
+                .build();
 
-        reservationRepository.deleteById(UUID.fromString(requestDto.getReservationId()));
+        couponRepository.save(updateCoupon);
+        reservationRepository.deleteById(reservation.getId());
 
         return ResponseEntity.ok("예약이 성공적으로 거절되었습니다.");
     }
@@ -184,6 +190,7 @@ public class ReservationService {
         List<Designer> desingers = shop.getDesigners();
         List<ReservationPage1ResponseDto> responseDtos =
                 desingers.stream().map(designer -> new ReservationPage1ResponseDto(
+                        designer.getEmail(),
                         designer.getName(),
                         designer.getDesc(),
                         designer.getImage(),
@@ -284,6 +291,7 @@ public class ReservationService {
             if(menus.size() > 0){
                 responseMenus[category.ordinal()] = menus.stream().map(
                         Menu -> new MenuListData(
+                                Menu.getId().toString(),
                                 Menu.getName(),
                                 Menu.getPrice(),
                                 Menu.getEvent() != null ? discountPrice(Menu.getEvent().getPrice(),Menu.getPrice(),Menu.getEvent().getType()) : 0,
@@ -298,6 +306,7 @@ public class ReservationService {
         List<Menu> getRecommendMenus = menuRepository.findByDesignerAndRecommend(designer,true);
         List<MenuListData> recommendMenus = getRecommendMenus.stream().map(
                 Menu -> new MenuListData(
+                        Menu.getId().toString(),
                         Menu.getName(),
                         Menu.getPrice(),
                         Menu.getEvent() != null ? discountPrice(Menu.getEvent().getPrice(),Menu.getPrice(),Menu.getEvent().getType()) : 0,
