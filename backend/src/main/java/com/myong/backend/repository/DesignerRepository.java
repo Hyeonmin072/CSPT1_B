@@ -9,6 +9,5 @@ import java.util.UUID;
 public interface DesignerRepository extends JpaRepository<Designer, UUID> {
     Boolean existsByEmail(String email);
     Boolean existsByNickName(String nickName);
-    Optional<Designer> findByNickName(String nickName);
     Optional<Designer> findByEmail(String email);
 }
