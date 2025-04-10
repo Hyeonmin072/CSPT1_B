@@ -1,6 +1,5 @@
 package com.myong.backend.domain.dto.shop;
 
-import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.PaymentMethod;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -26,18 +25,11 @@ public class PaymentRequestDto {
     @NotNull
     private String reservMenuName; // 예약한 메뉴명
 
+    @NotNull
+    private UUID reservationId; // 예약 아이디
+
     private String yourSuccessUrl; // 성공 시 리다이렉트 할 URL
 
     private String yourFailUrl; // 실패 시 리다이렉트 할 URL
-
-    public Payment toEntity() {
-        return Payment.builder()
-                .paymentMethod(paymentMethod)
-                .price(price)
-                .reservMenuName(reservMenuName)
-                .id(UUID.randomUUID())
-                .paySuccessYN(false)
-                .build();
-    }
 
 }
