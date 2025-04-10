@@ -11,6 +11,7 @@ import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ResumeService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -111,11 +112,18 @@ public class DesignerController {
         return ResponseEntity.ok(responseDto);
     }
 
-    // 유저 헤더 로딩
+    // 디자이너 헤더 로딩
     @GetMapping("/loadheader")
     public ResponseEntity<DesignerLoadHeaderResponseDto> loadHeader(){
         return ResponseEntity.ok(designerService.loadHeader());
     }
+
+    //로그아웃 요청
+    @PostMapping("/signout")
+    public ResponseEntity<String> Signout(HttpServletResponse response){
+        return designerService.Signout(response);
+    }
+
 
     //디자이너 프로필 수정 페이지
     @GetMapping("/profile/update")
