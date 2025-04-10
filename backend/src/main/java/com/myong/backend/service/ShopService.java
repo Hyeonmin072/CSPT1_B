@@ -31,6 +31,7 @@ import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.mybatis.AttendanceMapper;
 import com.myong.backend.repository.mybatis.ReservationMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,8 @@ import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -187,6 +190,38 @@ public class ShopService {
         return "사업자 회원가입에 성공했습니다.";
     }
 
+    /**
+     * 사업자 로그아웃
+     * 사업자 로그아웃 처리
+     *
+     * @return 회원가입 성공 메시지
+     */
+    public ResponseEntity<String> signOut(HttpServletResponse response) {
+        String userEmail = getAuthenticatedEmail();
+        try {
+            if (redisTemplate.hasKey(userEmail)) {
+                redisTemplate.delete(userEmail);
+            }
+
+            SecurityContextHolder.clearContext();
+
+
+            ResponseCookie deleteCookie = ResponseCookie.from("accessToken",null)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("Lax")
+                    .build();
+
+            response.addHeader("Set-Cookie",deleteCookie.toString());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("로그아웃 요청 중 오류가 발생했습니다.");
+        }
+
+        return ResponseEntity.ok("로그아웃에 성공하셨습니다");
+    }
 
     /**
      * 사업자 쿠폰 등록
@@ -1114,9 +1149,7 @@ public class ShopService {
      * 사업자 이름 조회 (헤더 반환)
      */
     public String loadHeader() {
-        return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회 
+        return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회
     }
-
-
 
 }

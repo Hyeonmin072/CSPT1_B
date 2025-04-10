@@ -16,6 +16,7 @@ import com.myong.backend.domain.dto.reservation.response.ShopReservationResponse
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.ShopService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,6 +82,15 @@ public class ShopController {
     @GetMapping("/loadheader")
     public ResponseEntity<String> loadHeader() {
         return ResponseEntity.ok(shopService.loadHeader()); // 성공적으로 로직이 수행될 경우 사업자 이름 반환
+    }
+
+
+    /**
+     * 로그아웃 요청
+     */
+    @PostMapping("/signout")
+    public ResponseEntity<String> signOut(HttpServletResponse response) {
+        return shopService.signOut(response);
     }
 
     /**

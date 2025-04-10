@@ -1,9 +1,6 @@
 package com.myong.backend.controller;
 
 
-
-import com.myong.backend.domain.dto.email.EmailCheckDto;
-import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
 import com.myong.backend.domain.dto.reservation.response.*;
@@ -11,32 +8,25 @@ import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
-import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ReviewService;
 import com.myong.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import org.apache.ibatis.javassist.NotFoundException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
