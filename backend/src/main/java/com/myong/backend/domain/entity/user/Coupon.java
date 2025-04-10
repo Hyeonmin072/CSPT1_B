@@ -3,6 +3,7 @@ package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Coupon {
 
     @Id
@@ -43,6 +46,10 @@ public class Coupon {
 
     @Column(name = "c_expire_date", nullable = false)
     private LocalDate expireDate; // 삭제되기 전 살아있을 날짜
+
+    @Column(name = "c_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CouponStatus status = CouponStatus.UNUSED;  // 사용, 미사용 여부 기본값 미사용
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)

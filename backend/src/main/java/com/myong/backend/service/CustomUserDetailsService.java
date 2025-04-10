@@ -71,8 +71,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserDetailsDto createDesignerDetails(Designer designer){
         return new UserDetailsDto(
                 designer.getEmail(),
-                designer.getName(),
                 "DESIGNER",
+                designer.getName(),
                 designer.getPassword()
         );
     }
@@ -80,8 +80,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserDetailsDto createShopDetails(Shop shop){
         return new UserDetailsDto(
                 shop.getEmail(),
-                shop.getName(),
                 "SHOP",
+                shop.getName(),
                 shop.getPwd()
 
         );
