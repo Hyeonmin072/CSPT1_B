@@ -5,6 +5,7 @@ import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
@@ -110,6 +111,11 @@ public class DesignerController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // 유저 헤더 로딩
+    @GetMapping("/loadheader")
+    public ResponseEntity<DesignerLoadHeaderResponseDto> loadHeader(){
+        return ResponseEntity.ok(designerService.loadHeader());
+    }
 
     //디자이너 프로필 수정 페이지
     @GetMapping("/profile/update")

@@ -3,10 +3,12 @@ package com.myong.backend.service;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
+import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.repository.DesignerRepository;
 import com.myong.backend.repository.ShopRepository;
@@ -14,6 +16,8 @@ import jakarta.transaction.Transactional;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -199,6 +204,18 @@ public class DesignerService {
                         .dayOfWeek(reservation.getServiceDate().getDayOfWeek())
                         .build()
                 ).collect(Collectors.toList());
+    }
+
+    //디자이너 헤더 로딩
+
+    public DesignerLoadHeaderResponseDto loadHeader(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String designerEmail = authentication.getName();
+
+        Designer designer = designerRepository.findByEmail(designerEmail)
+                .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+
+        return new DesignerLoadHeaderResponseDto(designer.getName());
     }
 
 
