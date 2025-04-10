@@ -12,10 +12,14 @@ import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.repository.DesignerRepository;
 import com.myong.backend.repository.ShopRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,6 +47,7 @@ public class DesignerService {
     private final PasswordEncoder passwordEncoder;
     private final ShopRepository shopRepository;
     private final ResumeService resumeService;
+    private final RedisTemplate<String,Object> redisTemplate;
 
 
 
@@ -217,6 +222,46 @@ public class DesignerService {
 
         return new DesignerLoadHeaderResponseDto(designer.getName());
     }
+
+    //디자이너 로그아웃
+
+    /*
+     *  유저 로그아웃
+     */
+    public ResponseEntity<String> Signout(HttpServletResponse response) {
+
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+        String designerEmail = auth.getName();
+
+        try {
+
+            if (redisTemplate.hasKey(designerEmail)) {
+                redisTemplate.delete(designerEmail);
+            }
+
+            SecurityContextHolder.clearContext();
+
+
+            ResponseCookie deleteCookie = ResponseCookie.from("accessToken",null)
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(0)
+                    .sameSite("Lax")
+                    .build();
+
+            response.addHeader("Set-Cookie",deleteCookie.toString());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("로그아웃 요청 중 오류가 발생했습니다.");
+        }
+
+        return ResponseEntity.ok("로그아웃에 성공하셨습니다");
+
+    }
+
 
 
     //이메일 중복검사 매서드
