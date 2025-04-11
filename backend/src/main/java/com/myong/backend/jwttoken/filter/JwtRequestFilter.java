@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -33,12 +36,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
         System.out.println(request.getRequestURI());
+        List<String> allowsEndPointers = Arrays.asList("/user/signup","/user/checkemail/*"
+                                                       ,"/designer/signup","/designer/checkemail/*"
+                                                       ,"/shop/signup/","/shop/checkemail/*","/shop//certification/tel","/shop/bizid"
+                                                       ,"/email/send","/email/verify");
 
         if (request.getRequestURI().equals("/signin")) {
             System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
             return;
         }
+
+        if (allowsEndPointers.contains(request.getRequestURI())) {
+            System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+request.getRequestURI());
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
         // 쿠키에서 "accessToken" 값을 추출
         String token = jwtService.getTokenFromCookie(request);
