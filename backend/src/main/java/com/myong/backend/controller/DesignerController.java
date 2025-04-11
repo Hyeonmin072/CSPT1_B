@@ -119,7 +119,7 @@ public class DesignerController {
     }
 
     //로그아웃 요청
-    @PostMapping("/type/signout")
+    @PostMapping("/signout")
     public ResponseEntity<String> Signout(HttpServletResponse response){
         return designerService.Signout(response);
     }
