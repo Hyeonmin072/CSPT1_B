@@ -14,6 +14,8 @@ import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.*;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
+import com.myong.backend.exception.DuplicateResourceException;
+import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
@@ -23,12 +25,14 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.*;
 import java.util.Optional;
@@ -54,13 +58,14 @@ public class UserService {
     private final MemberShipRepository memberShipRepository;
     private final UserCouponRepository userCouponRepository;
 
+
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
         Optional<User> ouser =  userRepository.findByEmail(userSignUpDto.getEmail());
 
         // 이메일 중복 체크
         if (checkEmailDuplication(userSignUpDto.getEmail())) {
-            throw new NoSuchElementException("이미 존재하는 이메일입니다.");
+            throw new DuplicateResourceException("이미 존재하는 이메일입니다.");
         }
 
         if(!ouser.isPresent()){
@@ -94,7 +99,6 @@ public class UserService {
             return ResponseEntity.ok("회원 가입에 성공하셨습니다.");
         }
         return ResponseEntity.status(400).body("회원가입에 실패하셨습니다.");
-
     }
 
 
@@ -146,7 +150,7 @@ public class UserService {
         Optional<User> findUser = userRepository.findByEmail(userEmail);
 
         if(!findUser.isPresent()){
-            throw new NoSuchElementException("해당 유저가 존재하지않습니다");
+            throw new ResourceNotFoundException("해당 유저가 존재하지않습니다");
         }
 
         User user = findUser.get();
@@ -221,7 +225,7 @@ public class UserService {
         UserDetailsDto userDetailsDto = (UserDetailsDto) authentication.getPrincipal();
         String userName = userDetailsDto.getName();
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("존재하지 않는 사용자입니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
 
         List<Shop> popularShops = shopRepository.findTop10ByOrderByLikeDesc();
 
@@ -259,14 +263,14 @@ public class UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
         return new UserHeaderResponseDto(user.getName());
     }
 
     // 헤어샵 페이지 상세보기
     public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
-        Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게를 찾을 수 없습니다"));
+        Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 가게를 찾을 수 없습니다"));
 
         //가게 데이터 정리
         ShopListData shopListData = new ShopListData(
@@ -335,7 +339,7 @@ public class UserService {
     public List<DesignerPageResponseDto> loadDesignerPage() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         List<UserDesignerLike> designers = user.getUserDesignerLikes();
 
@@ -353,14 +357,15 @@ public class UserService {
     /*
      *  디자이너 좋아요 토글 처리
      */
+
     public boolean requestLikeForDesigner(String designerEmail){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+        Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
         UserDesignerLike findUserDesignerLike = userDesignerLikeRepository.findByDesignerAndUser(designer,user).orElse(null);
 
@@ -386,10 +391,11 @@ public class UserService {
     /*
      *  유저 프로필 페이지 로드
      */
+
     public UserProfileResponseDto loadUserProfilePage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
         return UserProfileResponseDto.builder()
                 .userName(user.getName())
@@ -403,16 +409,17 @@ public class UserService {
     /*
      *  유저 모든 쿠폰함 조회
      */
+
     public List<UserGetAllCouponsResponseDto> getAllCoupons() throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
         List<UserCoupon> userCoupons = userCouponRepository.findAllByUser(user);
 
         if(userCoupons.size() < 1){
-            throw new NotFoundException("쿠폰이 존재하지 않아요");
+            throw new ResourceNotFoundException("쿠폰이 존재하지 않아요");
         }
 
         List<UserGetAllCouponsResponseDto> userGetAllCouponsResponseDtos =
@@ -434,11 +441,12 @@ public class UserService {
     /*
      *  유저 위치변경
      */
+
     public String updateLocation (UserUpdateLocationRequestDto requestDto){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         User updateUser = user.toBuilder()
                 .location(requestDto.getAddress())
@@ -450,11 +458,12 @@ public class UserService {
         return "위치를 성공적으로 변경하였습니다!";
     }
 
+
     public UserGetLocationResponseDto getUserLocation () {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("해당 유저를 찾지 못했습니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
         return UserGetLocationResponseDto.builder()
                 .lat(user.getLatitude())

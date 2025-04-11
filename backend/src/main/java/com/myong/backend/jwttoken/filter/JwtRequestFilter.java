@@ -35,22 +35,33 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println(request.getRequestURI());
-        List<String> allowsEndPointers = Arrays.asList("/user/signup","/user/checkemail/*"
-                                                       ,"/designer/signup","/designer/checkemail/*"
-                                                       ,"/shop/signup/","/shop/checkemail/*","/shop//certification/tel","/shop/bizid"
+        String uri = request.getRequestURI();
+        System.out.println("요청 들어온 uri : "+uri);
+        List<String> allowsEndPointers = Arrays.asList("/user/signup"
+                                                       ,"/designer/signup"
+                                                       ,"/shop/signup/","/shop//certification/tel","/shop/bizid"
                                                        ,"/email/send","/email/verify");
 
-        if (request.getRequestURI().equals("/signin")) {
+        List<String> allowsEndPointers2 = Arrays.asList("/user/checkemail","/designer/checkemail","/shop/checkemail");
+
+        if (uri.equals("/signin")) {
             System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
             return;
         }
 
-        if (allowsEndPointers.contains(request.getRequestURI())) {
-            System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+request.getRequestURI());
+        if (allowsEndPointers.contains(uri)) {
+            System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+uri);
             filterChain.doFilter(request, response);
             return;
+        }
+
+        for(String endPoint : allowsEndPointers2){
+            if(uri.startsWith(endPoint)){
+                System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+uri);
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
 
 
