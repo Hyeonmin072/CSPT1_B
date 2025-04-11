@@ -7,6 +7,7 @@ import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
+import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,6 +33,12 @@ public class ReviewService {
     private final ReservationRepository reservationRepository;
     private final ReviewRepository reviewRepository;
 
+
+
+    /*
+    *  리뷰 생성
+    */
+
     public String registerReview(ShopRegisterReviewRequestDto request){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -42,16 +50,16 @@ public class ReviewService {
         Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
 
         if(!findShop.isPresent()){
-            throw new NoSuchElementException("해당 가게를 찾지 못했습니다.");
+            throw new ResourceNotFoundException("해당 가게를 찾지 못했습니다.");
         }
         if(!findUser.isPresent()){
-            throw new NoSuchElementException("해당 유저를 찾지 못했습니다.");
+            throw new ResourceNotFoundException("해당 유저를 찾지 못했습니다.");
         }
         if(!findDesigner.isPresent()){
-            throw new NoSuchElementException("해당 디자이너를 찾지 못했습니다.");
+            throw new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다.");
         }
         if(!findReservation.isPresent()){
-            throw new NoSuchElementException("해당 예약을 찾지 못했습니다.");
+            throw new ResourceNotFoundException("해당 예약을 찾지 못했습니다.");
         }
 
         Shop shop = findShop.get();
@@ -85,9 +93,11 @@ public class ReviewService {
         return "리뷰가 성공적으로 등록되었습니다.";
     }
 
+
+
     public ResponseEntity<String> reviewRemove(ReviewRemoveRequestDto request){
 
-        Review review = reviewRepository.findById(UUID.fromString(request.getReviewId())).orElseThrow(() -> new IllegalArgumentException("해당 리뷰가 존재하지 않습니다."));
+        Review review = reviewRepository.findById(UUID.fromString(request.getReviewId())).orElseThrow(() -> new ResourceNotFoundException("해당 리뷰가 존재하지 않습니다."));
 
         Shop shop = review.getShop();
         Designer designer = review.getDesigner();

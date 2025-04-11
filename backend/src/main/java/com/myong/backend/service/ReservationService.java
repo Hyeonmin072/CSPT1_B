@@ -18,12 +18,14 @@ import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.CouponStatus;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.security.Security;
 import java.time.LocalDate;
@@ -47,6 +49,7 @@ public class ReservationService {
 
 
     //예약생성
+
     public ResponseEntity<String> createReservation(ReservationCreateRequestDto requestDto){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -54,19 +57,19 @@ public class ReservationService {
 
         Optional<User> ou = userRepository.findByEmail(userEmail);
         if(!ou.isPresent()){
-            throw new NoSuchElementException("해당 유저가 존재하지 않습니다.");
+            throw new ResourceNotFoundException("해당 유저가 존재하지 않습니다.");
         }
         Optional<Shop> os = shopRepository.findByEmail(requestDto.getShopEmail());
         if(!os.isPresent()){
-            throw new NoSuchElementException("해당 샵이 존재하지 않습니다.");
+            throw new ResourceNotFoundException("해당 샵이 존재하지 않습니다.");
         }
         Optional<Designer> od = designerRepository.findByEmail(requestDto.getDesignerEmail());
         if(!od.isPresent()){
-            throw new NoSuchElementException("해당 디자이너가 존재하지 않습니다.");
+            throw new ResourceNotFoundException("해당 디자이너가 존재하지 않습니다.");
         }
         Optional<Menu> om = menuRepository.findById(UUID.fromString(requestDto.getMenuId()));
         if(!om.isPresent()){
-            throw new NoSuchElementException("해당 메뉴가 존재하지 않습니다.");
+            throw new ResourceNotFoundException("해당 메뉴가 존재하지 않습니다.");
         }
 
 
@@ -93,7 +96,7 @@ public class ReservationService {
 
         // 쿠폰이 존재할 경우
 
-        Coupon coupon = couponRepository.findById(UUID.fromString(requestDto.getCouponId())).orElseThrow(() -> new NoSuchElementException("해당 쿠폰이 존재하지 않습니다."));
+        Coupon coupon = couponRepository.findById(UUID.fromString(requestDto.getCouponId())).orElseThrow(() -> new ResourceNotFoundException("해당 쿠폰이 존재하지 않습니다."));
 
         Coupon updateCoupon = coupon.toBuilder()
                 .status(CouponStatus.USED)
@@ -115,11 +118,12 @@ public class ReservationService {
         return ResponseEntity.ok("예약 등록이 완료되었습니다.");
     }
 
+
     public ResponseEntity<String> acceptReservation(ReservationAcceptRequestDto requestDto){
         Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
         // 예약이 존재하지않으면 만료된예약
         if(!or.isPresent()){
-            throw new NoSuchElementException("만료된 예약입니다");
+            throw new ResourceNotFoundException("만료된 예약입니다");
         }
 
         Reservation reservation = or.get();
@@ -139,10 +143,11 @@ public class ReservationService {
 
 
     // 예약 거절
+
     public ResponseEntity<String> refuseReservation(ReservationAcceptRequestDto requestDto){
         Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
         if(!or.isPresent()){
-            throw new NoSuchElementException("이미 만료된 예약입니다.");
+            throw new ResourceNotFoundException("이미 만료된 예약입니다.");
         }
         Reservation reservation = or.get();
         Coupon updateCoupon = reservation.getCoupon().toBuilder()
@@ -157,6 +162,7 @@ public class ReservationService {
 
 
     // 유저 예약 정보 조회
+
     public List<ReservationInfoResponseDto> getReservationByUser(){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -164,7 +170,7 @@ public class ReservationService {
 
         Optional<User> ou = userRepository.findByEmail(userEmail);
         if(!ou.isPresent()){
-            throw new IllegalArgumentException("존재하지않는 유저입니다.");
+            throw new ResourceNotFoundException("존재하지않는 유저입니다.");
         }
 
         User user = ou.get();
@@ -184,8 +190,9 @@ public class ReservationService {
     }
 
     // 예약 페이지1
+
     public List<ReservationPage1ResponseDto> loadSelectDesignerPage(String email){
-        Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 가게가 존재하지 않습니다."));
+        Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 가게가 존재하지 않습니다."));
 
         List<Designer> desingers = shop.getDesigners();
         List<ReservationPage1ResponseDto> responseDtos =
@@ -203,9 +210,10 @@ public class ReservationService {
     }
 
     // 예약페이지 2번 (디자이너 시간선택)
+
     public ReservationPage2ResponseDto loadSelectTimePage(String email){
 
-        Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
+        Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
 
         // 정규 휴일 (ex: SUNDAY)
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer).orElse(null);
@@ -248,8 +256,9 @@ public class ReservationService {
     }
 
     // 예약페이지2 디자이너 의 예약가능날짜 얻기
+
     public AvailableTimeResponseDto getAvailableTime(String designerEmail, LocalDate day){
-         Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
+         Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾을 수 없습니다."));
 
          LocalTime openTime = designer.getShop().getOpenTime();
          LocalTime closeTime = designer.getShop().getCloseTime();
@@ -271,8 +280,9 @@ public class ReservationService {
 
 
     // 예약페이지 3번 메뉴 선택페이지
+
     public SelectMenuResponseDto loadSelectMenuPage(String desingeremail){
-        Designer designer = designerRepository.findByEmail(desingeremail).orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
+        Designer designer = designerRepository.findByEmail(desingeremail).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾을 수 없습니다."));
 
 
         // 1번~5번까지 커트,파마,염색,클리닉,스타일링 메뉴 초기화

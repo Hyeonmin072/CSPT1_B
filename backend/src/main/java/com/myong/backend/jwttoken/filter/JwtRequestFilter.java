@@ -17,6 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -32,13 +35,35 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, @NotNull FilterChain filterChain) throws ServletException, IOException {
 
-        System.out.println(request.getRequestURI());
+        String uri = request.getRequestURI();
+        System.out.println("요청 들어온 uri : "+uri);
+        List<String> allowsEndPointers = Arrays.asList("/user/signup"
+                                                       ,"/designer/signup"
+                                                       ,"/shop/signup/","/shop//certification/tel","/shop/bizid"
+                                                       ,"/email/send","/email/verify");
 
-        if (request.getRequestURI().equals("/signin")) {
+        List<String> allowsEndPointers2 = Arrays.asList("/user/checkemail","/designer/checkemail","/shop/checkemail");
+
+        if (uri.equals("/signin")) {
             System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
             return;
         }
+
+        if (allowsEndPointers.contains(uri)) {
+            System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+uri);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        for(String endPoint : allowsEndPointers2){
+            if(uri.startsWith(endPoint)){
+                System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+uri);
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
 
         // 쿠키에서 "accessToken" 값을 추출
         String token = jwtService.getTokenFromCookie(request);
