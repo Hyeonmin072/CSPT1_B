@@ -75,7 +75,7 @@ public class UserController {
     }
 
     // 유저 헤더 로딩
-    @GetMapping("/header")
+    @GetMapping("/loadheader")
     public ResponseEntity<UserHeaderResponseDto> loadHeader(){
         return ResponseEntity.ok(userService.loadHeader());
     }
