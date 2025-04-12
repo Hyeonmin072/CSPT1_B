@@ -37,7 +37,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
         System.out.println("요청 들어온 uri : "+uri);
-        List<String> allowsEndPointers = Arrays.asList("/user/signup"
+        List<String> allowsEndPointers = Arrays.asList("/user/signup,/user/homepage"
                                                        ,"/designer/signup"
                                                        ,"/shop/signup/","/shop//certification/tel","/shop/bizid"
                                                        ,"/email/send","/email/verify");
