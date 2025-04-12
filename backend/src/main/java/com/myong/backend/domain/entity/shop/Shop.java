@@ -75,6 +75,9 @@ public class Shop {
     @Column(name = "s_post", nullable = false)
     private Integer post; // 우편번호
 
+    @Column(name = "s_thumbnail")
+    private String thumbnail;  // 썸네일 이미지
+
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>(); // 가게에 대한 리뷰들
 

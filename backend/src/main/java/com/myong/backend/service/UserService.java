@@ -1,12 +1,10 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
-import com.myong.backend.domain.dto.user.data.DesignerListData;
-import com.myong.backend.domain.dto.user.data.ReviewListData;
+import com.myong.backend.domain.dto.user.data.*;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
-import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -24,6 +22,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+
 
 import java.util.*;
 import java.util.Optional;
@@ -220,40 +220,36 @@ public class UserService {
     // 유저 홈페이지 로딩
     public UserHomePageResponseDto loadHomePage(){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userEmail = authentication.getName();
-        UserDetailsDto userDetailsDto = (UserDetailsDto) authentication.getPrincipal();
-        String userName = userDetailsDto.getName();
+        List<Shop> top3Shops = shopRepository.findTopShops(PageRequest.of(0,3));
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("존재하지 않는 사용자입니다."));
-
-        List<Shop> popularShops = shopRepository.findTop10ByOrderByLikeDesc();
+        List<Designer> top4Designers = designerRepository.findTopDesigners(PageRequest.of(0,4));
 
         List<Advertisement> adList = advertisementRepository.findAll();
 
-        List<ShopListData> shopListData =
-                popularShops.stream().map(shop -> new ShopListData(
-                        shop.getName(),
-                        shop.getEmail(),
-                        shop.getTel(),
-                        shop.getDesc(),
-                        shop.getRating(),
-                        shop.getReviewCount(),
-                        shop.getOpenTime(),
-                        shop.getCloseTime(),
-                        shop.getAddress(),
-                        shop.getPost(),
-                        shop.getLongitude(),
-                        shop.getLatitude()
-                )).collect(Collectors.toList());
+        // 디자이너 리스트 반환
+        List<DesignerTop4ListData> designerTop4ListData =
+                top4Designers.stream().map(designer -> DesignerTop4ListData.builder()
+                        .designerName(designer.getName())
+                        .designerDesc(designer.getDesc())
+                        .designerImage(designer.getImage())
+                        .designerRating(designer.getRating())
+                        .build()).collect(Collectors.toList());
 
-        return new UserHomePageResponseDto(
-                userName,
-                userEmail,
-                user.getLocation(),
-                shopListData,
-                adList
-        );
+        // 샵리스트 변환
+        List<ShopTop3ListData> shopTop3ListData =
+                top3Shops.stream().map(shop ->  ShopTop3ListData.builder()
+                        .shopName(shop.getName())
+                        .shopDesc(shop.getDesc())
+                        .shopRating(shop.getRating())
+                        .shopReviewCount(shop.getReviewCount())
+                        .shopThumbnail(shop.getThumbnail())
+                    .build()).collect(Collectors.toList());
+
+        return  UserHomePageResponseDto.builder()
+                .top4Designers(designerTop4ListData)
+                .top3Shops(shopTop3ListData)
+                .advertisements(adList)
+                .build();
     }
 
     /*

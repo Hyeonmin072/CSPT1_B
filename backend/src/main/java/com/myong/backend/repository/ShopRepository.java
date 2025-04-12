@@ -1,10 +1,12 @@
 package com.myong.backend.repository;
 
 import com.myong.backend.domain.entity.shop.Shop;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +25,8 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
     @Query("select s From Shop s where s.address Like :location% ")
     List<Shop> findShopWithAddress(@Param("location") String location);
 
-    List<Shop> findTop10ByOrderByLikeDesc();
+    @Query("select s From Shop s Where s.reviewCount >= 0 Order by s.rating Desc ")
+    List<Shop> findTopShops(Pageable pageable);
 
     Optional<Shop> findByBizId(String bizId);
 }
