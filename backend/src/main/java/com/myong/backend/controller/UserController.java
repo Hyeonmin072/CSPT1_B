@@ -6,6 +6,7 @@ import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequest
 import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
+import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
 import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
@@ -61,10 +62,20 @@ public class UserController {
    @PostMapping("/signout")
     public ResponseEntity<String> Signout(HttpServletResponse response){return userService.Signout(response);}
 
-    // 유저 페이지 헤어샵카테고리
+    /*
+     *   유저 헤어샵 페이지 로드
+     */
     @GetMapping("/hairshop")
     public ResponseEntity<UserHairShopPageResponseDto> loadHairShopPage(){
         return ResponseEntity.ok(userService.loadHairShopPage());
+    }
+
+    /*
+     *   유저 헤어샵 최신순 버튼
+     */
+    @GetMapping("/hairshop/sort-newest")
+    public ResponseEntity<List<ShopListData>> hairshopSortNewest(){
+        return ResponseEntity.ok(userService.hairshopSortNewest());
     }
 
 
@@ -86,6 +97,8 @@ public class UserController {
     public ResponseEntity<ShopDetailsResponseDto> loadHairShopDetailsPage(@PathVariable(name = "shopemail")String shopemail){
         return ResponseEntity.ok(userService.loadHairShopDetailsPage(shopemail));
     }
+
+
     // 프로필 시작 =============================================================
 
     @GetMapping("/profile")
