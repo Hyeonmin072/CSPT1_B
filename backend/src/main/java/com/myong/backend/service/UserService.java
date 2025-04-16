@@ -175,20 +175,21 @@ public class UserService {
             Collections.sort(shopsInLocation,(shop1,shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
 
             List<ShopListData> shopListData =
-                    shopsInLocation.stream().map(shop -> new ShopListData(
-                            shop.getName(),
-                            shop.getEmail(),
-                            shop.getTel(),
-                            shop.getDesc(),
-                            shop.getRating(),
-                            shop.getReviewCount(),
-                            shop.getOpenTime(),
-                            shop.getCloseTime(),
-                            shop.getAddress(),
-                            shop.getPost(),
-                            shop.getLongitude(),
-                            shop.getLatitude()
-                    )).collect(Collectors.toList());
+                    shopsInLocation.stream().map(shop -> ShopListData.builder()
+                            .shopName(shop.getName())
+                            .shopEmail(shop.getEmail())
+                            .shopTel(shop.getTel())
+                            .shopThumbnail(shop.getThumbnail())
+                            .shopDesc(shop.getDesc())
+                            .shopRating(shop.getRating())
+                            .shopReviewCount(shop.getReviewCount())
+                            .shopOpenTime(shop.getOpenTime())
+                            .shopCloseTime(shop.getCloseTime())
+                            .shopAddress(shop.getAddress())
+                            .shopPost(shop.getPost())
+                            .shopLongitude(shop.getLongitude())
+                            .shopLatitude(shop.getLatitude())
+                            .build()).collect(Collectors.toList());
 
             return UserHairShopPageResponseDto.builder()
                     .location(user.getLocation())
@@ -204,20 +205,21 @@ public class UserService {
         Collections.sort(shopsIn2km,(shop1, shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
 
         List<ShopListData> shopListData =
-                shopsIn2km.stream().map(shop -> new ShopListData(
-                        shop.getName(),
-                        shop.getEmail(),
-                        shop.getTel(),
-                        shop.getDesc(),
-                        shop.getRating(),
-                        shop.getReviewCount(),
-                        shop.getOpenTime(),
-                        shop.getCloseTime(),
-                        shop.getAddress(),
-                        shop.getPost(),
-                        shop.getLongitude(),
-                        shop.getLatitude()
-                )).collect(Collectors.toList());
+                shopsIn2km.stream().map(shop -> ShopListData.builder()
+                        .shopName(shop.getName())
+                        .shopEmail(shop.getEmail())
+                        .shopTel(shop.getTel())
+                        .shopThumbnail(shop.getThumbnail())
+                        .shopDesc(shop.getDesc())
+                        .shopRating(shop.getRating())
+                        .shopReviewCount(shop.getReviewCount())
+                        .shopOpenTime(shop.getOpenTime())
+                        .shopCloseTime(shop.getCloseTime())
+                        .shopAddress(shop.getAddress())
+                        .shopPost(shop.getPost())
+                        .shopLongitude(shop.getLongitude())
+                        .shopLatitude(shop.getLatitude())
+                        .build()).collect(Collectors.toList());
 
         return UserHairShopPageResponseDto.builder()
                 .location(user.getLocation())
@@ -246,6 +248,7 @@ public class UserService {
                 shop -> ShopListData.builder()
                         .shopName(shop.getName())
                         .shopEmail(shop.getEmail())
+                        .shopThumbnail(shop.getThumbnail())
                         .shopTel(shop.getTel())
                         .shopDesc(shop.getDesc())
                         .shopRating(shop.getRating())
@@ -311,20 +314,21 @@ public class UserService {
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 가게를 찾을 수 없습니다"));
 
         //가게 데이터 정리
-        ShopListData shopListData = new ShopListData(
-                shop.getName(),
-                shop.getEmail(),
-                shop.getTel(),
-                shop.getDesc(),
-                shop.getRating(),
-                shop.getReviewCount(),
-                shop.getOpenTime(),
-                shop.getCloseTime(),
-                shop.getAddress(),
-                shop.getPost(),
-                shop.getLongitude(),
-                shop.getLatitude()
-        );
+        ShopListData shopListData = ShopListData.builder()
+                .shopName(shop.getName())
+                .shopEmail(shop.getEmail())
+                .shopThumbnail(shop.getThumbnail())
+                .shopTel(shop.getTel())
+                .shopDesc(shop.getDesc())
+                .shopRating(shop.getRating())
+                .shopReviewCount(shop.getReviewCount())
+                .shopOpenTime(shop.getOpenTime())
+                .shopCloseTime(shop.getCloseTime())
+                .shopAddress(shop.getAddress())
+                .shopPost(shop.getPost())
+                .shopLongitude(shop.getLongitude())
+                .shopLatitude(shop.getLatitude())
+                .build();
 
         // 디자이너 데이터 정리
         List<Designer> designers = shop.getDesigners();

@@ -15,6 +15,7 @@ public class ShopListData {
 
     private String shopName; // 가게이름
     private String shopEmail; // 가게이메일
+    private String shopThumbnail; // 가게 썸네일
     private String shopTel; // 가게 전화번호
     private String shopDesc; // 가게 소개
     private Double shopRating; // 가게 평점
