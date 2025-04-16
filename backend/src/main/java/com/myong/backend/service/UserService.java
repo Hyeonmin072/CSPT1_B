@@ -57,6 +57,7 @@ public class UserService {
     private final DesignerRepository designerRepository;
     private final MemberShipRepository memberShipRepository;
     private final UserCouponRepository userCouponRepository;
+    private final ReviewRepository reviewRepository;
 
 
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
@@ -143,7 +144,7 @@ public class UserService {
     }
 
 
-    //유저 홈페이지 로딩
+    //유저 헤어샵 페이지 로딩
     public UserHairShopPageResponseDto loadHairShopPage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -158,11 +159,16 @@ public class UserService {
         // 2km 반경 디비에서 조회
         List<Shop> shopsIn2km =  shopRepository.findShopWithinRadius(user.getLongitude(), user.getLatitude());
 
+        // 등록된 데이터 갯수 조회
+        long registeredShopCnt = shopRepository.count();
+        long registeredDesignerCnt = designerRepository.count();
+        long registeredReviewCnt = reviewRepository.count();
+
 
         // 2km 반경 헤어샵이 없으면 "시" 기준 디비에서 조회
         if(shopsIn2km.size() < 1){
 
-            // ex("대구광역시") 로 시작하는 가게 조회
+            // ex("대구") 로 시작하는 가게 조회
             String location = user.getLocation().split(" ")[0];
             List<Shop> shopsInLocation = shopRepository.findShopWithAddress(location);
 
@@ -184,10 +190,13 @@ public class UserService {
                             shop.getLatitude()
                     )).collect(Collectors.toList());
 
-            return new UserHairShopPageResponseDto(
-                    user.getLocation(),
-                    shopListData
-            );
+            return UserHairShopPageResponseDto.builder()
+                    .location(user.getLocation())
+                    .shops(shopListData)
+                    .registeredShopCnt(registeredShopCnt)
+                    .registeredDesignerCnt(registeredDesignerCnt)
+                    .registeredReviewCnt(registeredReviewCnt)
+                    .build();
 
         }
 
@@ -210,11 +219,44 @@ public class UserService {
                         shop.getLatitude()
                 )).collect(Collectors.toList());
 
-        return new UserHairShopPageResponseDto(
-                user.getLocation(),
-                shopListData
-        );
+        return UserHairShopPageResponseDto.builder()
+                .location(user.getLocation())
+                .shops(shopListData)
+                .registeredShopCnt(registeredShopCnt)
+                .registeredDesignerCnt(registeredDesignerCnt)
+                .registeredReviewCnt(registeredReviewCnt)
+                .build();
 
+    }
+
+    /*
+     헤어샵 최신순 정렬 버튼
+     */
+    public List<ShopListData> hairshopSortNewest(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+
+        List<Shop> shopsIn2km = shopRepository.findShopWithinRadius(user.getLongitude(),user.getLatitude());
+
+        // 최신순 정렬
+        Collections.sort(shopsIn2km,(shop1,shop2) -> shop2.getCreateDate().compareTo(shop1.getCreateDate()));
+
+        return shopsIn2km.stream().map(
+                shop -> ShopListData.builder()
+                        .shopName(shop.getName())
+                        .shopEmail(shop.getEmail())
+                        .shopTel(shop.getTel())
+                        .shopDesc(shop.getDesc())
+                        .shopRating(shop.getRating())
+                        .shopReviewCount(shop.getReviewCount())
+                        .shopOpenTime(shop.getOpenTime())
+                        .shopCloseTime(shop.getCloseTime())
+                        .shopAddress(shop.getAddress())
+                        .shopPost(shop.getPost())
+                        .shopLongitude(shop.getLongitude())
+                        .shopLatitude(shop.getLatitude())
+                        .build()).collect(Collectors.toList());
     }
 
     // 유저 홈페이지 로딩
@@ -392,6 +434,7 @@ public class UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+
 
         return UserProfileResponseDto.builder()
                 .userName(user.getName())

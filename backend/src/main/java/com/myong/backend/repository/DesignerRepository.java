@@ -14,6 +14,11 @@ public interface DesignerRepository extends JpaRepository<Designer, UUID> {
     Boolean existsByNickName(String nickName);
     Optional<Designer> findByEmail(String email);
 
+    @Query("Select count(d) from Designer d")
+    long count();
+
     @Query("Select d From Designer d Where d.reviewCount >= 0 Order by d.rating desc , d.like desc")
     List<Designer> findTopDesigners(Pageable pageable);
 }
+
+

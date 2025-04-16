@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -77,6 +78,9 @@ public class Shop {
 
     @Column(name = "s_thumbnail")
     private String thumbnail;  // 썸네일 이미지
+
+    @Column(name = "s_createDate")
+    private LocalDate createDate = LocalDate.now();   // 계정 등록날
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>(); // 가게에 대한 리뷰들
