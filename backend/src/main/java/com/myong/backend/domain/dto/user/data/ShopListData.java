@@ -1,5 +1,7 @@
 package com.myong.backend.domain.dto.user.data;
 
+import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.user.ShopDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +26,37 @@ public class ShopListData {
     private LocalTime shopCloseTime; // 마감시간
     private String shopAddress; // 가게주소
     private Integer shopPost; //가게 우편번호
-    private Double shopLongitude; // 경도
-    private Double shopLatitude; // 위도
+
+    public static ShopListData from (Shop shop) {
+        return ShopListData.builder()
+                .shopName(shop.getName())
+                .shopEmail(shop.getEmail())
+                .shopThumbnail(shop.getThumbnail())
+                .shopTel(shop.getTel())
+                .shopDesc(shop.getDesc())
+                .shopRating(shop.getRating())
+                .shopReviewCount(shop.getReviewCount())
+                .shopOpenTime(shop.getOpenTime())
+                .shopCloseTime(shop.getCloseTime())
+                .shopAddress(shop.getAddress())
+                .shopPost(shop.getPost())
+                .build();
+    }
+
+    public static ShopListData searchFrom (ShopDocument shop) {
+        return ShopListData.builder()
+                .shopName(shop.getName())
+                .shopEmail(shop.getEmail())
+                .shopThumbnail(shop.getThumbnail())
+                .shopTel(shop.getTel())
+                .shopDesc(shop.getDesc())
+                .shopRating(shop.getRating())
+                .shopReviewCount(shop.getReviewCount())
+                .shopOpenTime(shop.getOpenTime())
+                .shopCloseTime(shop.getCloseTime())
+                .shopAddress(shop.getAddress())
+                .shopPost(shop.getPost())
+                .build();
+    }
 
 }

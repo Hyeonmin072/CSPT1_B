@@ -52,7 +52,8 @@ dependencies {
 
 	implementation 'org.springframework.security:spring-security-oauth2-client'
 
-
+	// 엘라스틱 서치
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 
 	//문자 서비스
 	implementation 'net.nurigo:sdk:4.3.2'
