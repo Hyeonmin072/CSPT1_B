@@ -54,6 +54,7 @@ dependencies {
 
 	// 엘라스틱 서치
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.reflections:reflections:0.10.2'
 
 	//문자 서비스
 	implementation 'net.nurigo:sdk:4.3.2'
