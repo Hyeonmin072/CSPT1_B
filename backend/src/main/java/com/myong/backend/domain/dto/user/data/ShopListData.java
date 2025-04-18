@@ -1,7 +1,7 @@
 package com.myong.backend.domain.dto.user.data;
 
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.user.ShopDocument;
+import com.myong.backend.domain.entity.shop.ShopDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

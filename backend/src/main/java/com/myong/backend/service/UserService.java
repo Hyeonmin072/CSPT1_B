@@ -60,6 +60,9 @@ public class UserService {
     private final ReviewRepository reviewRepository;
 
 
+    /**
+     유저 회원가입 + 엘라스틱써치
+     **/
     public ResponseEntity<String> SingUp(UserSignUpDto userSignUpDto){
 
         Optional<User> ouser =  userRepository.findByEmail(userSignUpDto.getEmail());
@@ -103,9 +106,9 @@ public class UserService {
     }
 
 
-    /*
+    /**
      *  유저 로그아웃
-     */
+     **/
     public ResponseEntity<String> Signout(HttpServletResponse response) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -113,12 +116,12 @@ public class UserService {
 
         try {
 
+            // 리프레시토큰 삭제
             if (redisTemplate.hasKey(userEmail)) {
                 redisTemplate.delete(userEmail);
             }
 
             SecurityContextHolder.clearContext();
-
 
             ResponseCookie deleteCookie = ResponseCookie.from("accessToken",null)
                     .httpOnly(true)
@@ -138,13 +141,25 @@ public class UserService {
 
     }
 
-    // 이메일 중복 체크
+    /**
+     * 이메일 중복 체크
+     *
+     * @param email
+     * @return 트루 펄스값
+     */
     public Boolean checkEmailDuplication(String email) {
         return userRepository.existsByEmail(email);
     }
 
 
-    //유저 헤어샵 페이지 로딩
+    /**
+     * 헤어샵 페이지 로드
+     * 2km 반경가까운 헤어샵 평점순 리스트 제공,
+     * 2km가 없을시 ex"대구" 시 기준 리스트제공
+     * 없으면 빈 리스트 제공
+     *
+     * @return 유저위치, 가게리스트, 등록된가게갯수,등록된디자이너갯수,리뷰갯수,
+     */
     public UserHairShopPageResponseDto loadHairShopPage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -207,8 +222,10 @@ public class UserService {
 
     }
 
-    /*
-     헤어샵 최신순 정렬 버튼
+    /**
+     * 헤어샵 데이터 최신순 정렬
+     *
+     * @return 최신순 가게 데이터
      */
     public List<ShopListData> hairshopSortNewest(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -225,7 +242,11 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    // 유저 홈페이지 로딩
+    /**
+     * 홈페이지 로드
+     *
+     * @return 평점기준 탑3가게, 탑4디자이너, 광고
+     */
     public UserHomePageResponseDto loadHomePage(){
 
         List<Shop> top3Shops = shopRepository.findTopShops(PageRequest.of(0,3));
@@ -260,8 +281,10 @@ public class UserService {
                 .build();
     }
 
-    /*
-     *  유저 헤더 페이지 로딩
+    /**
+     * 헤더 컴포넌트 로드
+     *
+     * @return 유저이름
      */
     public UserHeaderResponseDto loadHeader(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -272,7 +295,12 @@ public class UserService {
         return new UserHeaderResponseDto(user.getName());
     }
 
-    // 헤어샵 페이지 상세보기
+    /**
+     *
+     *
+     * @param email
+     * @return 가게리스트, 디자이너리스트, 할인이가장크게되는쿠폰값, 리뷰데이터, 리뷰이미지
+     */
     public ShopDetailsResponseDto loadHairShopDetailsPage (String email){
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 가게를 찾을 수 없습니다"));
 
@@ -327,6 +355,11 @@ public class UserService {
         );
     }
 
+    /**
+     * 좋아요 누른 디자이너 페이지 로드
+     *
+     * @return 디자이너 이름,설명,가게명,이미지
+     */
     public List<DesignerPageResponseDto> loadDesignerPage() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -345,10 +378,12 @@ public class UserService {
         return responseDtos;
     }
 
-    /*
-     *  디자이너 좋아요 토글 처리
+    /**
+     * 디자이너 좋아요 토글처리
+     *
+     * @param designerEmail
+     * @return true , false
      */
-
     public boolean requestLikeForDesigner(String designerEmail){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -379,10 +414,11 @@ public class UserService {
         return false;
     }
 
-    /*
-     *  유저 프로필 페이지 로드
+    /**
+     * 유저 프로필 페이지 로드
+     *
+     * @return 이름,이메일,주소,전화번호,등급
      */
-
     public UserProfileResponseDto loadUserProfilePage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -398,10 +434,12 @@ public class UserService {
                 .build();
     }
 
-    /*
-     *  유저 모든 쿠폰함 조회
+    /**
+     * 유저 쿠폰함 조회
+     *
+     * @return 쿠폰 데이터
+     * @throws NotFoundException
      */
-
     public List<UserGetAllCouponsResponseDto> getAllCoupons() throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -430,10 +468,12 @@ public class UserService {
 
     }
 
-    /*
-     *  유저 위치변경
+    /**
+     * 유저 위치 업데이트
+     *
+     * @param requestDto
+     * @return 메세지
      */
-
     public String updateLocation (UserUpdateLocationRequestDto requestDto){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
@@ -451,6 +491,11 @@ public class UserService {
     }
 
 
+    /**
+     * 유저 위치 조회
+     *
+     * @return 유저 좌표값 반환
+     */
     public UserGetLocationResponseDto getUserLocation () {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();

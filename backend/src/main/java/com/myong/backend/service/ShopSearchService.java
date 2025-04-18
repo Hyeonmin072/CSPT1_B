@@ -10,13 +10,11 @@ import co.elastic.clients.elasticsearch.core.DeleteByQueryResponse;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import com.mongodb.internal.bulk.DeleteRequest;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.user.ShopDocument;
+import com.myong.backend.domain.entity.shop.ShopDocument;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.RequestOptions;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.stereotype.Service;
 
