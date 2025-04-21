@@ -82,6 +82,7 @@ public class ShopService {
     private final AttendanceRepository attendanceRepository;
     private final PasswordEncoder passwordEncoder;
     private final NoticeRepository noticeRepository;
+    private final ShopSearchService shopSearchService;
 
     /**
      * 사업자 이메일 중복 확인
@@ -165,6 +166,7 @@ public class ShopService {
      * @param request 회원가입 요청 정보가 담긴 DTO
      * @return 회원가입 성공 메시지
      */
+    @Transactional
     public String shopSignUp(ShopSignUpRequestDto request) {
         String result = kakaoMapApi.getCoordinatesFromAddress(request.getAddress());
         System.out.println("위도와 경도:" + result);
@@ -184,6 +186,9 @@ public class ShopService {
                 Double.parseDouble(latitude)
         );
         Shop signedShop = shopRepository.save(shop);
+
+        // 엘라스틱 써치 도큐멘트 저장
+        shopSearchService.save(shop);
 
         // 기본 공통항목 생성
         addCommon(signedShop);
@@ -388,12 +393,14 @@ public class ShopService {
      * @param request 프로필 수정 요청 정보가 담긴 DTO
      * @return 프로필 수정 결과 메시지
      */
+    @Transactional
     public String updateProflie(ShopProfileRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
         shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
+        shopSearchService.save(shop);
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
 

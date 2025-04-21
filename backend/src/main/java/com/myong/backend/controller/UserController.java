@@ -13,10 +13,7 @@ import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.jwttoken.JwtService;
-import com.myong.backend.service.EmailSendService;
-import com.myong.backend.service.ReservationService;
-import com.myong.backend.service.ReviewService;
-import com.myong.backend.service.UserService;
+import com.myong.backend.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -37,10 +34,9 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final EmailSendService emailSendService;
     private final ReservationService reservationService;
     private final ReviewService reviewService;
-    private final JwtService jwtService;
+    private final ShopSearchService shopSearchService;
 
 
     // 회원가입
@@ -62,6 +58,9 @@ public class UserController {
    @PostMapping("/signout")
     public ResponseEntity<String> Signout(HttpServletResponse response){return userService.Signout(response);}
 
+    // 유저 헤어샵 페이지 컨트롤러 시작 =========================================================
+
+
     /*
      *   유저 헤어샵 페이지 로드
      */
@@ -78,6 +77,17 @@ public class UserController {
         return ResponseEntity.ok(userService.hairshopSortNewest());
     }
 
+    /*
+     *   유저 헤어샵 검색 기능(가게명, 위치)
+     */
+    @GetMapping("/hairshop/search")
+    public ResponseEntity<List<ShopListData>> searchHairshop(
+            @RequestParam(name = "searchText")String searchText
+    ) {
+      return ResponseEntity.ok(shopSearchService.searchHairShops(searchText));
+    }
+
+    // 유저 헤어샵 페이지 컨트롤러 끝 =========================================================
 
     // 유저 홈페이지
     @GetMapping("/homepage")
