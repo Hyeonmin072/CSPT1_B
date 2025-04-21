@@ -375,7 +375,7 @@ public class ShopService {
         Shop shop = getShop(email);
         return ShopProfileResponseDto.builder().
                 name(shop.getName()).
-                addres(shop.getAddress()).
+                address(shop.getAddress()).
                 post(shop.getPost()).
                 tel(shop.getTel()).
                 pwd(shop.getPwd()).
@@ -979,6 +979,7 @@ public class ShopService {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .shop(shop)
+                .importance(request.getImportance())
                 .build();
         noticeRepository.save(notice);
 
@@ -1002,6 +1003,7 @@ public class ShopService {
                         .id(n.getId())
                         .title(n.getTitle())
                         .createDate(n.getCreateDate())
+                        .importance(n.getImportance())
                         .build())
                 .toList();
     }
@@ -1021,6 +1023,7 @@ public class ShopService {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .createDate(notice.getCreateDate())
+                .importance(notice.getImportance())
                 .build();
     }
 
@@ -1047,6 +1050,7 @@ public class ShopService {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .createDate(notice.getCreateDate())
+                .importance(notice.getImportance())
                 .build();
     }
 

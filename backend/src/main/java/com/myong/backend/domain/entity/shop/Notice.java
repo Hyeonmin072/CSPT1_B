@@ -24,14 +24,17 @@ public class Notice {
     @Column(name = "n_id")
     private UUID id; // 공지사항 아이디
 
-    @Column(name = "n_title")
+    @Column(name = "n_title", nullable = false)
     private String title; // 공지사항 제목
 
     @Column(name = "n_content")
     private String content; // 공지사항 내용
 
-    @Column(name = "n_create_date")
+    @Column(name = "n_importance")
+    private Boolean importance; // 공지사항 중요여부, true = 중요, false = 비중요
+
     @CreatedDate
+    @Column(name = "n_create_date")
     private LocalDateTime createDate; // 공지사항 생성일
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,10 +42,11 @@ public class Notice {
     private Shop shop; // 공지사항이 소속된 가게
 
     @Builder
-    public Notice(String content, String title, Shop shop) {
+    public Notice(String content, String title, Shop shop, Boolean importance) {
         this.content = content;
         this.title = title;
         this.shop = shop;
+        this.importance = importance;
     }
 
     @Override

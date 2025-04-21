@@ -16,7 +16,7 @@ public class ShopProfileResponseDto {
     String name;
 
     @NotBlank
-    String addres;
+    String address;
 
     @NotNull
     Integer post;

@@ -13,4 +13,5 @@ public class ShopNoticeResponseDto implements Serializable {
     UUID id;
     String title;
     LocalDateTime createDate;
+    Boolean importance;
 }

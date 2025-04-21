@@ -1,6 +1,7 @@
 package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -16,4 +17,8 @@ public class ShopNoticeRequestDto implements Serializable {
 
     @NotBlank
     String content;
+
+    @NotNull
+    Boolean importance;
+
 }

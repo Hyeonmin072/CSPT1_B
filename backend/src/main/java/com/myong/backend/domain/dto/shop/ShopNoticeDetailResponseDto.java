@@ -14,4 +14,5 @@ public class ShopNoticeDetailResponseDto implements Serializable {
     String title;
     String content;
     LocalDateTime createDate;
+    Boolean importance;
 }
