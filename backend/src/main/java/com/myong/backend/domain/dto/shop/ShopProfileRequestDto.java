@@ -19,9 +19,6 @@ public class ShopProfileRequestDto {
     @NotBlank
     String tel;
 
-    @NotBlank
-    String pwd;
-
     String newPwd;
 
     String newPwdConfirm;
