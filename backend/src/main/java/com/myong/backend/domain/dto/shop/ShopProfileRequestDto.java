@@ -1,5 +1,6 @@
 package com.myong.backend.domain.dto.shop;
 
+import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
@@ -31,5 +32,6 @@ public class ShopProfileRequestDto {
 
     String close;
 
-    String regularHoliday;
+    @NotNull
+    RegularHoliday regularHoliday;
 }

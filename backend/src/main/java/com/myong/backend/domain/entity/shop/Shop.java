@@ -2,6 +2,7 @@ package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.dto.shop.ShopProfileRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.RegularHoliday;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.domain.entity.usershop.UserShop;
@@ -9,6 +10,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,6 +24,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Shop {
 
     @Id
@@ -79,8 +83,9 @@ public class Shop {
     @Column(name = "s_thumbnail")
     private String thumbnail;  // 썸네일 이미지
 
-    @Column(name = "s_createDate")
-    private LocalDate createDate = LocalDate.now();   // 계정 등록날
+    @CreatedDate
+    @Column(name = "s_create_date")
+    private LocalDate createDate; // 회원가입일
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>(); // 가게에 대한 리뷰들
@@ -95,7 +100,8 @@ public class Shop {
     private List<ShopHoliday> holidays = new ArrayList<>(); // 휴무일(LocalDate)
 
     @Column(name = "s_regular_holiday")
-    private String regularHoliday = ""; // 정기 휴무일
+    @Enumerated(EnumType.STRING)
+    private RegularHoliday regularHoliday = RegularHoliday.NONE; // 정기 휴무일
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
@@ -165,7 +171,7 @@ public class Shop {
         if (!request.getClose().equals(this.closeTime.toString()) && !request.getClose().isBlank()) { // 마감시간
             this.closeTime =  LocalTime.parse(request.getClose(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getRegularHoliday().equals(this.regularHoliday) && !request.getRegularHoliday().isBlank()) { // 정기 휴무일
+        if (request.getRegularHoliday() != this.regularHoliday) { // 정기 휴무일
             this.regularHoliday = request.getRegularHoliday();
         }
     }

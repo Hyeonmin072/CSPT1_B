@@ -382,8 +382,12 @@ public class ShopService {
                 desc(shop.getDesc()).
                 open(shop.getOpenTime().toString()).
                 close(shop.getCloseTime().toString()).
-                regularHoliday(shop.getRegularHoliday())
-                .build();
+                regularHoliday(shop.getRegularHoliday()).
+                reservationNumber(shop.getUsers().size()).
+                reviewNumber(shop.getReviewCount()).
+                joinDate(shop.getCreateDate()).
+                rating(shop.getRating()).
+                build();
     }
 
     /**
