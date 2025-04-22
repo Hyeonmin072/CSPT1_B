@@ -51,7 +51,10 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
 	implementation 'org.springframework.security:spring-security-oauth2-client'
-
+	
+	// S3 및 아마존 의존성
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	
 	// 엘라스틱 서치
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation 'org.reflections:reflections:0.10.2'
