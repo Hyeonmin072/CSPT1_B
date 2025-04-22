@@ -20,7 +20,7 @@ public class PaymentResponseDto {
 
     private PaymentMethod paymentMethod; // 결제 타입
 
-    private Integer price; // 가격
+    private Long price; // 가격
 
     private String reservMenuName; // 예약한 메뉴명
 

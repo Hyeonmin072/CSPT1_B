@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                                        ,"/shop/signup","/shop//certification/tel","/shop/bizid"
                                                        ,"/email/send","/email/verify");
 
-        List<String> allowsEndPointers2 = Arrays.asList("/user/checkemail","/designer/checkemail","/shop/checkemail");
+        List<String> allowsEndPointers2 = Arrays.asList("/user/checkemail","/designer/checkemail","/shop/checkemail","/toss","/payment/success");
 
         if (uri.equals("/signin")) {
             System.out.println("로그인으로 요청");

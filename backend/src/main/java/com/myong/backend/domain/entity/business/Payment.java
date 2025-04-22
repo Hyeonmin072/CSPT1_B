@@ -30,7 +30,7 @@ public class Payment {
     private PaymentMethod paymentMethod; // 결제 수단
 
     @Column(name = "p_price", nullable = false)
-    private Integer price; // 결제 금액
+    private Long price; // 결제 금액
 
     @CreatedDate
     @Column(name = "p_pay_date")
@@ -94,5 +94,10 @@ public class Payment {
 
     public void assignUser(User user) {
         this.user = user;
+    }
+
+    public void successUpdate(String paymentKey) {
+        this.paymentKey = paymentKey;
+        this.paySuccessYN = true;
     }
 }

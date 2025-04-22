@@ -20,7 +20,7 @@ public class PaymentRequestDto {
     private PaymentMethod paymentMethod; // 결제 타입
 
     @NotNull
-    private Integer price; // 가격
+    private Long price; // 가격
 
     @NotNull
     private String reservMenuName; // 예약한 메뉴명
