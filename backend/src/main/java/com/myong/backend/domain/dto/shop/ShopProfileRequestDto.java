@@ -3,9 +3,12 @@ package com.myong.backend.domain.dto.shop;
 import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.*;
 
-@Value
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ShopProfileRequestDto {
     @NotBlank
     String name;
