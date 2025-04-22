@@ -35,6 +35,7 @@ public class PaymentService {
     private final ReservationRepository reservationRepository;
     private final TossPaymentConfig tossPaymentConfig;
 
+    @Transactional
     public PaymentResponseDto requestTossPayment(PaymentRequestDto request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("해당 유저가 없습니다."));
@@ -100,5 +101,15 @@ public class PaymentService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         return headers;
+    }
+
+    public void tossPaymentFail(String code, String reservationId, String message) {
+        Reservation reservation = reservationRepository.findById(UUID.fromString(reservationId))
+                .orElseThrow(() -> new RuntimeException("해당 예약이 없습니다."));
+
+        Payment payment = paymentRepository.findByReservation(reservation)
+                .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
+
+        payment.failUpdate(message);
     }
 }

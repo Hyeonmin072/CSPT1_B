@@ -100,4 +100,9 @@ public class Payment {
         this.paymentKey = paymentKey;
         this.paySuccessYN = true;
     }
+
+    public void failUpdate(String message) {
+        this.failReason = message;
+        this.paySuccessYN = false;
+    }
 }
