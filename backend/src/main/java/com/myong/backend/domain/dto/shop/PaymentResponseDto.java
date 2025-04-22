@@ -40,7 +40,7 @@ public class PaymentResponseDto {
 
     private String cancelReason; // 취소 이유
 
-    private LocalDateTime payDate; // 결제 시간
+    private LocalDateTime createDate; // 결제 시간
 
 
 }

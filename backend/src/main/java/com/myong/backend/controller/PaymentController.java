@@ -1,6 +1,7 @@
 package com.myong.backend.controller;
 
 import com.myong.backend.configuration.TossPaymentConfig;
+import com.myong.backend.domain.dto.payment.ChargingHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
@@ -12,8 +13,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -70,5 +76,29 @@ public class PaymentController {
                 .errorMessage(message)
                 .build()
         );
+    }
+
+    /**
+     * 결제 취소 시 처리
+     * @param principal
+     * @param paymentKey
+     * @param cancelReason
+     * @return
+     */
+    @PostMapping("/payment/cancel/point")
+    public ResponseEntity<Map> tossPaymentCancel(@AuthenticationPrincipal User principal,
+                                                 @RequestParam String paymentKey,
+                                                 @RequestParam String cancelReason) {
+        return ResponseEntity.ok().body(paymentService.tossPaymentCancel(principal.getUsername(), paymentKey, cancelReason));
+    }
+
+
+    /**
+     * 결제 내역 조회
+     * @return
+     */
+    @GetMapping("/payment/history")
+    public ResponseEntity<List<ChargingHistoryDto>> findAllChargingHistories() {
+        return ResponseEntity.ok().body(paymentService.findAllChargingHistories());
     }
 }

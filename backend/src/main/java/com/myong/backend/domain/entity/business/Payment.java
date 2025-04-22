@@ -34,7 +34,7 @@ public class Payment {
 
     @CreatedDate
     @Column(name = "p_pay_date")
-    private LocalDateTime payDate; // 결제 날짜
+    private LocalDateTime createDate; // 결제 날짜
 
     @Column(name = "p_reserv_menu_name", nullable = false)
     private String reservMenuName; // 예약한 메뉴명
@@ -44,7 +44,7 @@ public class Payment {
     private Reservation reservation; // 예약 고유 키
 
     @Column(name = "p_success_yn")
-    private boolean paySuccessYN; // 결제 성공 여부
+    private Boolean paySuccessYN; // 결제 성공 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "u_id", nullable = false)
@@ -70,7 +70,7 @@ public class Payment {
                 .reservationId(reservation.getId())
                 .userEmail(user.getEmail())
                 .userName(user.getName())
-                .payDate(payDate)
+                .createDate(createDate)
                 .cancelYN(cancelYN)
                 .failReason(failReason)
                 .build();
@@ -104,5 +104,10 @@ public class Payment {
     public void failUpdate(String message) {
         this.failReason = message;
         this.paySuccessYN = false;
+    }
+
+    public void cancelUpdate(String cancelReason) {
+        this.cancelYN = true;
+        this.cancelReason = cancelReason;
     }
 }

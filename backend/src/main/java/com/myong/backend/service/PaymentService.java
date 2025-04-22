@@ -1,12 +1,14 @@
 package com.myong.backend.service;
 
 import com.myong.backend.configuration.TossPaymentConfig;
+import com.myong.backend.domain.dto.payment.ChargingHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
 import com.myong.backend.domain.dto.shop.PaymentResponseDto;
 import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.PaymentRepository;
 import com.myong.backend.repository.ReservationRepository;
 import com.myong.backend.repository.UserRepository;
@@ -16,14 +18,14 @@ import net.minidev.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional
@@ -111,5 +113,43 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
 
         payment.failUpdate(message);
+    }
+
+    @Transactional
+    public Map tossPaymentCancel(String userEmail, String paymentKey, String cancelReason) {
+        Payment payment = paymentRepository.findByPaymentKeyAndUser_Email(paymentKey, userEmail)
+                .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
+
+        payment.cancelUpdate(cancelReason);
+        return cancel(paymentKey, cancelReason);
+    }
+
+    private Map cancel(String paymentKey, String cancelReason) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = getHeaders();
+        JSONObject params = new JSONObject();
+        params.put("cancelReason", cancelReason);
+
+        return restTemplate.postForObject(TossPaymentConfig.URL + paymentKey + "/cancel", new HttpEntity<>(params, headers), Map.class);
+    }
+
+    @Transactional
+    public List<ChargingHistoryDto> findAllChargingHistories() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsDto principal = (UserDetailsDto)authentication.getPrincipal();
+        String userEmail = principal.getUsername();
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다."));
+
+        ArrayList<Payment> payments = paymentRepository.findByUser(user);
+
+        return payments.stream().map((p) -> ChargingHistoryDto.builder()
+                .price(p.getPrice())
+                .reservationName(p.getReservMenuName())
+                .isPaySuccessYN(p.getPaySuccessYN())
+                .createDate(p.getCreateDate())
+                .build()
+        ).toList();
     }
 }
