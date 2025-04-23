@@ -25,36 +25,22 @@ public class Payment {
     @Column(name = "p_id")
     private UUID id; // 결제 고유 키
 
-    @Column(name = "p_pay_method")
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod; // 결제 수단
-
     @Column(name = "p_price", nullable = false)
     private Long price; // 결제 금액
-
-    @CreatedDate
-    @Column(name = "p_pay_date")
-    private LocalDateTime createDate; // 결제 날짜
 
     @Column(name = "p_reserv_menu_name", nullable = false)
     private String reservMenuName; // 예약한 메뉴명
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "r_id", nullable = false)
-    private Reservation reservation; // 예약 고유 키
-
-    @Column(name = "p_success_yn")
-    private Boolean paySuccessYN; // 결제 성공 여부
+    // 결제에 reservationId를 저장하되, FK 제약은 걸지 않는다. -> 결제 테이블을 생성하기 전 예약 테이블을 생성 X
+    @Column(name = "r_id")
+    private Long reservationId; // 예약 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "u_id", nullable = false)
     private User user; // 유저 고유 키
 
-    @Column(name = "p_payment_key")
-    private String paymentKey; // 결제 고유 키
-
-    @Column(name = "p_fail_reason")
-    private String failReason; // 결제 실패 이유
+    @Column(name = "p_success_yn")
+    private Boolean paySuccessYN; // 결제 성공 여부
 
     @Column(name = "p_cancel_yn")
     private Boolean cancelYN; // 결제 취소 여부
@@ -62,12 +48,20 @@ public class Payment {
     @Column(name = "p_cancel_reason")
     private String cancelReason; // 결제 취소 이유
 
+    @Column(name = "p_fail_reason")
+    private String failReason; // 결제 실패 이유
+
+    @Column(name = "p_payment_key")
+    private String paymentKey; // 토스 결제 API 요청을 위한 고유 키
+
+    @CreatedDate
+    @Column(name = "p_pay_date")
+    private LocalDateTime createDate; // 결제 날짜
+
     public PaymentResponseDto toPaymentResponseDto() {
         return PaymentResponseDto.builder()
-                .paymentMethod(paymentMethod)
                 .price(price)
                 .reservMenuName(reservMenuName)
-                .reservationId(reservation.getId())
                 .userEmail(user.getEmail())
                 .userName(user.getName())
                 .createDate(createDate)
@@ -92,23 +86,32 @@ public class Payment {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-
-    public void assignUser(User user) {
-        this.user = user;
-    }
-
+    /**
+     * 이 결제를 결제성공 상태로 업데이트하는 편의 메서드
+     * @param paymentKey 토스 결제 API 요청을 위한 고유 키
+     */
     public void successUpdate(String paymentKey) {
         this.paymentKey = paymentKey;
         this.paySuccessYN = true;
     }
 
-    public void failUpdate(String message) {
-        this.failReason = message;
+
+    /**
+     * 이 결제를 결제실패 상태로 업데이트하는 편의 메서드
+     * @param failReason 실패 이유를 담은 메시지
+     */
+    public void failUpdate(String failReason) {
+        this.failReason = failReason;
         this.paySuccessYN = false;
     }
 
+
+    /**
+     * 이 결제를 결제취소 상태로 업데이트하는 편의 메서드
+     * @param cancelReason 취소 이유를 담은 메시지
+     */
     public void cancelUpdate(String cancelReason) {
-        this.cancelYN = true;
         this.cancelReason = cancelReason;
+        this.cancelYN = true;
     }
 }

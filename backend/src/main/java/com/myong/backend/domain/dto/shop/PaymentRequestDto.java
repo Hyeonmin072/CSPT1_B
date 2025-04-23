@@ -1,6 +1,5 @@
 package com.myong.backend.domain.dto.shop;
 
-import com.myong.backend.domain.entity.business.PaymentMethod;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -8,7 +7,7 @@ import java.util.UUID;
 
 /**
  * 결제 호출 요청을 하는 DTO
- * 아래 필드들을 프론트에서 입력받음
+ * 아래 필드들을 클라이언트 측에서 입력받는다
  */
 @Getter
 @Setter
@@ -16,9 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentRequestDto {
-    @NotNull
-    private PaymentMethod paymentMethod; // 결제 타입
-
     @NotNull
     private Long price; // 가격
 

@@ -83,7 +83,6 @@ public class ReservationService {
         if(requestDto.getCouponId().equals("")){
             Reservation reservation = new Reservation(
                     requestDto.getServiceDate(),
-                    requestDto.getPayMethod(),
                     requestDto.getPrice(),
                     menu,
                     shop,
@@ -106,7 +105,6 @@ public class ReservationService {
 
         Reservation reservation = new Reservation(
                 requestDto.getServiceDate(),
-                requestDto.getPayMethod(),
                 requestDto.getPrice(),
                 menu,
                 shop,

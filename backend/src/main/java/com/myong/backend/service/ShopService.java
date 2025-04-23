@@ -1090,7 +1090,7 @@ public class ShopService {
      *
      * @return 인증된 사용자 이메일
      */
-    private static String getAuthenticatedEmail() {
+    public static String getAuthenticatedEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsDto principal = (UserDetailsDto) authentication.getPrincipal();
         return principal.getUsername();
