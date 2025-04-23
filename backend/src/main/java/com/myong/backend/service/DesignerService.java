@@ -3,6 +3,7 @@ package com.myong.backend.service;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
+import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -11,6 +12,7 @@ import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.repository.DesignerRepository;
+import com.myong.backend.repository.ReviewRepository;
 import com.myong.backend.repository.ShopRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -48,8 +50,7 @@ public class DesignerService {
     private final ShopRepository shopRepository;
     private final ResumeService resumeService;
     private final RedisTemplate<String,Object> redisTemplate;
-
-
+    private final ReviewRepository reviewRepository;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -92,7 +93,7 @@ public class DesignerService {
         Shop shop = designer.getShop();
         String shopName = (shop != null && shop.getName() != null) ? shop.getName() : "소속없음";
 
-        List<Review> reviews = designer.getReviews();
+        List<ReviewData> reviews = reviewRepository.findAllByDesignerEmail(designer.getEmail());
 
         int currentYear = java.time.LocalDate.now().getYear();
         int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
@@ -109,6 +110,7 @@ public class DesignerService {
                 .shopName(shopName)
                 .like(designer.getLike())
                 .description(designer.getDesc())
+                .image(designer.getImage())
                 .build();
     }
 
