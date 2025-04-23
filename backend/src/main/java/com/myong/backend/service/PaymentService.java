@@ -1,7 +1,7 @@
 package com.myong.backend.service;
 
 import com.myong.backend.configuration.TossPaymentConfig;
-import com.myong.backend.domain.dto.payment.ChargingHistoryDto;
+import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
 import com.myong.backend.domain.dto.shop.PaymentResponseDto;
@@ -134,7 +134,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public List<ChargingHistoryDto> findAllChargingHistories() {
+    public List<PaymentHistoryDto> findAllChargingHistories() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsDto principal = (UserDetailsDto)authentication.getPrincipal();
         String userEmail = principal.getUsername();
@@ -144,7 +144,7 @@ public class PaymentService {
 
         ArrayList<Payment> payments = paymentRepository.findByUser(user);
 
-        return payments.stream().map((p) -> ChargingHistoryDto.builder()
+        return payments.stream().map((p) -> PaymentHistoryDto.builder()
                 .price(p.getPrice())
                 .reservationName(p.getReservMenuName())
                 .isPaySuccessYN(p.getPaySuccessYN())

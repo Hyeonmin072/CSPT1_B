@@ -1,7 +1,7 @@
 package com.myong.backend.controller;
 
 import com.myong.backend.configuration.TossPaymentConfig;
-import com.myong.backend.domain.dto.payment.ChargingHistoryDto;
+import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
@@ -29,7 +29,7 @@ public class PaymentController {
     private final TossPaymentConfig tossPaymentConfig;
 
     /**
-     * 결제 테이블 생성
+     * 결제 테이블 생성 <- 예약 테이블 생성 전 결제 진행위해 필요
      * @param request
      * @return
      */
@@ -44,7 +44,7 @@ public class PaymentController {
     }
 
     /**
-     * 결제 성공 시 처리
+     * 결제 성공 시
      * @param paymentKey
      * @param reservationId
      * @param amount
@@ -58,7 +58,7 @@ public class PaymentController {
     }
 
     /**
-     * 결제 실패 시 처리
+     * 결제 실패 시
      * @param code
      * @param reservationId
      * @param message
@@ -79,7 +79,7 @@ public class PaymentController {
     }
 
     /**
-     * 결제 취소 시 처리
+     * 결제 취소 시
      * @param principal
      * @param paymentKey
      * @param cancelReason
@@ -98,7 +98,7 @@ public class PaymentController {
      * @return
      */
     @GetMapping("/payment/history")
-    public ResponseEntity<List<ChargingHistoryDto>> findAllChargingHistories() {
+    public ResponseEntity<List<PaymentHistoryDto>> findAllChargingHistories() {
         return ResponseEntity.ok().body(paymentService.findAllChargingHistories());
     }
 }

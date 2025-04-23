@@ -51,13 +51,13 @@ public class Payment {
     private User user; // 유저 고유 키
 
     @Column(name = "p_payment_key")
-    private String paymentKey; 
+    private String paymentKey; // 결제 고유 키
 
     @Column(name = "p_fail_reason")
     private String failReason; // 결제 실패 이유
 
     @Column(name = "p_cancel_yn")
-    private boolean cancelYN; // 결제 취소 여부
+    private Boolean cancelYN; // 결제 취소 여부
 
     @Column(name = "p_cancel_reason")
     private String cancelReason; // 결제 취소 이유
@@ -91,6 +91,7 @@ public class Payment {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
 
     public void assignUser(User user) {
         this.user = user;

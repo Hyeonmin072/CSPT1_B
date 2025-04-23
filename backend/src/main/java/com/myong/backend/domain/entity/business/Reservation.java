@@ -22,7 +22,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Reservation {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "r_id")

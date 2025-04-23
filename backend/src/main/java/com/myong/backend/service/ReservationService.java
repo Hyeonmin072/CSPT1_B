@@ -25,9 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.security.Security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,8 +46,11 @@ public class ReservationService {
     private final DesignerHolidayRepository designerHolidayRepository;
 
 
-    //예약생성
-
+    /**
+     * 예약 생성 <- 결제가 성공적으로 이루어 졌을 시
+     * @param requestDto
+     * @return
+     */
     public ResponseEntity<String> createReservation(ReservationCreateRequestDto requestDto){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -119,11 +120,16 @@ public class ReservationService {
     }
 
 
+    /**
+     * 사업자 예약 승인(예약대기 -> 예약성공)
+     * @param requestDto
+     * @return
+     */
     public ResponseEntity<String> acceptReservation(ReservationAcceptRequestDto requestDto){
         Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
         // 예약이 존재하지않으면 만료된예약
         if(!or.isPresent()){
-            throw new ResourceNotFoundException("만료된 예약입니다");
+            throw new ResourceNotFoundException("이미 취소된 예약입니다");
         }
 
         Reservation reservation = or.get();
@@ -142,8 +148,11 @@ public class ReservationService {
     }
 
 
-    // 예약 거절
-
+    /**
+     * 사업자 예약 거절(예약대기 -> 예약취소)
+     * @param requestDto
+     * @return
+     */
     public ResponseEntity<String> refuseReservation(ReservationAcceptRequestDto requestDto){
         Optional<Reservation> or =  reservationRepository.findById(UUID.fromString(requestDto.getReservationId()));
         if(!or.isPresent()){
@@ -161,8 +170,10 @@ public class ReservationService {
     }
 
 
-    // 유저 예약 정보 조회
-
+    /**
+     * 유저 예약 조회
+     * @return
+     */
     public List<ReservationInfoResponseDto> getReservationByUser(){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
