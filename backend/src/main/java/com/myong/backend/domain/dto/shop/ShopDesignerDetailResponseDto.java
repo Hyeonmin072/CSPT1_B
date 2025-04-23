@@ -26,6 +26,10 @@ public class ShopDesignerDetailResponseDto {
     @NotNull
     Integer like; // 디자이너 좋아요 개수
 
+    String image; // 디자이너 이미지
+
+    String tel; // 디자이너 전화번호
+
     LocalTime workTime; // 디자이너 정시 출근 시간
 
     LocalTime leaveTime; // 디자이너 정시 퇴근 시간

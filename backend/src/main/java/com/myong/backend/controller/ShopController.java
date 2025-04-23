@@ -230,6 +230,14 @@ public class ShopController {
     }
 
     /**
+     * 사업자 추가할 디자이너 정보 조회
+     */
+    @PostMapping("/designer/search")
+    public ResponseEntity<ShopDesignerDetailResponseDto> searchDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
+        return ResponseEntity.ok(shopService.searchDesigner(request));
+    }
+
+    /**
      * 사업자 소속 디자이너의 휴일 추가
      */
     @PostMapping("/designer/holiday")

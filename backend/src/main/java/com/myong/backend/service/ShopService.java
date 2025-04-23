@@ -660,6 +660,23 @@ public class ShopService {
     }
 
     /**
+     * 사업자 추가할 디자이너 정보조회
+     */
+    public ShopDesignerDetailResponseDto searchDesigner(ShopDesignerRequestDto request) {
+        // 디자이너 찾기
+        Designer designer = getDesigner(request.getDesignerEmail());
+
+        // 디자이너 상세정보를 dto에 담아 반환
+        return ShopDesignerDetailResponseDto.builder()
+                .name(designer.getName())
+                .gender(designer.getGender().toString())
+                .like(designer.getLike())
+                .email(designer.getEmail())
+                .tel(designer.getTel())
+                .build();
+    }
+
+    /**
      * 사업자 소속 디자이너의 휴일 추가
      * 디자이너 휴일 정보 저장
      *
@@ -1166,5 +1183,4 @@ public class ShopService {
     public String loadHeader() {
         return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회
     }
-
 }
