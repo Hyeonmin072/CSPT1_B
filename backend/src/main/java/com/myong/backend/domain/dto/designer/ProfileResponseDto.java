@@ -2,6 +2,7 @@ package com.myong.backend.domain.dto.designer;
 
 
 
+import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.usershop.Review;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,8 @@ public class ProfileResponseDto {
 
     String tel;
 
+    String image;
+
     String description;
 
     int age;
@@ -34,5 +37,5 @@ public class ProfileResponseDto {
 
     Gender gender;
 
-    List<Review> reviews;
+    List<ReviewData> reviews;
 }
