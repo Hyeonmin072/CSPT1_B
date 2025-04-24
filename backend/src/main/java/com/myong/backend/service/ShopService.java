@@ -433,6 +433,7 @@ public class ShopService {
                 .common(request.getCommon())
                 .shop(shop)
                 .designer(designer)
+                .category(request.getCategory())
                 .build();
 
         menuRepository.save(menu);
@@ -460,7 +461,8 @@ public class ShopService {
                     id(menu.getId().toString()).
                     name(menu.getName()).
                     designerName(menu.getDesigner().getName()).
-                    price(menu.getPrice())
+                    price(menu.getPrice()).
+                    category(menu.getCategory())
                     .build();
             response.add(menuResponseDto);
         }
@@ -485,6 +487,7 @@ public class ShopService {
                 .price(menu.getPrice())
                 .desc(menu.getDesc())
                 .image(menu.getImage())
+                .category(menu.getCategory())
                 .build();
     }
 

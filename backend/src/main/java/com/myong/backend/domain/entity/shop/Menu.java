@@ -60,7 +60,7 @@ public class Menu {
     private Event event;
 
     @Builder
-    public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer) {
+    public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer, MenuCategory category) {
         this.name = name;
         this.desc = desc;
         this.price = price;
@@ -68,6 +68,7 @@ public class Menu {
         this.common = common;
         this.shop = shop;
         this.designer = designer;
+        this.category = category;
     }
 
 
@@ -103,6 +104,9 @@ public class Menu {
         }
         if (!request.getEstimatedTime().equals(this.estimatedTime) && !request.getEstimatedTime().isBlank()) { // 소요시간
             this.estimatedTime = request.getEstimatedTime();
+        }
+        if (!request.getCategory().equals(this.category) && request.getCategory() != null) { // 소요시간
+            this.category = request.getCategory();
         }
     }
 }
