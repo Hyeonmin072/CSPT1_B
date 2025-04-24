@@ -61,8 +61,16 @@ public class PaymentController {
  */
 
 
+ // 클라이언트 a 요청 -> 결제 엔티티 관련 정보 클라이언트로 넘김
+ // a가 성공한 경우, 클라이언트 b 요청 -> 결제 인증 API로 요청, 결제 인증 성공하거나 실패시, 토스 자체 서버에서 리다이렉트하여 우리 서버에서 결제 승인 API로 요청 및 기타 처리(결제 엔티티 상태 업데이트)
+ // b가 성공한 경우, 클라리언트 c 요청 -> 예약 테이블 생성 로직,
+
+ // b가 됐으나 c가 터지는 경우 등을 방지하기 위해 a 요청 시, 결제 객체와 함께 예약에 필요한 정보도 미리 저장 (예약 임시 테이블 또는 결제 객체에 필드로 포함) /payment/success에서 결제 승인 후, 이 정보 기반으로 예약 생성
+ // 이후 b가 되는 결제 승인이나 실패 엔드포인트에서 임싣 데이터를 가지고 예약을 생성하거나, 임시 데이터를 날림
+ // 예약 임시 데이터는 redis를 이용하기
+    
     /**
-     * 결제 객체 생성
+     * 결제 객체 생성 및 예약 임시 데이터 생성
      */
     @PostMapping("/payment")
     public ResponseEntity<PaymentResponseDto> requestTossPayment(@Validated @RequestBody PaymentRequestDto request) {
@@ -70,11 +78,7 @@ public class PaymentController {
     }
 
     /**
-     * 결제 성공 시
-     * @param paymentKey 결제 요청과 인증이 완료되면 토스페이먼츠에서 결제를 식별하기 위해 발급하는 값
-     * @param paymentId 결제 객체의 고유 키
-     * @param amount 결제한 액수
-     * @return
+     * 결제 인증 성공 시
      */
     @GetMapping("/payment/success")
     public ResponseEntity<PaymentSuccessDto> tossPaymentSuccess(@RequestParam String paymentKey,
@@ -84,32 +88,17 @@ public class PaymentController {
     }
 
     /**
-     * 결제 실패 시
-     * @param code
-     * @param paymentId
-     * @param message
-     * @return
+     * 결제 인증 실패 시
      */
     @GetMapping("/payment/fail")
     public ResponseEntity<PaymentFailDto> tossPaymentFail(@RequestParam String code,
                                                           @RequestParam("orderId") String paymentId,
                                                           @RequestParam String message) {
-        paymentService.tossPaymentFail(code, paymentId, message);
-        return ResponseEntity.ok().body(
-                PaymentFailDto.builder()
-                .errorCode(code)
-                .reservationId(paymentId)
-                .errorMessage(message)
-                .build()
-        );
+        return ResponseEntity.ok().body(paymentService.tossPaymentFail(code, paymentId, message));
     }
 
     /**
-     * 결제 취소 시
-     * @param principal
-     * @param paymentKey
-     * @param cancelReason
-     * @return
+     * 결제 승인 완료 후, 취소 시
      */
     @PostMapping("/payment/cancel/point")
     public ResponseEntity<Map> tossPaymentCancel(@AuthenticationPrincipal User principal,
@@ -118,10 +107,8 @@ public class PaymentController {
         return ResponseEntity.ok().body(paymentService.tossPaymentCancel(principal.getUsername(), paymentKey, cancelReason));
     }
 
-
     /**
      * 결제 내역 조회
-     * @return
      */
     @GetMapping("/payment/history")
     public ResponseEntity<List<PaymentHistoryDto>> findAllChargingHistories() {

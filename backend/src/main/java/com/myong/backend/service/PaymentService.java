@@ -1,6 +1,7 @@
 package com.myong.backend.service;
 
 import com.myong.backend.configuration.TossPaymentConfig;
+import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
@@ -41,7 +42,7 @@ public class PaymentService {
     /**
      * 결제 객체 생성
      * @param request 결제 요청 정보를 담은 DTO
-     * @return
+     * @return 생성한 결제 객체의 관련 정보르 담은 DTO
      */
     @Transactional
     public PaymentResponseDto requestTossPayment(PaymentRequestDto request) {
@@ -79,53 +80,39 @@ public class PaymentService {
     }
 
     /**
-     * 결제 성공
-     * @param paymentKey
-     * @param paymentId
-     * @param amount
-     * @return
+     * 결제 인증 성공
+     * @param paymentKey 결제 요청과 인증이 완료되면 토스페이먼츠에서 결제를 식별하기 위해 발급하는 값
+     * @param paymentId 결제 객체의 고유 키
+     * @param amount 결제한 액수
+     * @return 결제 인증 성공 관련 정보를 담은 DTO
      */
     @Transactional
     public PaymentSuccessDto tossPaymentSuccess(String paymentKey, String paymentId, Long amount) {
-        Payment payment = verifyPayment(paymentId, amount); // 결제 요청정보 검증 메서드 -> 찾은 결제 객체 반환
-        PaymentSuccessDto result = requestTossPaymentAccept(paymentKey, paymentId, amount); // 결제 요청 API 메서드 -> 결제 성공정보 담은 DTO 반환
-        payment.successUpdate(paymentKey); // 찾은 결제 객체의 상태를 성공상태로 업데이트
-        /**
-         * 성공 후, 예약 테이블 생성 로직 들어올 곳(메서드 호출 등 다양한 방법 활용 가능)
-         */
-        return result; // 결제 성공정보 담은 DTO 반환
-    }
-
-    /**
-     * 결제 요청정보 검증
-     * @param paymentId
-     * @param amount
-     * @return
-     */
-    public Payment verifyPayment(String paymentId, Long amount) {
         // 결제 검색
         Payment payment = paymentRepository.findById(UUID.fromString(paymentId))
                 .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
 
-        // 찾은 결제 객체의 금액이 실제 금액과 다를 경우, 예외를 던진다
+        // 찾은 결제 객체의 금액이 결제 인증정보의 금액과 다를 경우, 예외를 던진다
         if(!payment.getPrice().equals(amount)) {
             throw new RuntimeException("결제 금액 오류 payment.getPrice()  = " + payment.getPrice() + ", amount = " + amount);
         }
-        
-        // 찾은 결제 객체 반환
-        return payment;
+
+        PaymentSuccessDto result = requestTossPaymentApproval(paymentKey, paymentId, amount); // 결제 승인 API 요청 메서드 -> 결제 성공정보 담은 DTO 반환
+
+        // 결제 승인 성공 후, 찾은 결제 객체의 상태를 성공상태로 업데이트 및 예약 테이블 생성s
+        payment.successUpdate(paymentKey); // 찾은 결제 객체의 편의 메서드를 통해 상태 업데이트
+        return result; // 결제 성공정보 담은 DTO 반환
     }
 
     /**
-     * 토스(Toss) 결제 승인 요청을 처리하는 메서드
-     *
+     * 토스 결제 승인 API로 요청을 보내는 메서드
      * @param paymentKey 결제 승인에 필요한 토스 결제 키
      * @param paymentId 결제 엔티티의 고유 키 (요청 시 orderId로 사용)
      * @param amount 결제할 금액
      * @return 결제 성공 정보를 담은 PaymentSuccessDto 객체
      * @throws RuntimeException 토스 결제 API 호출 중 오류가 발생한 경우
      */
-    public PaymentSuccessDto requestTossPaymentAccept(String paymentKey, String paymentId, Long amount) {
+    public PaymentSuccessDto requestTossPaymentApproval(String paymentKey, String paymentId, Long amount) {
         // HTTP 요청을 보내기 위한 RestTemplate 객체 생성
         RestTemplate restTemplate = new RestTemplate();
 
@@ -158,40 +145,35 @@ public class PaymentService {
 
 
     /**
-     * 토스 결제 API 요청을 위한 헤더 설정
-     * @return
-     */
-    private HttpHeaders getHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        String encodedAuthKey = new String(Base64.getEncoder().encode((tossPaymentConfig.getTestSecretKey() + ":").getBytes(StandardCharsets.UTF_8)));
-        headers.setBasicAuth(encodedAuthKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        return headers;
-    }
-
-    /**
-     * 결제 실패
-     * @param code
-     * @param paymentId
-     * @param message
+     * 결제 인증 실패
+     * @param code 실패 코드
+     * @param paymentId 결제 객체의 고유 키
+     * @param message 실패한 이유를 담은 메시지
+     * @return 결제 인증 실패 관련 정보를 담은 DTO
      */
     @Transactional
-    public void tossPaymentFail(String code, String paymentId, String message) {
+    public PaymentFailDto tossPaymentFail(String code, String paymentId, String message) {
         // 결제 검색
         Payment payment = paymentRepository.findById(UUID.fromString(paymentId))
                 .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
 
         // 찾은 결제 객체의 상태를 실패상태로 업데이트
         payment.failUpdate(message);
+
+        // 결제 실패정보 담은 DTO 반환
+        return PaymentFailDto.builder()
+                .errorCode(code)
+                .reservationId(paymentId)
+                .errorMessage(message)
+                .build();
     }
 
     /**
      * 결제 취소
-     * @param userEmail
-     * @param paymentKey
-     * @param cancelReason
-     * @return
+     * @param userEmail 유저의 이메일
+     * @param paymentKey 개발 고유 키
+     * @param cancelReason 취소 이유
+     * @return 결제 취소 결과를 담은 Map 객체
      */
     @Transactional
     public Map tossPaymentCancel(String userEmail, String paymentKey, String cancelReason) {
@@ -199,16 +181,18 @@ public class PaymentService {
         Payment payment = paymentRepository.findByPaymentKeyAndUser_Email(paymentKey, userEmail)
                 .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
 
-        // 찾은 결제 객체의 상태를 취소상태로 업데이트
+        // 결제 취소 요청 메서드 호출 -> Map<String,String>을 반환
+        Map map = requestTossPaymentCancel(paymentKey, cancelReason);
+
+        // 결제 취소 성공 후, 찾은 결제 객체의 상태를 취소상태로 업데이트
         payment.cancelUpdate(cancelReason);
 
-        // 결제 취소 요청 메서드 호출 -> Map<String,String>을 반환
-        return requestTossPaymentCancel(paymentKey, cancelReason);
+        // 결제 취소 결과 반환
+        return map;
     }
 
     /**
-     * 토스(Toss) 결제 취소 요청을 처리하는 메서드
-     *
+     * 토스 결제 취소 API로 요청을 보내는 메서드
      * @param paymentKey 취소할 결제의 토스 결제 키
      * @param cancelReason 결제 취소 사유
      * @return 결제 취소 결과를 담은 Map 객체
@@ -232,11 +216,22 @@ public class PaymentService {
         );
     }
 
-
+    /**
+     * 토스 결제 승인 및 취소 요청을 위한 헤더 설정
+     * @return 헤더
+     */
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        String encodedAuthKey = new String(Base64.getEncoder().encode((tossPaymentConfig.getTestSecretKey() + ":").getBytes(StandardCharsets.UTF_8)));
+        headers.setBasicAuth(encodedAuthKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        return headers;
+    }
 
     /**
      * 유저의 결제 내역 조회
-     * @return
+     * @return 결제 내역 정보를 담은 DTO들
      */
     @Transactional
     public List<PaymentHistoryDto> findAllChargingHistories() {
