@@ -6,7 +6,6 @@ import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
 import com.myong.backend.domain.dto.shop.PaymentResponseDto;
 import com.myong.backend.domain.entity.business.Payment;
-import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.PaymentRepository;
@@ -68,7 +67,7 @@ public class PaymentService {
         return PaymentResponseDto.builder()
                 .price(savedPayment.getPrice())
                 .reservMenuName(savedPayment.getReservMenuName())
-                .reservationId(savedPayment.getId())
+                .paymentId(savedPayment.getId())
                 .userEmail(savedPayment.getUser().getEmail())
                 .userName(savedPayment.getUser().getName())
                 .createDate(savedPayment.getCreateDate())
@@ -91,6 +90,9 @@ public class PaymentService {
         Payment payment = verifyPayment(paymentId, amount); // 결제 요청정보 검증 메서드 -> 찾은 결제 객체 반환
         PaymentSuccessDto result = requestTossPaymentAccept(paymentKey, paymentId, amount); // 결제 요청 API 메서드 -> 결제 성공정보 담은 DTO 반환
         payment.successUpdate(paymentKey); // 찾은 결제 객체의 상태를 성공상태로 업데이트
+        /**
+         * 성공 후, 예약 테이블 생성 로직 들어올 곳(메서드 호출 등 다양한 방법 활용 가능)
+         */
         return result; // 결제 성공정보 담은 DTO 반환
     }
 
@@ -101,12 +103,8 @@ public class PaymentService {
      * @return
      */
     public Payment verifyPayment(String paymentId, Long amount) {
-        // 예약 검색
-        Reservation reservation = reservationRepository.findById(UUID.fromString(paymentId))
-                .orElseThrow(() -> new RuntimeException("해당 예약이 없습니다."));
-
         // 결제 검색
-        Payment payment = paymentRepository.findByReservation(reservation)
+        Payment payment = paymentRepository.findById(UUID.fromString(paymentId))
                 .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
 
         // 찾은 결제 객체의 금액이 실제 금액과 다를 경우, 예외를 던진다
@@ -180,12 +178,8 @@ public class PaymentService {
      */
     @Transactional
     public void tossPaymentFail(String code, String paymentId, String message) {
-        // 예약 검색
-        Reservation reservation = reservationRepository.findById(UUID.fromString(paymentId))
-                .orElseThrow(() -> new RuntimeException("해당 예약이 없습니다."));
-
         // 결제 검색
-        Payment payment = paymentRepository.findByReservation(reservation)
+        Payment payment = paymentRepository.findById(UUID.fromString(paymentId))
                 .orElseThrow(() -> new RuntimeException("해당 결제가 없습니다."));
 
         // 찾은 결제 객체의 상태를 실패상태로 업데이트

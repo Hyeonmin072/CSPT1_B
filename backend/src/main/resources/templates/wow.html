@@ -8,30 +8,27 @@
 </head>
 <body>
 <section>
-    <!--  충전하기 버튼 만들기  -->
-    <span>총 포인트 충전 금액 :</span>
-    <span>58,500원</span>
-    <button id="payment-button">58,500원 충전하기</button>
+    <!--  충전하기 버튼  -->
+    <button id="payment-button">결제하기</button>
 </section>
 <script>
     // ------ 클라이언트 키로 객체 초기화 ------
     var clientKey = 'test_ck_DnyRpQWGrNqx9ow4JNabVKwv1M9E';
-    var tossPayments = new TossPayments(clientKey); // 수정 필요
+    var tossPayments = new TossPayments(clientKey);
 
-    // ------ 충전하기 버튼에 기능 추가 ------
-    var button = document.getElementById('payment-button'); // 충전하기 버튼
-    button.addEventListener('click', function () {
+    var button = document.getElementById('payment-button'); // 결제 버튼 아이디로 가져오기
+    button.addEventListener('click', function () { // 버튼 클릭시, 결제 호출
         // ------ 결제창 띄우기 ------
         tossPayments.requestPayment('CARD', {
             amount: 2000,
-            orderId: '0b5bd605-c529-44a1-96ee-b85d9bfd8edf',
-            orderName: '리프펌',
-            customerName: '첫번째',
-            customerEmail: 'gudtjq363636@naver.com',
-            successUrl: 'http://localhost:1271/payment/success',
-            failUrl: 'http://localhost:1271/payments/fail'
+            orderId: '0b5bd605-c529-44a1-96ee-b85d9bfd8edf', // 결제 객체의 고유 키
+            orderName: '리프펌', // 예약할 메뉴명
+            customerName: '첫번째', // 예약자 이름
+            customerEmail: 'gudtjq363636@naver.com', // 예약자의 이메일
+            successUrl: 'http://localhost:1271/payment/success', // 결제 성공 URL
+            failUrl: 'http://localhost:1271/payments/fail' // 결제 실패 URL
         }).catch(function (error) {
-            alert("결제 실패: " + error.message); // 결제 실패 시 메시지 출력
+            alert("결제 실패: " + error.message); // 결제 실패 시 출력할 메시지
         });
     });
 </script>

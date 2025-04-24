@@ -14,7 +14,6 @@ public class ReservationInfoResponseDto {
     private String menu;
     private String shop;
     private String designer;
-    private String payMethod;
     private Integer price;
     private String status;
 

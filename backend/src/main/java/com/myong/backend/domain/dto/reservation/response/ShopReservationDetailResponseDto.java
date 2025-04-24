@@ -1,14 +1,13 @@
 package com.myong.backend.domain.dto.reservation.response;
 
-import com.myong.backend.domain.entity.business.PaymentMethod;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Value
-@Builder
+@Value@Builder
+
 public class ShopReservationDetailResponseDto {
 
     @NotBlank
@@ -22,9 +21,6 @@ public class ShopReservationDetailResponseDto {
 
     @NotBlank
     String designerName; // 예약받은 디자이너 이름
-
-    @NotBlank
-    PaymentMethod payMethod; // 결제방법
 
     @NotNull
     Integer menuPrice; // 금액

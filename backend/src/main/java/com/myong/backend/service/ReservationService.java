@@ -5,7 +5,6 @@ import com.myong.backend.domain.dto.reservation.MenuListData;
 import com.myong.backend.domain.dto.reservation.request.ReservationAcceptRequestDto;
 import com.myong.backend.domain.dto.reservation.request.ReservationCreateRequestDto;
 import com.myong.backend.domain.dto.reservation.response.*;
-import com.myong.backend.domain.entity.business.PaymentMethod;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -191,7 +190,6 @@ public class ReservationService {
                     reservation.getMenu().getName(),
                     reservation.getShop().getName(),
                     reservation.getDesigner().getName(),
-                    reservation.getPayMethod() == PaymentMethod.MEET ? "만나서 결제" : "카드결제",
                     reservation.getPrice(),
                     reservation.getStatus() == ReservationStatus.WAIT ? "수락대기" : "예약중"
                 )).collect(Collectors.toList());

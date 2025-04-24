@@ -1,6 +1,5 @@
 package com.myong.backend.domain.dto.shop;
 
-import com.myong.backend.domain.entity.business.PaymentMethod;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -18,13 +17,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class PaymentResponseDto {
 
-    private PaymentMethod paymentMethod; // 결제 타입
-
     private Long price; // 가격
 
     private String reservMenuName; // 예약한 메뉴명
 
-    private UUID reservationId; // 예약 아이디
+    private UUID paymentId; // 결제 아이디
 
     private String userEmail; // 유저 이메일
 
