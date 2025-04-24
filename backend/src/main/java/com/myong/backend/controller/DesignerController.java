@@ -64,7 +64,7 @@ public class DesignerController {
     }
 
     //닉네임 중복검사
-    @GetMapping("nickname/{nickname}/exists")
+    @GetMapping("/nickname/{nickname}/exists")
     public ResponseEntity<Boolean> checkedNicknameDuplicate(@PathVariable(value = "nickname") String nickname){
         log.info("checked nickname duplicate: {}", nickname);
         //중복되면 true, 중복안되면 false
