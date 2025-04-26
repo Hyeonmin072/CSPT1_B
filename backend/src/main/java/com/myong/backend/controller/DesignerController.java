@@ -2,10 +2,8 @@ package com.myong.backend.controller;
 
 
 import com.myong.backend.domain.dto.designer.*;
-import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
-import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
@@ -15,19 +13,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 @Slf4j
@@ -189,13 +182,13 @@ public class DesignerController {
     }
 
     //디자이너 예약일 가져오기
-    @GetMapping("/reservation")
-    public List<DesignerReservationResponseDto> getReservation(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
-
-        return designerService.getReservations(designerEmail, date);
-    }
+//    @GetMapping("/reservation")
+//    public List<DesignerReservationResponseDto> getReservation(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+//        Authentication authentication =
+//                SecurityContextHolder.getContext().getAuthentication();
+//
+//        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+//
+//        return designerService.getReservations(designerEmail, date);
+//    }
 }

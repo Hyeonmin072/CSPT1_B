@@ -23,7 +23,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     List<Reservation> findAllByUser(User user);
 
     @Query("select new com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto(" +
-            "m.name, r.serviceDate, u.name, d.name, r.payMethod ,r.price) " +
+            "m.name, r.serviceDate, u.name, d.name,r.price) " +
             "from Reservation r " +
             "join r.user u " +
             "join r.shop s " +

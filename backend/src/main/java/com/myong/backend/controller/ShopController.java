@@ -1,20 +1,21 @@
 package com.myong.backend.controller;
 
-import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRequestDto;
-import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.event.EventRequestDto;
+import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
+import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
-import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.service.DesignerService;
+import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ShopService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -26,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +37,7 @@ import java.util.UUID;
 public class ShopController {
     private final ShopService shopService;
     private final DesignerService designerService;
+    private final ReservationService reservationService;
 
     /**
      * 사업자 이메일 중복확인
@@ -388,5 +391,14 @@ public class ShopController {
     @DeleteMapping("/notice/{noticeId}")
     public ResponseEntity<String> deleteNotice(@PathVariable("noticeId") String id) {
         return ResponseEntity.ok(shopService.deleteNotice(id));
+    }
+
+    /**
+     * 사업자 예약 거절
+     */
+    @PostMapping("/reservation/refuse")
+    public ResponseEntity<Map> refuseReservation(@RequestParam String paymentKey,
+                                                 @RequestParam String cancelReason) {
+        return ResponseEntity.ok().body(reservationService.refuseReservation(paymentKey, cancelReason));
     }
 }

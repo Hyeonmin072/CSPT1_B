@@ -42,7 +42,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                                        ,"/shop/signup","/shop//certification/tel","/shop/bizid","/shop/designers"
                                                        ,"/email/send","/email/verify");
 
-        List<String> allowsEndPointers2 = Arrays.asList("/designer/nickname/","/api/oauth2/","/user/checkemail","/designer/checkemail","/shop/checkemail");
+        List<String> allowsEndPointers2 = Arrays.asList("/designer/nickname/","/api/oauth2/","/user/checkemail","/designer/checkemail","/shop/checkemail","/toss","/user/reservation/payment/success","/user/reservation/payment/fail");
 
         if (uri.equals("/signin")) {
             System.out.println("로그인으로 요청");
