@@ -25,9 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.security.Security;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -326,7 +324,9 @@ public class ReservationService {
                 )
         ).collect(Collectors.toList());
 
-        return new SelectMenuResponseDto(responseMenus,recommendMenus);
+
+
+        return new SelectMenuResponseDto(responseMenus,recommendMenus, designer.getShop().getName(), designer.getShop().getEmail());
 
     }
 

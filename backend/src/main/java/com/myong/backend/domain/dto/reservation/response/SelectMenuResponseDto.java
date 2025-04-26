@@ -2,9 +2,7 @@ package com.myong.backend.domain.dto.reservation.response;
 
 
 import com.myong.backend.domain.dto.reservation.MenuListData;
-import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.MenuCategory;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
@@ -20,7 +18,10 @@ public class SelectMenuResponseDto {
     private List<MenuListData> clinicMenus; // 클리닉메뉴
     private List<MenuListData> stylingMenus; // 스타일링메뉴
 
-    public SelectMenuResponseDto(List<MenuListData>[] responseMenus ,List<MenuListData> recommendedMenus ){
+    private String shopName;
+    private String shopEmail;
+
+    public SelectMenuResponseDto(List<MenuListData>[] responseMenus ,List<MenuListData> recommendedMenus, String shopName, String shopEmail){
         this.recommendedMenus = recommendedMenus;
 
         for(MenuCategory category : MenuCategory.values()){
@@ -33,7 +34,8 @@ public class SelectMenuResponseDto {
                 case STYLING -> this.stylingMenus=responseMenus[category.ordinal()];
             }
         }
-
+        this.shopName = shopName;
+        this.shopEmail = shopEmail;
     }
 
 }
