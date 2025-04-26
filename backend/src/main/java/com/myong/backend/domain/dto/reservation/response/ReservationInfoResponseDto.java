@@ -15,7 +15,4 @@ public class ReservationInfoResponseDto {
     private String shop;
     private String designer;
     private Integer price;
-    private String status;
-
-
 }

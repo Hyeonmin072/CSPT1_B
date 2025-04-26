@@ -9,7 +9,7 @@
 <body>
 <section>
     <!--  충전하기 버튼  -->
-    <button id="payment-button">결제하기</button>
+    <button id="payment-button">결ㅌ제하기</button>
 </section>
 <script>
     // ------ 클라이언트 키로 객체 초기화 ------
@@ -23,10 +23,10 @@
             amount: 2000,
             orderId: '0b5bd605-c529-44a1-96ee-b85d9bfd8edf', // 결제 객체의 고유 키
             orderName: '리프펌', // 예약할 메뉴명
-            customerName: '첫번째', // 예약자 이름
+            customerName: '김팔숙', // 예약자 이름
             customerEmail: 'gudtjq363636@naver.com', // 예약자의 이메일
-            successUrl: 'http://localhost:1271/payment/success', // 결제 성공 URL
-            failUrl: 'http://localhost:1271/payments/fail' // 결제 실패 URL
+            successUrl: 'http://localhost:1271/reservation/payment/success', // 결제 성공 URL
+            failUrl: 'http://localhost:1271/reservation/payment/fail' // 결제 실패 URL
         }).catch(function (error) {
             alert("결제 실패: " + error.message); // 결제 실패 시 출력할 메시지
         });

@@ -1,14 +1,9 @@
 package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.designer.*;
-import com.myong.backend.domain.dto.designer.SignUpRequestDto;
-import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
-import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
-import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.repository.DesignerRepository;
 import com.myong.backend.repository.ShopRepository;
@@ -25,16 +20,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -184,32 +175,32 @@ public class DesignerService {
         return designerRepository.save(designer);
     }
 
-    @Transactional
-    public List<DesignerReservationResponseDto> getReservations(String email, LocalDate date) {
-        Designer designer = designerRepository
-                .findByEmail(email)
-                .orElseThrow(()->new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
-
-        // 입력받은 날짜의 시작 월요일과 끝나는 일요일 찾기
-        LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
-        LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);
-
-
-        return designer.getReservations().stream()
-                .filter(reservation -> {
-                    LocalDateTime serviceDate = reservation.getServiceDate();
-                    return  reservation.getStatus() == ReservationStatus.SUCCESS &&
-                            !serviceDate.toLocalDate().isBefore(startOfWeek)//시작요일보다 빠른거 제외
-                            && !serviceDate.toLocalDate().isAfter(endOfWeek);//끝요일보다 늦은거 제외
-                })
-                .map(reservation -> DesignerReservationResponseDto.builder()
-                        .userName(reservation.getUser().getName())
-                        .menu(reservation.getMenu())
-                        .serviceDate(reservation.getServiceDate())
-                        .dayOfWeek(reservation.getServiceDate().getDayOfWeek())
-                        .build()
-                ).collect(Collectors.toList());
-    }
+//    @Transactional
+//    public List<DesignerReservationResponseDto> getReservations(String email, LocalDate date) {
+//        Designer designer = designerRepository
+//                .findByEmail(email)
+//                .orElseThrow(()->new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
+//
+//        // 입력받은 날짜의 시작 월요일과 끝나는 일요일 찾기
+//        LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
+//        LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);
+//
+//
+//        return designer.getReservations().stream()
+//                .filter(reservation -> {
+//                    LocalDateTime serviceDate = reservation.getServiceDate();
+//                    return  reservation.getStatus() == ReservationStatus.SUCCESS &&
+//                            !serviceDate.toLocalDate().isBefore(startOfWeek)//시작요일보다 빠른거 제외
+//                            && !serviceDate.toLocalDate().isAfter(endOfWeek);//끝요일보다 늦은거 제외
+//                })
+//                .map(reservation -> DesignerReservationResponseDto.builder()
+//                        .userName(reservation.getUser().getName())
+//                        .menu(reservation.getMenu())
+//                        .serviceDate(reservation.getServiceDate())
+//                        .dayOfWeek(reservation.getServiceDate().getDayOfWeek())
+//                        .build()
+//                ).collect(Collectors.toList());
+//    }
 
     //디자이너 헤더 로딩
 

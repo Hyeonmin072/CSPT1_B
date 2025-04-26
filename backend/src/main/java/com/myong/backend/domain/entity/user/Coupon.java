@@ -45,11 +45,11 @@ public class Coupon {
     private Integer useDate; // 유저가 수령 후 사용가능한 기간
 
     @Column(name = "c_expire_date", nullable = false)
-    private LocalDate expireDate; // 삭제되기 전 살아있을 날짜
+    private LocalDate expireDate; // 삭제되기 전 살아있을 날짜 -> getDate + useDate의 일 수
 
     @Column(name = "c_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private CouponStatus status = CouponStatus.UNUSED;  // 사용, 미사용 여부 기본값 미사용
+    private CouponStatus status = CouponStatus.UNUSED;  // 사용, 미사용 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)

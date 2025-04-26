@@ -1,9 +1,10 @@
 package com.myong.backend.domain.dto.shop;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 /**
  * 결제 호출 요청을 하는 DTO
@@ -18,14 +19,21 @@ public class PaymentRequestDto {
     @NotNull
     private Long price; // 가격
 
+    /**
+     * 아래는 임시 예약 객체 생성용
+     */
     @NotNull
-    private String reservMenuName; // 예약한 메뉴명
+    private LocalDateTime serviceDate; // 서비스 받을 날짜
 
     @NotNull
-    private UUID reservationId; // 예약 아이디
+    private String designerEmail; // 디자이너 이메일
 
-    private String yourSuccessUrl; // 성공 시 리다이렉트 할 URL
+    @NotNull
+    private String shopEmail; //가게 이메일
 
-    private String yourFailUrl; // 실패 시 리다이렉트 할 URL
+    private String couponId; // 쿠폰 아이디
+
+    @NotBlank
+    private String menuId; // 메뉴 아이디
 
 }

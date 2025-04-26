@@ -27,10 +27,6 @@ public class Reservation {
     @Column(name = "r_id")
     private UUID id; // 예약 고유 키
 
-    @Column(name = "r_status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private ReservationStatus status = ReservationStatus.BEFOREPAY; // 예약 상태
-
     @CreatedDate
     @Column(name = "r_create_date", updatable = false)
     private LocalDateTime createDate; // 예약을 접수한 날짜
@@ -78,10 +74,6 @@ public class Reservation {
         this.shop = shop;
         this.designer = designer;
         this.user = user;
-    }
-
-    public void acceptReservation(){
-        this.status = ReservationStatus.SUCCESS;
     }
 
     @Override

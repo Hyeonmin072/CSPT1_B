@@ -33,7 +33,7 @@ public class Payment {
 
     // 결제에 reservationId를 저장하되, FK 제약은 걸지 않는다. -> 결제 테이블을 생성하기 전 예약 테이블을 생성 X
     @Column(name = "r_id")
-    private Long reservationId; // 예약 고유 키
+    private UUID reservationId; // 예약 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "u_id", nullable = false)
@@ -42,14 +42,14 @@ public class Payment {
     @Column(name = "p_success_yn")
     private Boolean paySuccessYN; // 결제 성공 여부
 
+    @Column(name = "p_fail_reason")
+    private String failReason; // 결제 실패 이유
+
     @Column(name = "p_cancel_yn")
     private Boolean cancelYN; // 결제 취소 여부
 
     @Column(name = "p_cancel_reason")
     private String cancelReason; // 결제 취소 이유
-
-    @Column(name = "p_fail_reason")
-    private String failReason; // 결제 실패 이유
 
     @Column(name = "p_payment_key")
     private String paymentKey; // 토스 결제 API 요청을 위한 고유 키
@@ -89,9 +89,11 @@ public class Payment {
     /**
      * 이 결제를 결제성공 상태로 업데이트하는 편의 메서드
      * @param paymentKey 토스 결제 API 요청을 위한 고유 키
+     * @param reservationId 이 결제가 해당되는 예약 객체의 고유 키
      */
-    public void successUpdate(String paymentKey) {
+    public void successUpdate(String paymentKey, UUID reservationId) {
         this.paymentKey = paymentKey;
+        this.reservationId = reservationId;
         this.paySuccessYN = true;
     }
 
@@ -112,6 +114,7 @@ public class Payment {
      */
     public void cancelUpdate(String cancelReason) {
         this.cancelReason = cancelReason;
+        this.reservationId = null;
         this.cancelYN = true;
     }
 }
