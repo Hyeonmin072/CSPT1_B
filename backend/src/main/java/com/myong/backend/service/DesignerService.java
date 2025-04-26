@@ -5,7 +5,6 @@ import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
-import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.Shop;
