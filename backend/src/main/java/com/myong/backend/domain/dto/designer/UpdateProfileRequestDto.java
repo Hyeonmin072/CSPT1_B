@@ -1,9 +1,11 @@
 package com.myong.backend.domain.dto.designer;
 
+import jakarta.mail.Multipart;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor
@@ -17,9 +19,9 @@ public class UpdateProfileRequestDto {
 
     private String updateTel; // 연락처
 
-    private String updateImage; // 사진
+    private MultipartFile updateImage; // 사진
 
-    private String updateBackgroundImage;
+    private MultipartFile updateBackgroundImage;
 
     private String oldPwd;
 

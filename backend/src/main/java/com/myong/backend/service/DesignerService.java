@@ -26,6 +26,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -51,6 +52,7 @@ public class DesignerService {
     private final ResumeService resumeService;
     private final RedisTemplate<String,Object> redisTemplate;
     private final ReviewRepository reviewRepository;
+    private final FileUploadService fileUploadService;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -172,13 +174,29 @@ public class DesignerService {
 
         //이미지 변경
         if (updateProfileRequest.getUpdateImage() != null) {
-            designer.updateImage(updateProfileRequest.getUpdateImage());
+            MultipartFile file = updateProfileRequest.getUpdateImage();
+
+            // S3에 저장하고 저장된 url 반환
+            String url = fileUploadService.uploadFile(file,"DESIGNER",designer.getEmail());
+            // 기존 이미지가 있다면 삭제
+            if(designer.getImage() != null){
+                fileUploadService.deleteFile(designer.getImage());
+            }
+            designer.updateImage(url);
             log.info("updateImage : {}", updateProfileRequest.getUpdateImage());
         }
 
         //백그라운드이미지 변경
         if (updateProfileRequest.getUpdateBackgroundImage() != null) {
-            designer.updateImage(updateProfileRequest.getUpdateBackgroundImage());
+            MultipartFile file = updateProfileRequest.getUpdateBackgroundImage();
+
+            // S3에 저장하고 저장된 url 반환
+            String url = fileUploadService.uploadFile(file,"DESIGNER",designer.getEmail());
+            // 기존 이미지가 있다면 삭제
+            if(designer.getBackgroundImage() != null){
+                fileUploadService.deleteFile(designer.getBackgroundImage());
+            }
+            designer.updateImage(url);
             log.info("updateImage : {}", updateProfileRequest.getUpdateBackgroundImage());
         }
 
