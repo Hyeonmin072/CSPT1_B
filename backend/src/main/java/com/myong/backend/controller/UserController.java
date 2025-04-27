@@ -16,7 +16,7 @@ import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ReviewService;
-import com.myong.backend.service.ShopSearchService;
+import com.myong.backend.service.SearchService;
 import com.myong.backend.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,7 +42,7 @@ public class UserController {
     private final UserService userService;
     private final ReservationService reservationService;
     private final ReviewService reviewService;
-    private final ShopSearchService shopSearchService;
+    private final SearchService searchService;
 
     // 회원가입
     @PostMapping("/signup")
@@ -89,7 +89,7 @@ public class UserController {
     public ResponseEntity<List<ShopListData>> searchHairshop(
             @RequestParam(name = "searchText")String searchText
     ) {
-      return ResponseEntity.ok(shopSearchService.searchHairShops(searchText));
+      return ResponseEntity.ok(searchService.searchHairShops(searchText));
     }
 
     // 유저 헤어샵 페이지 컨트롤러 끝 =========================================================

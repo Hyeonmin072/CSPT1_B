@@ -82,7 +82,7 @@ public class ShopService {
     private final AttendanceRepository attendanceRepository;
     private final PasswordEncoder passwordEncoder;
     private final NoticeRepository noticeRepository;
-    private final ShopSearchService shopSearchService;
+    private final SearchService searchService;
 
     /**
      * 사업자 이메일 중복 확인
@@ -188,7 +188,7 @@ public class ShopService {
         Shop signedShop = shopRepository.save(shop);
 
         // 엘라스틱 써치 도큐멘트 저장
-        shopSearchService.save(shop);
+        searchService.shopSave(shop);
 
         // 기본 공통항목 생성
         addCommon(signedShop);
@@ -404,7 +404,7 @@ public class ShopService {
 
         Shop shop = getShop(email);
         shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
-        shopSearchService.save(shop);
+        searchService.shopSave(shop);
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
 

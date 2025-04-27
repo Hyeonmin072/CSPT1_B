@@ -48,6 +48,7 @@ public class DesignerService {
     private final RedisTemplate<String,Object> redisTemplate;
     private final ReviewRepository reviewRepository;
     private final FileUploadService fileUploadService;
+    private final SearchService searchService;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -75,6 +76,8 @@ public class DesignerService {
 
 
         designerRepository.save(designer);
+        // 엘라스틱 써치 도큐멘트 저장
+        searchService.designerSave(designer);
 
         //이력서 생성
         Resume resume = resumeService.createResume(designer.getEmail());
@@ -195,6 +198,8 @@ public class DesignerService {
             log.info("updateImage : {}", updateProfileRequest.getUpdateBackgroundImage());
         }
 
+        // 엘라스틱 써치 도큐멘트 업데이트
+        searchService.designerSave(designer);
         // 명시적으로 save 호출하지 않아도 됨 (@Transactional 때문)
         return designerRepository.save(designer);
     }
