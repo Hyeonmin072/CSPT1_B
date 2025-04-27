@@ -270,7 +270,7 @@ public class ReservationService {
         // 결제 실패정보 담은 DTO 반환
         return PaymentFailDto.builder()
                 .errorCode(code)
-                .reservationId(paymentId)
+                .paymentId(paymentId)
                 .errorMessage(message)
                 .build();
     }

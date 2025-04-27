@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class PaymentFailDto {
     String errorCode;
     String errorMessage;
-    String reservationId;
+    String paymentId;
 }
