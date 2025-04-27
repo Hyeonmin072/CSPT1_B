@@ -78,13 +78,29 @@ public class ReservationService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 유저가 없습니다."));
 
-        // 유저 조회
+        // 메뉴 조회
         Menu menu = menuRepository.findById(UUID.fromString(request.getMenuId()))
                 .orElseThrow(() -> new RuntimeException("해당 메뉴를 찾을 수 없습니다"));
 
+        // 쿠폰 조회, 쿠폰이 요청에 존재하는 경우 할인타입에 따라 금액에 로직 적용하고, 없으면 금액에 로직 적용 X
+        Long price = null;
+        if(request.getCouponId() != null && !request.getCouponId().isBlank()) {
+            Coupon coupon = couponRepository.findById(UUID.fromString(request.getMenuId()))
+                    .orElseThrow(() -> new RuntimeException("해당 쿠폰을 찾을 수 없습니다"));
+
+            price = coupon.getType().equals(DiscountType.FIXED)
+                    ? request.getPrice() - coupon.getPrice()
+                    : Math.round(request.getPrice() * (coupon.getPrice() * 0.01));
+        } else {
+            price = request.getPrice();
+        }
+
+        // 만약 쿠폰 로직을 통과한 후 금액이 0원 이하라면, 0원으로 세팅
+        if (price < 0) price = 0L;
+
         // 결제 객체 생성 및 저장
         Payment payment = Payment.builder()
-                .price(request.getPrice())
+                .price(price)
                 .reservMenuName(menu.getName())
                 .paySuccessYN(false)
                 .user(user)
@@ -97,9 +113,9 @@ public class ReservationService {
                 .designerEmail(request.getDesignerEmail())
                 .shopEmail(request.getShopEmail())
                 .menuId(request.getMenuId())
-                .price(request.getPrice().intValue());
+                .price(price.intValue());
 
-        // 쿠폰이 있을 경우만 빌더에 세팅 추가
+        // 쿠폰이 요청에 존재하는 경우에만 빌더에 세팅 추가
         if (request.getCouponId() != null && !request.getCouponId().isBlank()) {
             tempReservationBuilder.couponId(request.getCouponId());
         }
