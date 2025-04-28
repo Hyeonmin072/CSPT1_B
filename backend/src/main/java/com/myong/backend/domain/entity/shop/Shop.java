@@ -87,7 +87,7 @@ public class Shop {
     @Column(name = "s_create_date")
     private LocalDate createDate; // 회원가입일
 
-    @OneToMany(mappedBy = "ShopBanner", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<ShopBanner> banners = new ArrayList<>(); // 가게의 배너이미지들
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
