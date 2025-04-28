@@ -87,6 +87,9 @@ public class Shop {
     @Column(name = "s_create_date")
     private LocalDate createDate; // 회원가입일
 
+    @OneToMany(mappedBy = "ShopBanner", cascade = CascadeType.ALL)
+    private List<ShopBanner> banners = new ArrayList<>(); // 가게의 배너이미지들
+
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>(); // 가게에 대한 리뷰들
 
@@ -146,7 +149,7 @@ public class Shop {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void updateProfile(ShopProfileRequestDto request) {
+    public void updateProfile(ShopProfileRequestDto request, String thumbnail) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }
@@ -173,6 +176,9 @@ public class Shop {
         }
         if (request.getRegularHoliday() != this.regularHoliday) { // 정기 휴무일
             this.regularHoliday = request.getRegularHoliday();
+        }
+        if (!request.getThumbnail().equals("")){
+            this.thumbnail = thumbnail;
         }
     }
 }

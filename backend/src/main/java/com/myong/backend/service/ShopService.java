@@ -48,6 +48,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ShopService {
 
+    private final ShopBannerRepository shopBannerRepository;
     private final ShopRepository shopRepository;
     private final DefaultMessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -83,6 +85,7 @@ public class ShopService {
     private final PasswordEncoder passwordEncoder;
     private final NoticeRepository noticeRepository;
     private final ShopSearchService shopSearchService;
+    private final FileUploadService fileUploadService;
 
     /**
      * 사업자 이메일 중복 확인
@@ -401,9 +404,24 @@ public class ShopService {
     public String updateProflie(ShopProfileRequestDto request) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
-
         Shop shop = getShop(email);
-        shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
+        String thumbnailUrl = "";  // 바뀐썸네일이 없으면 업데이트안함
+
+        // 썸네일 url S3저장 및 추출
+        if(request.getThumbnail() != null){
+            thumbnailUrl = fileUploadService.uploadFile(request.getThumbnail(),"shop",email,"thumbnail");
+            fileUploadService.deleteFile(shop.getThumbnail());
+        }
+
+        // 배너 추가 저장
+        if(request.getBanner() != null){
+            for(MultipartFile file : request.getBanner()){
+                String bannerUrl = fileUploadService.uploadFile(file,"shop",email,"banner");
+                shopBannerRepository.save(ShopBanner.save(bannerUrl,shop));
+            }
+        }
+
+        shop.updateProfile(request,thumbnailUrl); // 찾은 가게의 프로필 정보 수정
         shopSearchService.save(shop);
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
