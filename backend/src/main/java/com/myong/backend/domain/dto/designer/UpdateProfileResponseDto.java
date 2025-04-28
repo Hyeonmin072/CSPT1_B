@@ -14,6 +14,8 @@ public class UpdateProfileResponseDto {
 
     String name;
 
+    String nickname;
+
     String email;
 
     String tel;

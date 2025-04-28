@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -44,3 +47,17 @@ public class RedisConfig {
         return redisTpl;
     }
 }
+
+//    // Redis Pub/Sub 리스너 컨테이너 설정
+//    @Bean
+//    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
+//                                                   MessageListenerAdapter listenerAdapter) {
+//        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+//        container.setConnectionFactory(connectionFactory);
+//        container.addMessageListener(listenerAdapter, new PatternTopic("*:*")); //모든 채널 구독
+//        return container;
+//    }
+//
+//    // Pus/Sub 메시지 리스너 어댑터 설정
+//    @Bean
+//    public MessageListenerAdapter listenerAdapter(Object messageSubscriber) {

@@ -111,6 +111,8 @@ public class DesignerService {
                 .build();
     }
 
+
+    //디자이너 수정페이지
     public UpdateProfileResponseDto getUpdateProfile(String email) {
 
         Designer designer = designerRepository.findByEmail(email)
@@ -118,6 +120,7 @@ public class DesignerService {
 
         return UpdateProfileResponseDto.builder()
                 .name(designer.getName())
+                .nickname(designer.getNickName())
                 .email(designer.getEmail())
                 .tel(designer.getTel())
                 .description(designer.getDesc())
