@@ -83,6 +83,7 @@ public class ResumeService {
 
         return ResumeResponseDto.builder()
                 .name(designer.getName())
+                .email(designer.getEmail())
                 .tel(designer.getTel())
                 .gender(designer.getGender())
                 .age(age)
