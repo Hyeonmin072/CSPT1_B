@@ -27,6 +27,7 @@ import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
+import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.mybatis.AttendanceMapper;
@@ -424,6 +425,20 @@ public class ShopService {
         shop.updateProfile(request,thumbnailUrl); // 찾은 가게의 프로필 정보 수정
         shopSearchService.save(shop);
         return "프로필이 수정되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 배너 파일삭제
+     *
+     * @param url 삭제시킬
+     * @return 성공메세지
+     */
+    public String deleteBanner(String url){
+        ShopBanner shopBanner = shopBannerRepository.findByImage(url).orElseThrow(() -> new ResourceNotFoundException("해당 이미지를 찾지 못했습니다."));
+
+        fileUploadService.deleteFile(shopBanner.getImage());
+        shopBannerRepository.delete(shopBanner);
+        return "파일이 성공적으로 삭제 되었습니다.";
     }
 
     /**

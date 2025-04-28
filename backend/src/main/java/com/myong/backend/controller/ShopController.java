@@ -145,6 +145,14 @@ public class ShopController {
     }
 
     /**
+     * 사업자 배너 삭제
+     */
+    @DeleteMapping("/banner/{url}")
+    public ResponseEntity<String> deleteBanner(@PathVariable String url){
+        return ResponseEntity.ok(shopService.deleteBanner(url));
+    }
+
+    /**
      * 사업자 메뉴 등록
      */
     @PostMapping("/menu")
