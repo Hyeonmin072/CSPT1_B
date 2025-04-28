@@ -175,7 +175,7 @@ public class DesignerService {
             MultipartFile file = updateProfileRequest.getUpdateImage();
 
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(file,"DESIGNER",designer.getEmail());
+            String url = fileUploadService.uploadFile(file,"designer",designer.getEmail(),"profile");
             // 기존 이미지가 있다면 삭제
             if(designer.getImage() != null){
                 fileUploadService.deleteFile(designer.getImage());
@@ -189,7 +189,7 @@ public class DesignerService {
             MultipartFile file = updateProfileRequest.getUpdateBackgroundImage();
 
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(file,"DESIGNER",designer.getEmail());
+            String url = fileUploadService.uploadFile(file,"designer",designer.getEmail(),"profile");
             // 기존 이미지가 있다면 삭제
             if(designer.getBackgroundImage() != null){
                 fileUploadService.deleteFile(designer.getBackgroundImage());
