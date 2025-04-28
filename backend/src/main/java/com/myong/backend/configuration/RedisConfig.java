@@ -1,5 +1,6 @@
 package com.myong.backend.configuration;
 
+//import com.myong.backend.service.Alarm.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -46,18 +47,22 @@ public class RedisConfig {
 
         return redisTpl;
     }
-}
-
+//
 //    // Redis Pub/Sub 리스너 컨테이너 설정
 //    @Bean
-//    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-//                                                   MessageListenerAdapter listenerAdapter) {
+//    public RedisMessageListenerContainer listenerContainer(
+//            RedisConnectionFactory connectionFactory,
+//            MessageListenerAdapter listenerAdapter) {
 //        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 //        container.setConnectionFactory(connectionFactory);
-//        container.addMessageListener(listenerAdapter, new PatternTopic("*:*")); //모든 채널 구독
+//        container.addMessageListener(listenerAdapter, new PatternTopic("*:*")); // 모든 채널 구독
 //        return container;
 //    }
 //
-//    // Pus/Sub 메시지 리스너 어댑터 설정
+//    // Pub/Sub 메시지 리스너 어댑터 설정
 //    @Bean
-//    public MessageListenerAdapter listenerAdapter(Object messageSubscriber) {
+//    public MessageListenerAdapter listenerAdapter(RedisSubscriber redisSubscriber) {
+//        return new MessageListenerAdapter(redisSubscriber, "onMessage"); // "onMessage" 메서드 연결
+//    }
+//
+}

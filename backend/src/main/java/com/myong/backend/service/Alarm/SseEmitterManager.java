@@ -6,7 +6,7 @@
 //import java.io.IOException;
 //import java.util.Map;
 //import java.util.concurrent.ConcurrentHashMap;
-//
+//// sse연결
 //@Component
 //public class SseEmitterManager {
 //
@@ -17,8 +17,8 @@
 //        emitters.putIfAbsent(type, new ConcurrentHashMap<>());
 //        emitters.get(type).put(id, emitter);
 //
-//        emitter.onCompletion(() -> emitters.get(type).remove(id));
-//        emitter.onTimeout(() -> emitters.get(type).remove(id));
+//        emitter.onCompletion(() -> emitters.get(type).remove(id)); // 연결완료시 제거
+//        emitter.onTimeout(() -> emitters.get(type).remove(id)); // 타임아웃시 제거
 //        return emitter;
 //    }
 //
@@ -28,7 +28,7 @@
 //            SseEmitter emitter = typeEmitters.get(id);
 //            if (emitter != null) {
 //                try {
-//                    emitter.send(SseEmitter.event().name("notification").data(message));
+//                    emitter.send(SseEmitter.event().name("notification").data(message));//메세지 전송
 //                } catch (IOException e) {
 //                    typeEmitters.remove(id); // 오류 시 제거
 //                }
