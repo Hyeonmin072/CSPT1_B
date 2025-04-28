@@ -38,7 +38,4 @@ public class ShopProfileRequestDto {
     @NotNull
     RegularHoliday regularHoliday;
 
-    MultipartFile thumbnail;
-
-    List<MultipartFile> banner;
 }

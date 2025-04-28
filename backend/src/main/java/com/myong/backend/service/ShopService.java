@@ -402,21 +402,21 @@ public class ShopService {
      * @return 프로필 수정 결과 메시지
      */
     @Transactional
-    public String updateProflie(ShopProfileRequestDto request) {
+    public String updateProflie(ShopProfileRequestDto request, MultipartFile thumbnail, List<MultipartFile> banner) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
         Shop shop = getShop(email);
         String thumbnailUrl = "";  // 바뀐썸네일이 없으면 업데이트안함
 
         // 썸네일 url S3저장 및 추출
-        if(request.getThumbnail() != null){
-            thumbnailUrl = fileUploadService.uploadFile(request.getThumbnail(),"shop",email,"thumbnail");
+        if(thumbnail != null){
+            thumbnailUrl = fileUploadService.uploadFile(thumbnail,"shop",email,"thumbnail");
             fileUploadService.deleteFile(shop.getThumbnail());
         }
 
         // 배너 추가 저장
-        if(request.getBanner() != null){
-            for(MultipartFile file : request.getBanner()){
+        if(banner != null){
+            for(MultipartFile file : banner){
                 String bannerUrl = fileUploadService.uploadFile(file,"shop",email,"banner");
                 shopBannerRepository.save(ShopBanner.save(bannerUrl,shop));
             }
