@@ -41,13 +41,13 @@ public class SearchService {
     }
 
     // 디자이너 도큐멘트 삭제
-    public void designerDelete(UUID shopId) throws IOException, ElasticsearchException {
+    public void designerDelete(UUID designerId) throws IOException, ElasticsearchException {
         DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest.Builder()
-                .index("shop")
+                .index("designer")
                 .query(Query.of(q -> q
                         .term(TermQuery.of(t -> t
                                 .field("_id")
-                                .value(shopId.toString())
+                                .value(designerId.toString())
                         ))
                 ))
                 .build();
