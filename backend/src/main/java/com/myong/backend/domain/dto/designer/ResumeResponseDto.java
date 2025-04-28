@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,6 +17,8 @@ import java.util.List;
 @Builder
 public class ResumeResponseDto {
     private String name;
+
+    private String email;
 
     private String tel;
 
