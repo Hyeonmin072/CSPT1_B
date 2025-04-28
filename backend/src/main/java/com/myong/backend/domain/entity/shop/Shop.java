@@ -177,7 +177,7 @@ public class Shop {
         if (request.getRegularHoliday() != this.regularHoliday) { // 정기 휴무일
             this.regularHoliday = request.getRegularHoliday();
         }
-        if (!request.getThumbnail().equals("")){
+        if (!thumbnail.equals("")){
             this.thumbnail = thumbnail;
         }
     }
