@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.business;
 
-import com.myong.backend.domain.dto.shop.PaymentResponseDto;
+import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,9 +36,6 @@ public class Payment {
     @Column(name = "r_id")
     private UUID reservationId; // 예약 고유 키
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "u_id", nullable = false)
-    private User user; // 유저 고유 키
 
     @Column(name = "p_success_yn")
     private Boolean paySuccessYN; // 결제 성공 여부
@@ -54,21 +52,21 @@ public class Payment {
     @Column(name = "p_payment_key")
     private String paymentKey; // 토스 결제 API 요청을 위한 고유 키
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "u_id", nullable = false)
+    private User user; // 유저 고유 키
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "d_id", nullable = false)
+    private Designer designer; // 디자이너 고유 키
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "s_id", nullable = false)
+    private Shop shop; // 가게 고유 키
+
     @CreatedDate
     @Column(name = "p_pay_date")
     private LocalDateTime createDate; // 결제 날짜
-
-    public PaymentResponseDto toPaymentResponseDto() {
-        return PaymentResponseDto.builder()
-                .price(price)
-                .reservMenuName(reservMenuName)
-                .userEmail(user.getEmail())
-                .userName(user.getName())
-                .createDate(createDate)
-                .cancelYN(cancelYN)
-                .failReason(failReason)
-                .build();
-    }
 
     @Override
     public final boolean equals(Object o) {

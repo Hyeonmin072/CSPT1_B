@@ -340,6 +340,15 @@ public class ShopController {
     }
 
     /**
+     * 사업자 예약 거절
+     */
+    @PostMapping("/reservation/refuse")
+    public ResponseEntity<Map> refuseReservation(@RequestParam String paymentKey,
+                                                 @RequestParam String cancelReason) {
+        return ResponseEntity.ok().body(reservationService.refuseReservation(paymentKey, cancelReason));
+    }
+
+    /**
      * 사업자 오늘 남은 예약 개수 조회
      */
     @GetMapping("/reservations/today")
@@ -402,14 +411,5 @@ public class ShopController {
     @DeleteMapping("/notice/{noticeId}")
     public ResponseEntity<String> deleteNotice(@PathVariable("noticeId") String id) {
         return ResponseEntity.ok(shopService.deleteNotice(id));
-    }
-
-    /**
-     * 사업자 예약 거절
-     */
-    @PostMapping("/reservation/refuse")
-    public ResponseEntity<Map> refuseReservation(@RequestParam String paymentKey,
-                                                 @RequestParam String cancelReason) {
-        return ResponseEntity.ok().body(reservationService.refuseReservation(paymentKey, cancelReason));
     }
 }
