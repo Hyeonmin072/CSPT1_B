@@ -36,7 +36,6 @@ public class Payment {
     @Column(name = "r_id")
     private UUID reservationId; // 예약 고유 키
 
-
     @Column(name = "p_success_yn")
     private Boolean paySuccessYN; // 결제 성공 여부
 

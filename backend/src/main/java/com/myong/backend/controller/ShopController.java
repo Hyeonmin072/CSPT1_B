@@ -10,6 +10,7 @@ import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
@@ -425,10 +426,31 @@ public class ShopController {
     }
 
     /**
-     * 사업자 소속 디자이너별 매출 조회
+     * 사업자 소속 디자이너 매출 목록 조회
      */
-    @GetMapping("/designers/sales")
-    public ResponseEntity<List<DesignerSalesResponseDto>> getDesignersSales(@RequestParam Period period) {
-        return ResponseEntity.ok(shopService.getDesignersSales(period));
+    @GetMapping("/sales/designers")
+    public ResponseEntity<List<DesignerSalesResponseDto>> getDesignersSales() {
+        return ResponseEntity.ok(shopService.getDesignersSales());
+    }
+
+    /**
+     * 사업자 소속 디자이너 중 단건의 매출 조회(캘린더)
+     */
+    @GetMapping("/sales/designers/{designerEmail}")
+    public ResponseEntity<Map<Integer, Long>> getDesignerSales(@PathVariable String designerEmail,
+                                                               @RequestParam Integer year,
+                                                               @RequestParam Integer month) {
+        return ResponseEntity.ok(shopService.getDesignerSales(designerEmail, year, month));
+    }
+
+    /**
+     * 사업자 소속 디자이너 중 단건의 매출 조회(날짜)
+     */
+    @GetMapping("/sales/designers/{designerEmail}/detail")
+    public ResponseEntity<List<DesignerSalesDetailResponseDto>> getDesignerSales(@PathVariable String designerEmail,
+                                                                                 @RequestParam Integer year,
+                                                                                 @RequestParam Integer month,
+                                                                                 @RequestParam Integer day) {
+        return ResponseEntity.ok(shopService.getDesignerSale(designerEmail, year, month, day));
     }
 }

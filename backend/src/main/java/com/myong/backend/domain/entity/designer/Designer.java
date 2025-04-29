@@ -2,6 +2,7 @@ package com.myong.backend.domain.entity.designer;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.shop.Menu;
 import com.myong.backend.domain.entity.shop.Shop;
@@ -110,6 +111,9 @@ public class Designer {
 
     @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
     private List<UserDesignerLike> userDesignerLikes = new ArrayList<>(); // 디자이너를 좋아요한 유저들
+
+    @OneToMany(mappedBy = "designer", cascade = CascadeType.ALL)
+    private List<Payment> payments = new ArrayList<>(); // 디자이너의 결제들
 
 
     public Designer(String name, String nickName, String email, String password, String tel, LocalDate birth, Gender gender) {
