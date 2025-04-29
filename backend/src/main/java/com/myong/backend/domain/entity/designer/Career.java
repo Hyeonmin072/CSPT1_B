@@ -32,6 +32,10 @@ public class Career {
     @Column(name = "cr_out_date")
     private LocalDate outDate;
 
+    //직장 직함
+    @Column(name = "cr_position")
+    private String position;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "re_id", nullable = false)
     @JsonBackReference
@@ -71,6 +75,8 @@ public class Career {
     public void updateOutDate(LocalDate outDate){
         this.outDate = outDate;
     }
+
+    public void updatePosition(String position){this.position = position;}
 
     public void updateResume(Resume resume){
         this.resume = resume;
