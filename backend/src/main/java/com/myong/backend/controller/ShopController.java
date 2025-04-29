@@ -427,7 +427,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너별 매출 조회
      */
-    @GetMapping("/designers/sales/")
+    @GetMapping("/designers/sales")
     public ResponseEntity<List<DesignerSalesResponseDto>> getDesignersSales(@RequestParam Period period) {
         return ResponseEntity.ok(shopService.getDesignersSales(period));
     }

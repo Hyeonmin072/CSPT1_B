@@ -1154,7 +1154,7 @@ public class ShopService {
 
         // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
         List<Payment> payments = shop.getPayments().stream()
-                .filter(p -> p.getPaySuccessYN() && !p.getCancelYN())
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
                 .toList();
 
         // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
@@ -1185,7 +1185,7 @@ public class ShopService {
 
         // DTO에 로직 결과를 담아 반환
         return ShopSalesResponseDto.builder()
-                .todayTotalAmount(totalAmount)
+                .totalAmount(totalAmount)
                 .todayTotalAmount(todayTotalAmount)
                 .build();
     }
@@ -1202,7 +1202,7 @@ public class ShopService {
 
         // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
         List<Payment> payments = shop.getPayments().stream()
-                .filter(p -> p.getPaySuccessYN() && !p.getCancelYN())
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
                 .toList();
 
         // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
