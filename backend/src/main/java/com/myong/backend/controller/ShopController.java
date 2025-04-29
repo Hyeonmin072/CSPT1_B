@@ -10,10 +10,13 @@ import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
+import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.Period;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ShopService;
@@ -411,5 +414,21 @@ public class ShopController {
     @DeleteMapping("/notice/{noticeId}")
     public ResponseEntity<String> deleteNotice(@PathVariable("noticeId") String id) {
         return ResponseEntity.ok(shopService.deleteNotice(id));
+    }
+
+    /**
+     * 사업자 가게 매출 조회
+     */
+    @GetMapping("/sales")
+    public ResponseEntity<ShopSalesResponseDto> getShopSales(@RequestParam Period period) {
+        return ResponseEntity.ok(shopService.getShopSales(period));
+    }
+
+    /**
+     * 사업자 소속 디자이너별 매출 조회
+     */
+    @GetMapping("/designers/sales/")
+    public ResponseEntity<List<DesignerSalesResponseDto>> getDesignersSales(@RequestParam Period period) {
+        return ResponseEntity.ok(shopService.getDesignersSales(period));
     }
 }

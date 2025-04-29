@@ -1,21 +1,25 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
-import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRequestDto;
-import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.event.EventRequestDto;
+import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
+import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
-import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
+import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.Period;
+import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerHoliday;
@@ -57,6 +61,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -1135,6 +1140,95 @@ public class ShopService {
         // 삭제 후 성공구문 반환
         noticeRepository.delete(notice);
         return "성공적으로 공지사항이 삭제되었습니다.";
+    }
+
+    /**
+     * 사업자 가게 매출 조회
+     * @param period 추가 검샊 기간 ONE_WEEK, ONE_MONTH, ONE_YEAR 각각 최근 1주일, 1달, 1년
+     * @return 가게 매출 정보를 담은 DTO
+     */
+    public ShopSalesResponseDto getShopSales(Period period) {
+        // 로그인 정보에서 가게 이메일을 꺼내고, 가게 조회
+        String shopEmail = getAuthenticatedEmail();
+        Shop shop = getShop(shopEmail);
+
+        // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> payments = shop.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && !p.getCancelYN())
+                .toList();
+
+        // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
+        long totalAmount;
+        if (period.equals(Period.ONE_WEEK)) {
+            totalAmount = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(LocalDate.now().minusDays(7)))
+                    .mapToLong(Payment::getPrice)
+                    .sum();
+        } else if (period.equals(Period.ONE_MONTH)) {
+            totalAmount = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(LocalDate.now().minusDays(30)))
+                    .mapToLong(Payment::getPrice)
+                    .sum();
+        } else {
+            totalAmount = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(LocalDate.now().minusDays(365)))
+                    .mapToLong(Payment::getPrice)
+                    .sum();
+        }
+
+        // 오늘 매출 총 금액 계산
+        long todayTotalAmount;
+        todayTotalAmount = payments.stream()
+                .filter(p -> p.getCreateDate().toLocalDate().isEqual(LocalDate.now()))
+                .mapToLong(Payment::getPrice)
+                .sum();
+
+        // DTO에 로직 결과를 담아 반환
+        return ShopSalesResponseDto.builder()
+                .todayTotalAmount(totalAmount)
+                .todayTotalAmount(todayTotalAmount)
+                .build();
+    }
+
+    /**
+     * 사업자 소속 디자이너별 매출 조회
+     * @param period 추가 검샊 기간 ONE_WEEK, ONE_MONTH, ONE_YEAR 각각 최근 1주일, 1달, 1년
+     * @return 소속 디자이너별 매출 정보를 담은 DTO
+     */
+    public List<DesignerSalesResponseDto> getDesignersSales(Period period) {
+        // 로그인 정보에서 가게 이메일을 꺼내고, 가게 조회
+        String shopEmail = getAuthenticatedEmail();
+        Shop shop = getShop(shopEmail);
+
+        // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> payments = shop.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && !p.getCancelYN())
+                .toList();
+
+        // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
+        List<Payment> filteredPayments;
+        if (period.equals(Period.ONE_WEEK)) {
+            filteredPayments = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(LocalDate.now().minusDays(7)))
+                    .toList();
+        } else if (period.equals(Period.ONE_MONTH)) {
+            filteredPayments = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(LocalDate.now().minusDays(30)))
+                    .toList();
+        } else {
+            filteredPayments = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(LocalDate.now().minusDays(365)))
+                    .toList();
+        }
+
+        // 디자이너 별 그룹화 및 매출 계산
+        Map<Designer, Long> groupingSales = filteredPayments.stream()
+                .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)));
+
+        // DTO 반환
+        return groupingSales.entrySet().stream()
+                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getValue()))
+                .toList();
     }
 
     /**
