@@ -30,12 +30,14 @@ import net.minidev.json.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -424,6 +426,13 @@ public class ReservationService {
     // 예약 페이지1
 
     public List<ReservationPage1ResponseDto> loadSelectDesignerPage(String email){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
+        if(authentication == null || "anonymousUser".equals(authentication.getName())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"로그인이 필요한 기능입니다.");
+        }
+
         Shop shop = shopRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 가게가 존재하지 않습니다."));
 
         List<Designer> desingers = shop.getDesigners();

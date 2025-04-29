@@ -28,8 +28,14 @@ public interface ShopRepository extends JpaRepository<Shop, UUID> {
     @Query("select s From Shop s where s.address Like :location% ")
     List<Shop> findShopWithAddress(@Param("location") String location);
 
-    @Query("select s From Shop s Where s.reviewCount >= 0 Order by s.rating Desc ")
+    @Query("select s From Shop s Order by s.score Desc ")
     List<Shop> findTopShops(Pageable pageable);
 
+    @Query("select s From Shop s Order by s.createDate desc ")
+    List<Shop> findLatestShops(Pageable pageable);
+
     Optional<Shop> findByBizId(String bizId);
+
+    @Query("Select AVG(s.rating) From Shop s where s.reviewCount > 0")
+    double calculateAvgRating();
 }

@@ -28,10 +28,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.*;
@@ -162,7 +164,30 @@ public class UserService {
      */
     public UserHairShopPageResponseDto loadHairShopPage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
+
+        // 등록된 데이터 갯수 조회
+        long registeredShopCnt = shopRepository.count();
+        long registeredDesignerCnt = designerRepository.count();
+        long registeredReviewCnt = reviewRepository.count();
+
+        if(authentication == null || "anonymousUser".equals(authentication.getName())){
+            List<Shop> shops = shopRepository.findTopShops(PageRequest.of(0,12));
+
+            List<ShopListData> shopListData = shops.stream()
+                    .map(ShopListData::from)
+                    .collect(Collectors.toList());
+
+            return UserHairShopPageResponseDto.builder()
+                    .shops(shopListData)
+                    .registeredShopCnt(registeredShopCnt)
+                    .registeredDesignerCnt(registeredDesignerCnt)
+                    .registeredReviewCnt(registeredReviewCnt)
+                    .build();
+        }
+
         String userEmail = authentication.getName();
+
         Optional<User> findUser = userRepository.findByEmail(userEmail);
 
         if(!findUser.isPresent()){
@@ -174,12 +199,6 @@ public class UserService {
         // 2km 반경 디비에서 조회
         List<Shop> shopsIn2km =  shopRepository.findShopWithinRadius(user.getLongitude(), user.getLatitude());
 
-        // 등록된 데이터 갯수 조회
-        long registeredShopCnt = shopRepository.count();
-        long registeredDesignerCnt = designerRepository.count();
-        long registeredReviewCnt = reviewRepository.count();
-
-
         // 2km 반경 헤어샵이 없으면 "시" 기준 디비에서 조회
         if(shopsIn2km.size() < 1){
 
@@ -187,7 +206,7 @@ public class UserService {
             String location = user.getLocation().split(" ")[0];
             List<Shop> shopsInLocation = shopRepository.findShopWithAddress(location);
 
-            Collections.sort(shopsInLocation,(shop1,shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
+            Collections.sort(shopsInLocation,(shop1,shop2) -> Double.compare(shop2.getScore(),shop1.getScore()));
 
             List<ShopListData> shopListData =
                     shopsInLocation.stream()
@@ -205,7 +224,7 @@ public class UserService {
         }
 
         // 2km 반경 평점순 정렬
-        Collections.sort(shopsIn2km,(shop1, shop2) -> Double.compare(shop2.getRating(),shop1.getRating()));
+        Collections.sort(shopsIn2km,(shop1, shop2) -> Double.compare(shop2.getScore(),shop1.getScore()));
 
         List<ShopListData> shopListData =
                 shopsIn2km.stream()
@@ -220,6 +239,8 @@ public class UserService {
                 .registeredReviewCnt(registeredReviewCnt)
                 .build();
 
+
+
     }
 
     /**
@@ -229,6 +250,18 @@ public class UserService {
      */
     public List<ShopListData> hairshopSortNewest(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        System.out.println("현재 authentication : "+authentication);
+        // 비로그인 사용자면 그냥 최신순 헤어샵만
+        if(authentication == null || "anonymousUser".equals(authentication.getName())){
+            List<Shop> shops = shopRepository.findLatestShops(PageRequest.of(0,12));
+            return shops.stream()
+                    .map(ShopListData::from)
+                    .collect(Collectors.toList());
+        }
+
+
+        // 사용자 기준 위치에서 최신순 헤어샵
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
@@ -298,7 +331,7 @@ public class UserService {
     }
 
     /**
-     *
+     * 헤어샵 상세 페이지 로드
      *
      * @param email
      * @return 가게리스트, 디자이너리스트, 할인이가장크게되는쿠폰값, 리뷰데이터, 리뷰이미지
@@ -364,6 +397,7 @@ public class UserService {
      */
     public List<DesignerPageResponseDto> loadDesignerPage() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
 
@@ -389,6 +423,7 @@ public class UserService {
     public boolean requestLikeForDesigner(String designerEmail){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
 
         Designer designer = designerRepository.findByEmail(designerEmail).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
@@ -423,6 +458,7 @@ public class UserService {
      */
     public UserProfileResponseDto loadUserProfilePage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
@@ -444,6 +480,7 @@ public class UserService {
      */
     public List<UserGetAllCouponsResponseDto> getAllCoupons() throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
 
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
@@ -478,6 +515,7 @@ public class UserService {
      */
     public String updateLocation (UserUpdateLocationRequestDto requestDto){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
 
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
@@ -500,6 +538,7 @@ public class UserService {
      */
     public UserGetLocationResponseDto getUserLocation () {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
 
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
@@ -508,5 +547,22 @@ public class UserService {
                 .lat(user.getLatitude())
                 .lng(user.getLongitude())
                 .build();
+    }
+
+    // 베이지안 평균 값 적용을 위한 가게 총 평점 평균 레이팅 계산
+    @Scheduled(cron = "0 0 3 * * ?") // 매일 새벽 3시
+    public void updateGlobalAverageRating() {
+        Double average = shopRepository.calculateAvgRating();
+        System.out.println("총 가게 평점 평균 점수:"+average);
+        redisTemplate.opsForValue().set("global_avg_rating", average);
+    }
+
+    // 베이지안 평균 계산
+    public double calculateBayesianAvg(double rating, int reviewCount){
+        Object avg = redisTemplate.opsForValue().get("global_avg_rating");
+        double c = avg != null ? Double.parseDouble((String)avg) : 3.5;
+        double v = reviewCount;
+        return (v / (v + 30)) * rating + (30 / (v + 30)) * c;
+
     }
 }

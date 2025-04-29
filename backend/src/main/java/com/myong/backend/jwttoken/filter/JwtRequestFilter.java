@@ -9,7 +9,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.elasticsearch.client.ResponseException;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,12 +39,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
         System.out.println("요청 들어온 uri : "+uri);
-        List<String> allowsEndPointers = Arrays.asList("/user/signup","/user/homepage"
-                                                       ,"/designer/signup","/designer/search"
-                                                       ,"/shop/signup","/shop//certification/tel","/shop/bizid","/shop/designers"
-                                                       ,"/email/send","/email/verify");
-
-        List<String> allowsEndPointers2 = Arrays.asList("/designer/nickname/","/api/oauth2/","/user/checkemail","/designer/checkemail","/shop/checkemail","/toss","/user/reservation/payment/success","/user/reservation/payment/fail");
+        List<String> mustBeAuthenticatedEndpoints = Arrays.asList("/user/loadheader","/user/profile","/user/like-designerpage"
+                ,"/user/designerlike","/user/reservation","/user/location","/user/allcoupons","/user/review","/user/payment"
+                ,"/designer","/shop");
 
         if (uri.equals("/signin")) {
             System.out.println("로그인으로 요청");
@@ -50,101 +49,93 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (allowsEndPointers.contains(uri)) {
-            System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+uri);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        for(String endPoint : allowsEndPointers2){
-            if(uri.startsWith(endPoint)){
-                System.out.println("토큰 검증이 필요없는 엔드포인트 요청:"+uri);
-                filterChain.doFilter(request, response);
-                return;
-            }
-        }
-
 
         // 쿠키에서 "accessToken" 값을 추출
         String token = jwtService.getTokenFromCookie(request);
 
-        // 쿠키에 토큰이 없거나 비어있는 경우 다음 필터로 전달
-        if (StringUtils.isBlank(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("인증 토큰이 없습니다.");
-            return;
-        }
-
         System.out.println(token);
-        try {
-            // 서명 검증
-            if (!jwtService.isValidToken(token)) {
-                System.out.println("서명검증 실패");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("유효하지 않은 토큰입니다.");
-                return;
-            }
-            System.out.println("서명검증 통과");
 
-            // 토큰 만료 검증
-            if (jwtService.isExpired(token)) {
-                System.out.println("토큰이 만료되었음.");
-                String userName = jwtService.getUserName(token);
-                String name = jwtService.getName(token);
-                String role = jwtService.getUserRole(token);
-
-                if(jwtService.refreshTokenIsExpired(userName)){
-                    String newAccessToken = jwtService.createAccessToken(userName,name,role);
-                    jwtService.deleteRedisRefreshToken(userName);
-                    jwtService.saveRedisRefreshToken(userName);
-
-                    // 스프링 시큐리티 인증 토큰 생성 및 SecurityContext에 설정
-                    UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role,name);
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                    ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
-                            .httpOnly(true)
-                            .secure(false)                       // 테스트환경에선 false
-                            .path("/")
-                            .maxAge(60 * 60)        // 1시간 유효
-                            .sameSite("Lax")                     // CSRF 방지
-                            .build();
-
-                    response.addHeader("Set-Cookie", accessTokenCookie.toString());
-                    filterChain.doFilter(request, response);
+        if(!StringUtils.isBlank(token)){
+            try {
+                // 서명 검증
+                if (!jwtService.isValidToken(token)) {
+                    System.out.println("서명검증 실패");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("유효하지 않은 토큰입니다.");
+                    return;
                 }
+                System.out.println("서명검증 통과");
+
+                // 토큰 만료 검증
+                if (jwtService.isExpired(token)) {
+                    System.out.println("토큰이 만료되었음.");
+                    String userName = jwtService.getUserName(token);
+                    String name = jwtService.getName(token);
+                    String role = jwtService.getUserRole(token);
+
+                    if(jwtService.refreshTokenIsExpired(userName)){
+                        String newAccessToken = jwtService.createAccessToken(userName,name,role);
+                        jwtService.deleteRedisRefreshToken(userName);
+                        jwtService.saveRedisRefreshToken(userName);
+
+                        // 스프링 시큐리티 인증 토큰 생성 및 SecurityContext에 설정
+                        UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role,name);
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", newAccessToken)
+                                .httpOnly(true)
+                                .secure(false)                       // 테스트환경에선 false
+                                .path("/")
+                                .maxAge(60 * 60)        // 1시간 유효
+                                .sameSite("Lax")                     // CSRF 방지
+                                .build();
+
+                        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+                        filterChain.doFilter(request, response);
+                    }
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
+                System.out.println("토큰이 만료되지 않았음");
+                // 토큰에서 사용자 정보 추출
+                String userName = jwtService.getUserName(token);
+                String role = jwtService.getUserRole(token);
+                String name = jwtService.getName(token);
+
+                System.out.println("userName : "+userName);
+                System.out.println("role : "+role);
+                UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role,name);
+
+                System.out.println("사용자 정보 추출:"+userDetailsDto.getAuthorities());
+                System.out.println("사용자 정보 추출:"+userDetailsDto.getUsername());
+
+                // 스프링 시큐리티 인증 토큰 생성 및 SecurityContext에 설정
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+
+                filterChain.doFilter(request, response);
+                return;
+
+            } catch (ExpiredJwtException e) {
+                // 토큰이 만료되었을 경우에도 다음 필터로 전달
                 filterChain.doFilter(request, response);
                 return;
             }
-
-            System.out.println("토큰이 만료되지 않았음");
-            // 토큰에서 사용자 정보 추출
-            String userName = jwtService.getUserName(token);
-            String role = jwtService.getUserRole(token);
-            String name = jwtService.getName(token);
-
-            System.out.println("userName : "+userName);
-            System.out.println("role : "+role);
-            UserDetailsDto userDetailsDto = new UserDetailsDto(userName,role,name);
-
-            System.out.println("사용자 정보 추출:"+userDetailsDto.getAuthorities());
-            System.out.println("사용자 정보 추출:"+userDetailsDto.getUsername());
-
-            // 스프링 시큐리티 인증 토큰 생성 및 SecurityContext에 설정
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsDto, null, userDetailsDto.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
-            filterChain.doFilter(request, response);
-
-
-        } catch (ExpiredJwtException e) {
-            // 토큰이 만료되었을 경우에도 다음 필터로 전달
-            filterChain.doFilter(request, response);
-
         }
 
+        for(String entPoint : mustBeAuthenticatedEndpoints){
+            if(uri.startsWith(entPoint)){
+               response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+               response.getWriter().write("로그인이 필요한 서비스입니다.");
+               return ;
+            }
+        }
+
+        filterChain.doFilter(request, response);
+        return;
     }
 
 }

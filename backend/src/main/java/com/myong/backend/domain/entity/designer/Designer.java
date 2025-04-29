@@ -76,6 +76,9 @@ public class Designer {
     @Column(name = "d_review_count")
     private Integer reviewCount = 0;  // 리뷰 개수
 
+    @Column(name = "d_score")
+    private Double score = 0.0;            // 베이지안 평균계산법을 적용한 점수(정렬시 해당 점수기준 정렬함)
+
     @Column(name = "d_work_time", nullable = false)
     private LocalTime workTime = LocalTime.of(0,0);  // 출근 시간(가게 소속일때만 활성화)
 
