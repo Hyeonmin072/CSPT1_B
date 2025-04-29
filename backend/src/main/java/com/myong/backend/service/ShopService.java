@@ -424,7 +424,7 @@ public class ShopService {
         }
 
         shop.updateProfile(request,thumbnailUrl); // 찾은 가게의 프로필 정보 수정
-        shopSearchService.save(shop);
+        searchService.shopSave(shop);
         return "프로필이 수정되었습니다."; // 성공 구문 반환
     }
 
