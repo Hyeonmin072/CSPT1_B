@@ -8,6 +8,8 @@ import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -26,6 +28,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder
 public class Shop {
 
     @Id
@@ -136,6 +140,9 @@ public class Shop {
         this.rating = rating;
         this.totalRating = totalRating;
         this.reviewCount = reviewCount;
+    }
+    public void updateScore(Double score){
+        this.score=score;
     }
 
 

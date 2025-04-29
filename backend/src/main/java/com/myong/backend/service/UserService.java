@@ -549,20 +549,5 @@ public class UserService {
                 .build();
     }
 
-    // 베이지안 평균 값 적용을 위한 가게 총 평점 평균 레이팅 계산
-    @Scheduled(cron = "0 0 3 * * ?") // 매일 새벽 3시
-    public void updateGlobalAverageRating() {
-        Double average = shopRepository.calculateAvgRating();
-        System.out.println("총 가게 평점 평균 점수:"+average);
-        redisTemplate.opsForValue().set("global_avg_rating", average);
-    }
 
-    // 베이지안 평균 계산
-    public double calculateBayesianAvg(double rating, int reviewCount){
-        Object avg = redisTemplate.opsForValue().get("global_avg_rating");
-        double c = avg != null ? Double.parseDouble((String)avg) : 3.5;
-        double v = reviewCount;
-        return (v / (v + 30)) * rating + (30 / (v + 30)) * c;
-
-    }
 }
