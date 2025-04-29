@@ -134,7 +134,7 @@ public class DesignerController {
     //디자이너 프로필 수정
     @PostMapping("/profile/update")
     public ResponseEntity<Designer> updateProfile(
-            @Valid @RequestBody UpdateProfileRequestDto request,
+            @Valid @RequestPart(name = "request") UpdateProfileRequestDto request,
             @RequestParam(name = "updateImage") MultipartFile updateImage,
             @RequestParam(name = "updateBackgroundImage") MultipartFile updateBackgroundImage
             ){

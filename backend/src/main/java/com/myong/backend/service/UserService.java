@@ -258,6 +258,7 @@ public class UserService {
         // 디자이너 리스트 반환
         List<DesignerTop4ListData> designerTop4ListData =
                 top4Designers.stream().map(designer -> DesignerTop4ListData.builder()
+                        .designerEmail(designer.getEmail())
                         .designerName(designer.getName())
                         .designerDesc(designer.getDesc())
                         .designerImage(designer.getImage())
@@ -267,6 +268,7 @@ public class UserService {
         // 샵리스트 변환
         List<ShopTop3ListData> shopTop3ListData =
                 top3Shops.stream().map(shop ->  ShopTop3ListData.builder()
+                        .shopEmail(shop.getEmail())
                         .shopName(shop.getName())
                         .shopDesc(shop.getDesc())
                         .shopRating(shop.getRating())

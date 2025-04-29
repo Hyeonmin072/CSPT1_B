@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DesignerTop4ListData {
 
+    private String designerEmail;
     private String designerName;
     private String designerDesc;
     private Double designerRating;
