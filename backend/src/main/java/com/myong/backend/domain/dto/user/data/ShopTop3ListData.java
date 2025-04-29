@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ShopTop3ListData {
 
+    private String shopEmail;
     private String shopName;
     private String shopDesc;
     private Integer shopReviewCount;
     private Double shopRating;
     private String shopThumbnail;
+
 }
