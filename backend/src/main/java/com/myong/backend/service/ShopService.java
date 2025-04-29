@@ -1,21 +1,26 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
-import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.coupon.CouponRequestDto;
-import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.event.EventRequestDto;
+import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
+import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
-import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
+import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.Period;
+import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerHoliday;
@@ -55,8 +60,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -1136,6 +1143,133 @@ public class ShopService {
         // 삭제 후 성공구문 반환
         noticeRepository.delete(notice);
         return "성공적으로 공지사항이 삭제되었습니다.";
+    }
+
+    /**
+     * 사업자 가게 매출 조회
+     * @param period 추가 검샊 기간 ONE_WEEK, ONE_MONTH, ONE_YEAR 각각 최근 1주일, 1달, 1년
+     * @return 가게 매출 정보를 담은 DTO
+     */
+    public ShopSalesResponseDto getShopSales(Period period) {
+        // 로그인 정보에서 가게 이메일을 꺼내고, 가게 조회
+        String shopEmail = getAuthenticatedEmail();
+        Shop shop = getShop(shopEmail);
+
+        // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> payments = shop.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
+                .toList();
+
+        // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
+        long totalAmount;
+        LocalDate now = LocalDate.now();
+
+        if (period.equals(Period.ONE_WEEK)) {
+            LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+            totalAmount = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
+                    .mapToLong(Payment::getPrice)
+                    .sum();
+        } else if (period.equals(Period.ONE_MONTH)) {
+            LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
+            totalAmount = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                    .mapToLong(Payment::getPrice)
+                    .sum();
+        } else if (period.equals(Period.ONE_YEAR)) {
+            LocalDate startOfYear = now.with(TemporalAdjusters.firstDayOfYear());
+            totalAmount = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
+                    .mapToLong(Payment::getPrice)
+                    .sum();
+        } else {
+            totalAmount = 0L; // 기본값 처리
+        }
+
+
+        // 오늘 매출 총 금액 계산
+        long todayTotalAmount;
+        todayTotalAmount = payments.stream()
+                .filter(p -> p.getCreateDate().toLocalDate().isEqual(LocalDate.now()))
+                .mapToLong(Payment::getPrice)
+                .sum();
+
+        // DTO에 로직 결과를 담아 반환
+        return ShopSalesResponseDto.builder()
+                .totalAmount(totalAmount)
+                .todayTotalAmount(todayTotalAmount)
+                .build();
+    }
+
+    /**
+     * 사업자 소속 디자이너별 매출 조회
+     * @return 소속 디자이너별 매출 정보를 담은 DTO
+     */
+    public List<DesignerSalesResponseDto> getDesignersSales() {
+        // 로그인 정보에서 가게 이메일을 꺼내고, 가게 조회
+        String shopEmail = getAuthenticatedEmail();
+        Shop shop = getShop(shopEmail);
+
+        // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> payments = shop.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
+                .toList();
+
+        // 이번 달 기준에 따라 필터링한 뒤, 디자이너 별로 그룹화한 총 금액 계산
+        LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+        Map<Designer, Long> groupingSales = payments.stream()
+                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)));
+
+        // DTO 반환
+        return groupingSales.entrySet().stream()
+                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue()))
+                .toList();
+    }
+
+    /**
+     * 사업자 소속 디자이너 중 단건의 매출 조회(캘린더)
+     * @param designerEmail 매출 조회할 디자이너의 이메일
+     * @return 날짜, 날짜의매출 형식의 맵 반환
+     */
+    public Map<Integer, Long> getDesignerSales(String designerEmail, Integer year, Integer month) {
+        Designer designer = getDesigner(designerEmail);
+
+        // 해당 연월의 결제 건들을 피터링
+        LocalDate startOfMonth = LocalDate.of(year, month, 1); // 해당 월의 시작 날짜
+        LocalDate endOfMonth = startOfMonth.with(TemporalAdjusters.lastDayOfMonth()); // 해당 월의 마지막 날짜
+
+        List<Payment> payments = designer.getPayments().stream()
+                .filter(p -> {
+                    LocalDate paymentDate = p.getCreateDate().toLocalDate();
+                    return paymentDate.isAfter(startOfMonth) && paymentDate.isBefore(endOfMonth);
+                })
+                .toList();
+
+
+        return payments.stream()
+                .collect(Collectors.toMap(
+                        p -> p.getCreateDate().getDayOfMonth(),
+                        Payment::getPrice,
+                        Long::sum // 동일한 날짜가 있을 경우 가격 합산
+                ));
+    }
+
+    /**
+     * 사업자 소속 디자이너 중 단건의 매출 조회(날짜)
+     * @param designerEmail 매출 조회할 디자이너의 이메일
+     * @return 날짜, 날짜의매출 형식의 맵 반환
+     */
+    public List<DesignerSalesDetailResponseDto> getDesignerSale(String designerEmail, Integer year, Integer month, Integer day) {
+        Designer designer = getDesigner(designerEmail);
+
+        List<Payment> payments = designer.getPayments();
+        return payments.stream()
+                .filter(p -> p.getCreateDate().toLocalDate().equals(LocalDate.of(year, month, day)))
+                .map(p -> new DesignerSalesDetailResponseDto(p.getCreateDate(), p.getReservMenuName(), p.getPrice(), p.getUser().getName()))
+                .toList();
+
+
     }
 
     /**

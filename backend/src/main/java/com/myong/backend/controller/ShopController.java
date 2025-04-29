@@ -10,10 +10,14 @@ import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
+import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.Period;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ShopService;
@@ -340,6 +344,15 @@ public class ShopController {
     }
 
     /**
+     * 사업자 예약 거절
+     */
+    @PostMapping("/reservation/refuse")
+    public ResponseEntity<Map> refuseReservation(@RequestParam String paymentKey,
+                                                 @RequestParam String cancelReason) {
+        return ResponseEntity.ok().body(reservationService.refuseReservation(paymentKey, cancelReason));
+    }
+
+    /**
      * 사업자 오늘 남은 예약 개수 조회
      */
     @GetMapping("/reservations/today")
@@ -405,11 +418,39 @@ public class ShopController {
     }
 
     /**
-     * 사업자 예약 거절
+     * 사업자 가게 매출 조회
      */
-    @PostMapping("/reservation/refuse")
-    public ResponseEntity<Map> refuseReservation(@RequestParam String paymentKey,
-                                                 @RequestParam String cancelReason) {
-        return ResponseEntity.ok().body(reservationService.refuseReservation(paymentKey, cancelReason));
+    @GetMapping("/sales")
+    public ResponseEntity<ShopSalesResponseDto> getShopSales(@RequestParam Period period) {
+        return ResponseEntity.ok(shopService.getShopSales(period));
+    }
+
+    /**
+     * 사업자 소속 디자이너 매출 목록 조회
+     */
+    @GetMapping("/sales/designers")
+    public ResponseEntity<List<DesignerSalesResponseDto>> getDesignersSales() {
+        return ResponseEntity.ok(shopService.getDesignersSales());
+    }
+
+    /**
+     * 사업자 소속 디자이너 중 단건의 매출 조회(캘린더)
+     */
+    @GetMapping("/sales/designers/{designerEmail}")
+    public ResponseEntity<Map<Integer, Long>> getDesignerSales(@PathVariable String designerEmail,
+                                                               @RequestParam Integer year,
+                                                               @RequestParam Integer month) {
+        return ResponseEntity.ok(shopService.getDesignerSales(designerEmail, year, month));
+    }
+
+    /**
+     * 사업자 소속 디자이너 중 단건의 매출 조회(날짜)
+     */
+    @GetMapping("/sales/designers/{designerEmail}/detail")
+    public ResponseEntity<List<DesignerSalesDetailResponseDto>> getDesignerSales(@PathVariable String designerEmail,
+                                                                                 @RequestParam Integer year,
+                                                                                 @RequestParam Integer month,
+                                                                                 @RequestParam Integer day) {
+        return ResponseEntity.ok(shopService.getDesignerSale(designerEmail, year, month, day));
     }
 }

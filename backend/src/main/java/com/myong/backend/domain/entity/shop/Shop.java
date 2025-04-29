@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.dto.shop.ShopProfileRequestDto;
+import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.RegularHoliday;
 import com.myong.backend.domain.entity.user.Coupon;
@@ -114,7 +115,11 @@ public class Shop {
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Event> events = new ArrayList<>(); // 등록한 이벤트들
-    
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<Payment> payments = new ArrayList<>(); // 이 가게에 대한 결제건들
+
+
 
     public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post,Double longitude, Double latitude) {
         this.name = name;

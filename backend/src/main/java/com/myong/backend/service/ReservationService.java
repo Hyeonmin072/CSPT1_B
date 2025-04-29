@@ -84,6 +84,14 @@ public class ReservationService {
         Menu menu = menuRepository.findById(UUID.fromString(request.getMenuId()))
                 .orElseThrow(() -> new RuntimeException("해당 메뉴를 찾을 수 없습니다"));
 
+        // 디자이너 조회
+        Designer designer = designerRepository.findByEmail(request.getDesignerEmail())
+                .orElseThrow(() -> new RuntimeException("해당 디자이너를 찾을 수 없습니다"));
+
+        // 사업자 조회
+        Shop shop = shopRepository.findByEmail(request.getShopEmail())
+                .orElseThrow(() -> new RuntimeException("해당 가게를 찾을 수 없습니다"));
+
         // 쿠폰 조회, 쿠폰이 요청에 존재하는 경우 할인타입에 따라 금액에 로직 적용하고, 없으면 금액에 로직 적용 X
         Long price = null;
         if(request.getCouponId() != null && !request.getCouponId().isBlank()) {
@@ -106,6 +114,8 @@ public class ReservationService {
                 .reservMenuName(menu.getName())
                 .paySuccessYN(false)
                 .user(user)
+                .designer(designer)
+                .shop(shop)
                 .build();
         Payment savedPayment = paymentRepository.save(payment);
 

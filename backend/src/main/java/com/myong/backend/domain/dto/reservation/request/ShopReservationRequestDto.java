@@ -1,5 +1,7 @@
 package com.myong.backend.domain.dto.reservation.request;
 
+import com.myong.backend.domain.entity.OrderBy;
+import com.myong.backend.domain.entity.Period;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,13 +19,4 @@ public class ShopReservationRequestDto {
     private OrderBy order; // 정렬기준 항목
 
     private String search; // 검색어
-
-    public enum Period {
-        ONE_WEEK, ONE_MONTH, ONE_YEAR // 최근 1주일, 1달, 1년
-    }
-
-    public enum OrderBy {
-        TIME, CUSTOMER_NAME, DESIGNER_NAME, PRICE, PAYMENT_STATUS // 일시순, 고객이름순, 디자이너이름순, 결제상태순
-
-    }
 }
