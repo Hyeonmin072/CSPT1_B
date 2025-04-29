@@ -33,7 +33,7 @@ public class Resume {
 
     //경력여부
     @Column(name = "re_exp", nullable = false)
-    private Exp exp = Exp.Basic;
+    private Exp exp = Exp.NEW;
 
     //포트폴리오
     @Column(name = "re_portfolio")
