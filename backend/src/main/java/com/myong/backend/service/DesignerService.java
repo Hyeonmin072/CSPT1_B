@@ -108,6 +108,7 @@ public class DesignerService {
                 .like(designer.getLike())
                 .description(designer.getDesc())
                 .image(designer.getImage())
+                .backgroundImage(designer.getBackgroundImage())
                 .build();
     }
 
@@ -136,7 +137,7 @@ public class DesignerService {
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
 
         // 닉네임 변경 시 중복 체크
-        if (updateProfileRequest.getUpdateNickName() != null && !updateProfileRequest.getUpdateNickName().equals(email)) {
+        if (updateProfileRequest.getUpdateNickName() != null && !updateProfileRequest.getUpdateNickName().equals(designer.getNickName())) {
             if (checkNicknameDuplication(updateProfileRequest.getUpdateNickName())) {
                 throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
             }

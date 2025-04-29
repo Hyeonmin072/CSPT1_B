@@ -27,6 +27,8 @@ public class ProfileResponseDto {
 
     String image;
 
+    String backgroundImage;
+
     String description;
 
     int age;

@@ -23,4 +23,7 @@ public class CareerRequestDto {
 
     @NotEmpty
     String outDate;
+
+    @NotNull
+    String position;
 }

@@ -5,6 +5,7 @@ import com.myong.backend.domain.entity.designer.*;
 import com.myong.backend.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.DayOfWeek;
@@ -45,27 +46,61 @@ public class ResumeService {
         return resume;
     }
 
+    @Transactional
     //이력서 수정
     public Resume updateResume(String email, ResumeRequestDto resumeDto) {
         Designer designer = FindDesignerByEmail(email);
         Resume resume = FindResumeByEmail(email);
 
-        resume.updateContent(resumeDto.getContent());
-        resume.updateExp(resumeDto.getExp());
-        resume.updateImage(resumeDto.getImage());
-        resume.updatePortfolio(resumeDto.getPortfolio());
+        boolean isUpdate = false;
+        //소개 변경
+        if(!Objects.equals(resumeDto.getContent(), resume.getContent())) {
+            resume.updateContent(resumeDto.getContent());
+            isUpdate = true;
+        }
+
+        //경력 변경
+        if(!Objects.equals(resumeDto.getExp(), resume.getExp())) {
+            resume.updateExp(resumeDto.getExp());
+            isUpdate = true;
+        }
+
+        //이미지 변경
+        if(!Objects.equals(resumeDto.getImage(), resume.getImage())) {
+            resume.updateImage(resumeDto.getImage());
+            isUpdate = true;
+        }
+
+        //포토폴리오 변경
+        if(!Objects.equals(resumeDto.getPortfolio(), resume.getPortfolio())) {
+            resume.updatePortfolio(resumeDto.getPortfolio());
+            isUpdate = true;
+        }
+
+        //희망근무요일 변경
+        if(!Objects.equals(resumeDto.getWantedDays(), resume.getWantedDays())) {
+            updateWantedDay(resume,resumeDto);
+            isUpdate = true;
+        }
+
         resume.connectDesigner(designer);
 
-        //희망근무요일 추가
-        updateWantedDay(resume,resumeDto);
-
         //경력 추가
-        updateCareer(resume,resumeDto);
+        if(!Objects.equals(resumeDto.getCareers(), resume.getCareers())) {
+            updateCareer(resume,resumeDto);
+            isUpdate = true;
+        }
+
 
         //자격증 추가
-        updateCertificates(resume,resumeDto);
+        if(!Objects.equals(resumeDto.getCertificates(), resume.getCertifications())){
+            updateCertificates(resume,resumeDto);
+            isUpdate = true;
+        }
 
-        resumeRepository.save(resume);
+        if(isUpdate == true){
+            resumeRepository.save(resume);
+        }
         return resume;
     }
 
@@ -95,10 +130,6 @@ public class ResumeService {
                 .wantedDays(resume.getWantedDays())
                 .build();
     }
-
-
-
-
 
 
     //이메일로 디자이너 찾기 매서드
@@ -142,7 +173,7 @@ public class ResumeService {
         }
     }
 
-    //이력서 추가 매서드
+    //경력 추가 매서드
     private void updateCareer(Resume resume, ResumeRequestDto resumeDto) {
         if(resume.getExp().equals(Exp.EXP) && resumeDto.getCareers() != null) {
             log.info("resumeDto.getCareers() : {}", resumeDto.getCareers());
@@ -173,6 +204,7 @@ public class ResumeService {
                     career.updateShopName(careerDto.getShopName());
                     career.updateJoinDate(joinDate);
                     career.updateOutDate(outDate);
+                    career.updatePosition(careerDto.getPosition());
                     career.updateResume(resume);
 
                     careerRepository.save(career);
@@ -186,7 +218,7 @@ public class ResumeService {
                         if(existingCareer.isPresent()) {
                             Career career = existingCareer.get();
                             career.updateOutDate(outDate);
-
+                            career.updatePosition(careerDto.getPosition());
                             careerRepository.save(career);
                         }
                     }
@@ -200,7 +232,7 @@ public class ResumeService {
     //자격증 추가
     private void updateCertificates(Resume resume, ResumeRequestDto resumeDto) {
         if(resumeDto.getCertificates() != null){
-            Set<String> existingCertificates = certificationRepository.findByResume(resume)
+            Set<String> existingCertificates = certificationRepository.findByResume(resume)//이력서로 경력 찾기
                     .stream()
                     .map(Certification :: getName)
                     .collect(Collectors.toSet());
@@ -212,7 +244,6 @@ public class ResumeService {
                     certification.updateResume(resume);
                     certificationRepository.save(certification);
                 }
-
             }
         }
     }
