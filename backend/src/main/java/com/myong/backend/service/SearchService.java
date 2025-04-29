@@ -11,6 +11,8 @@ import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.myong.backend.domain.dto.user.data.ShopListData;
+import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.DesignerDocument;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.shop.ShopDocument;
 import lombok.RequiredArgsConstructor;
@@ -28,17 +30,42 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ShopSearchService {
+public class SearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final ElasticsearchClient elasticsearchClient;
 
+    // 디자이너 도큐멘트 세이브
+    public void designerSave(Designer designer){
+        elasticsearchOperations.save(DesignerDocument.from(designer));
+    }
 
-    public void save(Shop shop){
+    // 디자이너 도큐멘트 삭제
+    public void designerDelete(UUID designerId) throws IOException, ElasticsearchException {
+        DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest.Builder()
+                .index("designer")
+                .query(Query.of(q -> q
+                        .term(TermQuery.of(t -> t
+                                .field("_id")
+                                .value(designerId.toString())
+                        ))
+                ))
+                .build();
+        // 삭제 요청 실행
+        DeleteByQueryResponse deleteByQueryResponse = elasticsearchClient.deleteByQuery(deleteByQueryRequest);
+
+        // 삭제 응답 처리 (필요 시 응답 확인)
+        System.out.println(deleteByQueryResponse);
+    }
+
+
+    // 가게 도큐멘트 저장
+    public void shopSave(Shop shop){
         elasticsearchOperations.save(ShopDocument.from(shop));
     }
 
-    public void delete(UUID shopId) throws IOException, ElasticsearchException {
+    // 가게 도큐멘트 삭제
+    public void ShopDelete(UUID shopId) throws IOException, ElasticsearchException {
         DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest.Builder()
                 .index("shop")
                 .query(Query.of(q -> q
@@ -55,6 +82,8 @@ public class ShopSearchService {
         System.out.println(deleteByQueryResponse);
     }
 
+
+    // 가게 검색
     public List<ShopListData> searchHairShops(String searchText){
         try{
             System.out.println("검색어:"+searchText);

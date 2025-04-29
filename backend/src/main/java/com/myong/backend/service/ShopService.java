@@ -85,8 +85,9 @@ public class ShopService {
     private final AttendanceRepository attendanceRepository;
     private final PasswordEncoder passwordEncoder;
     private final NoticeRepository noticeRepository;
-    private final ShopSearchService shopSearchService;
+    private final SearchService searchService;
     private final FileUploadService fileUploadService;
+
 
     /**
      * 사업자 이메일 중복 확인
@@ -192,7 +193,7 @@ public class ShopService {
         Shop signedShop = shopRepository.save(shop);
 
         // 엘라스틱 써치 도큐멘트 저장
-        shopSearchService.save(shop);
+        searchService.shopSave(shop);
 
         // 기본 공통항목 생성
         addCommon(signedShop);
