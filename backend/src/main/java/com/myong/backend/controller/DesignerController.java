@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -133,7 +134,9 @@ public class DesignerController {
     //디자이너 프로필 수정
     @PostMapping("/profile/update")
     public ResponseEntity<Designer> updateProfile(
-            @Valid @RequestBody UpdateProfileRequestDto request
+            @Valid @RequestBody UpdateProfileRequestDto request,
+            @RequestParam(name = "updateImage") MultipartFile updateImage,
+            @RequestParam(name = "updateBackgroundImage") MultipartFile updateBackgroundImage
             ){
             log.info("update profile: {}", request);
 
@@ -142,7 +145,7 @@ public class DesignerController {
 
             String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
 
-            Designer updatedesigner = designerService.updateProfile(designerEmail, request);
+            Designer updatedesigner = designerService.updateProfile(designerEmail, request, updateImage, updateBackgroundImage);
             return ResponseEntity.ok(updatedesigner);
     }
 

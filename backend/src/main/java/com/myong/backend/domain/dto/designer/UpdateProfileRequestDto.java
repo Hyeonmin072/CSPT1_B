@@ -19,10 +19,6 @@ public class UpdateProfileRequestDto {
 
     private String updateTel; // 연락처
 
-    private MultipartFile updateImage; // 사진
-
-    private MultipartFile updateBackgroundImage;
-
     private String oldPwd;
 
     private String newPwd;

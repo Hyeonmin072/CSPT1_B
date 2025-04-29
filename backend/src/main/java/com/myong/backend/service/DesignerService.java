@@ -114,6 +114,8 @@ public class DesignerService {
                 .build();
     }
 
+
+    //디자이너 수정페이지
     public UpdateProfileResponseDto getUpdateProfile(String email) {
 
         Designer designer = designerRepository.findByEmail(email)
@@ -121,6 +123,7 @@ public class DesignerService {
 
         return UpdateProfileResponseDto.builder()
                 .name(designer.getName())
+                .nickname(designer.getNickName())
                 .email(designer.getEmail())
                 .tel(designer.getTel())
                 .description(designer.getDesc())
@@ -131,7 +134,7 @@ public class DesignerService {
 
     //프로필 업데이트 하기
     @Transactional
-    public Designer updateProfile(String email, UpdateProfileRequestDto updateProfileRequest) {
+    public Designer updateProfile(String email, UpdateProfileRequestDto updateProfileRequest, MultipartFile updateImage, MultipartFile updateBackgroundImage) {
         Designer designer = designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
 
@@ -171,31 +174,30 @@ public class DesignerService {
 
 
         //이미지 변경
-        if (updateProfileRequest.getUpdateImage() != null) {
-            MultipartFile file = updateProfileRequest.getUpdateImage();
+        if (updateImage != null) {
 
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(file,"DESIGNER",designer.getEmail());
+            String url = fileUploadService.uploadFile(updateImage,"designer",designer.getEmail(),"profile");
             // 기존 이미지가 있다면 삭제
             if(designer.getImage() != null){
                 fileUploadService.deleteFile(designer.getImage());
             }
             designer.updateImage(url);
-            log.info("updateImage : {}", updateProfileRequest.getUpdateImage());
+            log.info("updateImage : {}", updateImage);
         }
 
         //백그라운드이미지 변경
-        if (updateProfileRequest.getUpdateBackgroundImage() != null) {
-            MultipartFile file = updateProfileRequest.getUpdateBackgroundImage();
+        if (updateBackgroundImage != null) {
+
 
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(file,"DESIGNER",designer.getEmail());
+            String url = fileUploadService.uploadFile(updateBackgroundImage,"designer",designer.getEmail(),"profile");
             // 기존 이미지가 있다면 삭제
             if(designer.getBackgroundImage() != null){
                 fileUploadService.deleteFile(designer.getBackgroundImage());
             }
-            designer.updateImage(url);
-            log.info("updateImage : {}", updateProfileRequest.getUpdateBackgroundImage());
+            designer.updateBackgroundImage(url);
+            log.info("updateImage : {}",updateBackgroundImage);
         }
 
         // 엘라스틱 써치 도큐멘트 업데이트

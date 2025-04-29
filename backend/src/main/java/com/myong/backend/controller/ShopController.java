@@ -25,6 +25,7 @@ import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -140,8 +141,18 @@ public class ShopController {
      * 사업자 프로필 수정
      */
     @PatchMapping("/profile")
-    public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request) {
-        return ResponseEntity.ok(shopService.updateProflie(request)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request,
+                                                @RequestParam(name = "thumbnail")MultipartFile thumbnail,
+                                                @RequestParam(name = "banner")List<MultipartFile> banner) {
+        return ResponseEntity.ok(shopService.updateProflie(request, thumbnail, banner)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
+    }
+
+    /**
+     * 사업자 배너 삭제
+     */
+    @DeleteMapping("/banner/{url}")
+    public ResponseEntity<String> deleteBanner(@PathVariable String url){
+        return ResponseEntity.ok(shopService.deleteBanner(url));
     }
 
     /**

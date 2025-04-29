@@ -27,6 +27,7 @@ import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
+import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.mybatis.AttendanceMapper;
@@ -48,6 +49,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ShopService {
 
+    private final ShopBannerRepository shopBannerRepository;
     private final ShopRepository shopRepository;
     private final DefaultMessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -83,6 +86,8 @@ public class ShopService {
     private final PasswordEncoder passwordEncoder;
     private final NoticeRepository noticeRepository;
     private final SearchService searchService;
+    private final FileUploadService fileUploadService;
+
 
     /**
      * 사업자 이메일 중복 확인
@@ -398,14 +403,43 @@ public class ShopService {
      * @return 프로필 수정 결과 메시지
      */
     @Transactional
-    public String updateProflie(ShopProfileRequestDto request) {
+    public String updateProflie(ShopProfileRequestDto request, MultipartFile thumbnail, List<MultipartFile> banner) {
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
-
         Shop shop = getShop(email);
-        shop.updateProfile(request); // 찾은 가게의 프로필 정보 수정
-        searchService.shopSave(shop);
+        String thumbnailUrl = "";  // 바뀐썸네일이 없으면 업데이트안함
+
+        // 썸네일 url S3저장 및 추출
+        if(thumbnail != null){
+            thumbnailUrl = fileUploadService.uploadFile(thumbnail,"shop",email,"thumbnail");
+            fileUploadService.deleteFile(shop.getThumbnail());
+        }
+
+        // 배너 추가 저장
+        if(banner != null){
+            for(MultipartFile file : banner){
+                String bannerUrl = fileUploadService.uploadFile(file,"shop",email,"banner");
+                shopBannerRepository.save(ShopBanner.save(bannerUrl,shop));
+            }
+        }
+
+        shop.updateProfile(request,thumbnailUrl); // 찾은 가게의 프로필 정보 수정
+        shopSearchService.save(shop);
         return "프로필이 수정되었습니다."; // 성공 구문 반환
+    }
+
+    /**
+     * 배너 파일삭제
+     *
+     * @param url 삭제시킬
+     * @return 성공메세지
+     */
+    public String deleteBanner(String url){
+        ShopBanner shopBanner = shopBannerRepository.findByImage(url).orElseThrow(() -> new ResourceNotFoundException("해당 이미지를 찾지 못했습니다."));
+
+        fileUploadService.deleteFile(shopBanner.getImage());
+        shopBannerRepository.delete(shopBanner);
+        return "파일이 성공적으로 삭제 되었습니다.";
     }
 
     /**

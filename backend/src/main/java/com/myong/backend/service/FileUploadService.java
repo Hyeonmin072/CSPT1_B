@@ -24,12 +24,12 @@ public class FileUploadService {
     /**
      *  파일 업로드 후 url 리턴
      */
-    public String uploadFile(MultipartFile file,String role, String email){
+    public String uploadFile(MultipartFile file,String role, String email, String route){
         if(file.isEmpty())return null;
 
         try{
             String fileName = file.getOriginalFilename();
-            String dir = role + "/" + email + "/" + fileName;
+            String dir = role + "/" + email + "/" + route + "/" + fileName;
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
