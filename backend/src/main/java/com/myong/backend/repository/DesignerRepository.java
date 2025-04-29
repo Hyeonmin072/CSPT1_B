@@ -17,7 +17,7 @@ public interface DesignerRepository extends JpaRepository<Designer, UUID> {
     @Query("Select count(d) from Designer d")
     long count();
 
-    @Query("Select d From Designer d Where d.reviewCount >= 0 Order by d.rating desc , d.like desc")
+    @Query("Select d From Designer d Order by d.score desc")
     List<Designer> findTopDesigners(Pageable pageable);
 }
 

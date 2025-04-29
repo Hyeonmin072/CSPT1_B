@@ -53,6 +53,9 @@ public class Shop {
     @Column(name = "s_review_count")
     private Integer reviewCount = 0;   // 리뷰 개수
 
+    @Column(name = "s_score")
+    private Double score = 0.0;         // 베이지안 평균계산법을 적용한 가게점수(정렬시 해당 점수기준 정렬함)
+
     @Column(name = "s_like")
     private Integer like = 0;   // 좋아요 개수
 
