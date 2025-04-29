@@ -251,19 +251,19 @@ public class ResumeService {
     //디자이너 근무희망요일 DayOfWeek 형으로 형변화하는 매서드
     private DayOfWeek DayFormatting(String day) {
         switch (day) {
-            case "월":
+            case "MON":
                 return DayOfWeek.MONDAY;
-            case "화":
+            case "TUE":
                 return DayOfWeek.TUESDAY;
-            case "수":
+            case "WED":
                 return DayOfWeek.WEDNESDAY;
-            case "목":
+            case "THU":
                 return DayOfWeek.THURSDAY;
-            case "금":
+            case "FRI":
                 return DayOfWeek.FRIDAY;
-            case "토":
+            case "SAT":
                 return DayOfWeek.SATURDAY;
-            case "일":
+            case "SUN":
                 return DayOfWeek.SUNDAY;
             default:
                 throw new IllegalArgumentException("유효하지 않은 요일: " + day);
