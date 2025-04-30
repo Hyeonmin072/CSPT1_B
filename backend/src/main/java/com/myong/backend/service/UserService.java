@@ -164,7 +164,6 @@ public class UserService {
      */
     public UserHairShopPageResponseDto loadHairShopPage(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("현재 authentication : "+authentication);
 
         // 등록된 데이터 갯수 조회
         long registeredShopCnt = shopRepository.count();

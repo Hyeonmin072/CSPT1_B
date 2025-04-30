@@ -145,6 +145,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }
         }
 
+        System.out.println("검증 필요 없는 엔드포인트:"+uri);
         filterChain.doFilter(request, response);
         return;
     }
