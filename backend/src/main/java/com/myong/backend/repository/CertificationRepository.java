@@ -9,4 +9,6 @@ import java.util.*;
 
 public interface CertificationRepository extends JpaRepository<Certification, UUID> {
     List<Certification> findByResume(Resume resume);
+
+    void deleteByName(String name);
 }

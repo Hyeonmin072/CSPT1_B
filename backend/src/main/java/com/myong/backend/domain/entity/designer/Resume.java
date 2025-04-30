@@ -55,17 +55,17 @@ public class Resume {
 
     // 경력들
     @JsonManagedReference
-    @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "resume",cascade = CascadeType.REMOVE)
     private List<Career> careers = new ArrayList<>();
 
     // 자격증들
     @JsonManagedReference
-    @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "resume",cascade = CascadeType.REMOVE)
     private List<Certification> certifications = new ArrayList<>();
 
     // 희망근무요일
     @JsonManagedReference
-    @OneToMany(mappedBy = "resume",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "resume",cascade = CascadeType.REMOVE)
     private List<DesignerWantedDay> wantedDays = new ArrayList<>();
 
     public Resume(Exp exp, Designer designer, String image) {
