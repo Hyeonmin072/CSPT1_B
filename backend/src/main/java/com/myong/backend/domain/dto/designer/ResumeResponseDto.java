@@ -38,23 +38,4 @@ public class ResumeResponseDto {
 
     private List<DesignerWantedDay> wantedDays;
 
-    public static ResumeResponseDto of(Designer designer, Resume resume) {
-        //currentYear(올해 받아오기)
-        int cy = java.time.LocalDate.now().getYear();
-        int birth = Integer.parseInt(designer.getBirth().toString().substring(0,4));
-        int age = cy - birth;
-
-        return ResumeResponseDto.builder()
-                .image(resume.getImage())
-                .name(designer.getName())
-                .tel(designer.getTel())
-                .gender(designer.getGender())
-                .age(age)
-                .exp(resume.getExp())
-                .content(resume.getContent())
-                .careers(resume.getCareers())
-                .certifications(resume.getCertifications())
-                .wantedDays(resume.getWantedDays())
-                .build();
-    }
 }
