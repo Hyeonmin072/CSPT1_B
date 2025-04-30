@@ -56,10 +56,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -1161,29 +1163,49 @@ public class ShopService {
                 .toList();
 
         // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
-        long totalAmount;
+        long totalAmount = 0L;
+        Map<String, Long> graph = Map.of();
         LocalDate now = LocalDate.now();
 
         if (period.equals(Period.ONE_WEEK)) {
-            LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+            LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             totalAmount = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
                     .mapToLong(Payment::getPrice)
                     .sum();
+
+            graph = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
+                    .collect(Collectors.groupingBy(
+                            p -> p.getCreateDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN), // 요일 기준 그룹화
+                            Collectors.summingLong(Payment::getPrice) // 가격 합산
+                    ));
         } else if (period.equals(Period.ONE_MONTH)) {
             LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
             totalAmount = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
                     .mapToLong(Payment::getPrice)
                     .sum();
+
+            graph = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                    .collect(Collectors.groupingBy(
+                            p -> String.valueOf(p.getCreateDate().getDayOfMonth()) + "일", // 날짜 기준 그룹화
+                            Collectors.summingLong(Payment::getPrice) // 가격 합산
+                    ));
         } else if (period.equals(Period.ONE_YEAR)) {
             LocalDate startOfYear = now.with(TemporalAdjusters.firstDayOfYear());
             totalAmount = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
                     .mapToLong(Payment::getPrice)
                     .sum();
-        } else {
-            totalAmount = 0L; // 기본값 처리
+
+            graph = payments.stream()
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
+                    .collect(Collectors.groupingBy(
+                            p -> p.getCreateDate().getMonth().getDisplayName(TextStyle.FULL, Locale.KOREAN), // 월 기준 그룹화
+                            Collectors.summingLong(Payment::getPrice) // 가격 합산
+                    ));
         }
 
 
@@ -1198,6 +1220,7 @@ public class ShopService {
         return ShopSalesResponseDto.builder()
                 .totalAmount(totalAmount)
                 .todayTotalAmount(todayTotalAmount)
+                .graph(graph)
                 .build();
     }
 
