@@ -43,13 +43,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 ,"/user/designerlike","/user/reservation","/user/location","/user/allcoupons","/user/review","/user/payment"
                 ,"/designer","/shop");
 
+        List<String> allowEndpoints = Arrays.asList("/designer/signup","/designer/checkemail/","/designer/nickname",
+                                                    "/email","/api/oauth2",
+                                                    "/shop/signup","/shop/bizid","/shop/certification","/shop/checkemail");
+
         if (uri.equals("/signin")) {
             System.out.println("로그인으로 요청");
             filterChain.doFilter(request, response); // 로그인 요청일 경우 토큰 검사 없이 바로 진행
             return;
         }
 
-
+        for(String endPoint : allowEndpoints){
+            if(uri.startsWith(endPoint)){
+                System.out.println("검증이 필요없는 엔드포인트");
+                filterChain.doFilter(request,response);
+                return;
+            }
+        }
         // 쿠키에서 "accessToken" 값을 추출
         String token = jwtService.getTokenFromCookie(request);
 
@@ -128,6 +138,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         for(String entPoint : mustBeAuthenticatedEndpoints){
             if(uri.startsWith(entPoint)){
+                System.out.println("검증이 필요한 엔드포인트");
                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                response.getWriter().write("로그인이 필요한 서비스입니다.");
                return ;
