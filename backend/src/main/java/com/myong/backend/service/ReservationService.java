@@ -89,7 +89,7 @@ public class ReservationService {
         // 쿠폰 조회, 쿠폰이 요청에 존재하는 경우 할인타입에 따라 금액에 로직 적용하고, 없으면 금액에 로직 적용 X
         Long price = null;
         if(request.getCouponId() != null && !request.getCouponId().isBlank()) {
-            Coupon coupon = couponRepository.findById(UUID.fromString(request.getMenuId()))
+            Coupon coupon = couponRepository.findById(UUID.fromString(request.getCouponId()))
                     .orElseThrow(() -> new RuntimeException("해당 쿠폰을 찾을 수 없습니다"));
 
             price = coupon.getType().equals(DiscountType.FIXED)
