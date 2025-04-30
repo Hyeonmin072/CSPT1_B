@@ -1163,43 +1163,53 @@ public class ShopService {
                 .toList();
 
         // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
+        // 기본값 세팅
         long totalAmount = 0L;
-        Map<String, Long> graph = Map.of();
+        Map<String, Long> graph = Map.of(); 
         LocalDate now = LocalDate.now();
 
-        if (period.equals(Period.ONE_WEEK)) {
-            LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        if (period.equals(Period.ONE_WEEK)) { // 이번 주인 경우 -> ONE_WEEK
+            LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); // 현재 날짜가 소속된 주의 월요일인 날짜 가져오기
+            
+            // 현재 날짜가 소속된 주의 총 금액 계산
             totalAmount = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
                     .mapToLong(Payment::getPrice)
                     .sum();
 
+            // 요일 별로 합산 -> Map<요일, 요일 별 매출>
             graph = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
                     .collect(Collectors.groupingBy(
                             p -> p.getCreateDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN), // 요일 기준 그룹화
                             Collectors.summingLong(Payment::getPrice) // 가격 합산
                     ));
-        } else if (period.equals(Period.ONE_MONTH)) {
-            LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
+        } else if (period.equals(Period.ONE_MONTH)) { // 이번 달인 경우 -> ONE_MONTH
+            LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth()); // 현재 날짜가 소속된 달의 첫번째 날짜 가져오기
+
+            // 현재 날짜가 소속된 달의 총 금액 계산
             totalAmount = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
                     .mapToLong(Payment::getPrice)
                     .sum();
 
+            // 날짜 별로 합산 -> Map<날짜, 날짜 별 매출>
             graph = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
                     .collect(Collectors.groupingBy(
                             p -> String.valueOf(p.getCreateDate().getDayOfMonth()) + "일", // 날짜 기준 그룹화
                             Collectors.summingLong(Payment::getPrice) // 가격 합산
                     ));
-        } else if (period.equals(Period.ONE_YEAR)) {
-            LocalDate startOfYear = now.with(TemporalAdjusters.firstDayOfYear());
+        } else if (period.equals(Period.ONE_YEAR)) { // 이번 해인 경우 -> ONE_YEAR
+            LocalDate startOfYear = now.with(TemporalAdjusters.firstDayOfYear()); // 현재 날짜가 소속된 년도의 첫번째 날짜 가져오기
+
+            // 현재 날짜가 소속된 년도의 총 금액 계산
             totalAmount = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
                     .mapToLong(Payment::getPrice)
                     .sum();
 
+            // 날짜 별로 합산 -> Map<년도, 년도 별 매출>
             graph = payments.stream()
                     .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
                     .collect(Collectors.groupingBy(
