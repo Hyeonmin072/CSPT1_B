@@ -407,7 +407,7 @@ public class ReservationService {
 
     /**
      * 유저의 예약 내역 조회
-     * @return
+     * @return 예약관련정보
      */
     public List<ReservationInfoResponseDto> getReservationByUser(){
 
@@ -423,13 +423,8 @@ public class ReservationService {
         List<Reservation> reservationList =  reservationRepository.findAllByUser(user);
 
         return reservationList.stream()
-                .map(reservation -> new ReservationInfoResponseDto(
-                    reservation.getServiceDate(),
-                    reservation.getMenu().getName(),
-                    reservation.getShop().getName(),
-                    reservation.getDesigner().getName(),
-                    reservation.getPrice()
-                )).collect(Collectors.toList());
+                .map(ReservationInfoResponseDto::from)
+                .collect(Collectors.toList());
 
     }
 
