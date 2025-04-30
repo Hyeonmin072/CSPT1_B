@@ -126,7 +126,7 @@ public class ShopController {
     }
 
     /**
-     * 등록한 이벤트목록 조회
+     * 등록한 이벤트 목록 조회
      */
     @GetMapping("/events")
     public ResponseEntity<List<EventResponseDto>> getEvents() {
@@ -452,5 +452,13 @@ public class ShopController {
                                                                                  @RequestParam Integer month,
                                                                                  @RequestParam Integer day) {
         return ResponseEntity.ok(shopService.getDesignerSale(designerEmail, year, month, day));
+    }
+
+    /**
+     * 사업자 이번 달의 매출 우수 디자이너
+     */
+    @GetMapping("/sales/designers/best")
+    public ResponseEntity<DesignerSalesResponseDto> getBestDesigner() {
+        return ResponseEntity.ok(shopService.getBestDesigner());
     }
 }

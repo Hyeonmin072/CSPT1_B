@@ -1268,14 +1268,19 @@ public class ShopService {
     public Map<Integer, Long> getDesignerSales(String designerEmail, Integer year, Integer month) {
         Designer designer = getDesigner(designerEmail);
 
+        // 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> filteredPayments = designer.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
+                .toList();
+
         // 해당 연월의 결제 건들을 피터링
         LocalDate startOfMonth = LocalDate.of(year, month, 1); // 해당 월의 시작 날짜
         LocalDate endOfMonth = startOfMonth.with(TemporalAdjusters.lastDayOfMonth()); // 해당 월의 마지막 날짜
 
-        List<Payment> payments = designer.getPayments().stream()
+        List<Payment> payments = filteredPayments.stream()
                 .filter(p -> {
                     LocalDate paymentDate = p.getCreateDate().toLocalDate();
-                    return paymentDate.isAfter(startOfMonth) && paymentDate.isBefore(endOfMonth);
+                    return paymentDate.isAfter(startOfMonth) && !paymentDate.isAfter(endOfMonth);
                 })
                 .toList();
 
@@ -1296,13 +1301,46 @@ public class ShopService {
     public List<DesignerSalesDetailResponseDto> getDesignerSale(String designerEmail, Integer year, Integer month, Integer day) {
         Designer designer = getDesigner(designerEmail);
 
-        List<Payment> payments = designer.getPayments();
-        return payments.stream()
+        // 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> filteredPayments = designer.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
+                .toList();
+
+        return filteredPayments.stream()
                 .filter(p -> p.getCreateDate().toLocalDate().equals(LocalDate.of(year, month, day)))
                 .map(p -> new DesignerSalesDetailResponseDto(p.getCreateDate(), p.getReservMenuName(), p.getPrice(), p.getUser().getName()))
                 .toList();
+    }
 
+    /**
+     * 사업자 이번 달의 매출 우수 디자이너
+     * @return 우수 디자이너의 관련 정보를 담은 DTO
+     */
+    public DesignerSalesResponseDto getBestDesigner() {
+        // 로그인 정보에서 가게 이메일을 꺼내고, 가게 조회
+        String shopEmail = getAuthenticatedEmail();
+        Shop shop = getShop(shopEmail);
 
+        // 가게의 결제가 성공상태이며, 취소되지 않은 것들만 필터링
+        List<Payment> payments = shop.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && p.getCancelYN() == null)
+                .toList();
+
+        // 이번 달 기준에 따라 필터링한 뒤, 디자이너 별로 그룹화한 총 금액 계산
+        LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+        Map<Designer, Long> groupingSales = payments.stream()
+                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)));
+
+        // 최고 매출 디자이너 찾기
+        return shop.getPayments().stream()
+                .filter(p -> p.getPaySuccessYN() && (p.getCancelYN() == null || !p.getCancelYN()))
+                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue()))
+                .orElse(null);
     }
 
     /**
