@@ -2,10 +2,7 @@ package com.myong.backend.service;
 
 
 import com.myong.backend.configuration.TossPaymentConfig;
-import com.myong.backend.domain.dto.payment.PaymentFailDto;
-import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
-import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
-import com.myong.backend.domain.dto.payment.TempReservationData;
+import com.myong.backend.domain.dto.payment.*;
 import com.myong.backend.domain.dto.reservation.MenuListData;
 import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
@@ -28,10 +25,7 @@ import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -231,9 +225,15 @@ public class ReservationService {
         redisTemplate.delete("temp:reservation:" + paymentId);
 
         // 결제 인증을 성공했으므로, 결제 승인 요청
-        PaymentSuccessDto result = requestTossPaymentApproval(paymentKey, paymentId, amount);
+        requestTossPaymentApproval(paymentKey, paymentId, amount);
 
-        return result; // 결제 성공정보 담은 DTO 반환
+        // 성공한 결제 및 예약 관련 정보를 반환
+        return PaymentSuccessDto.builder()
+                .shopName(shop.getName())
+                .menuName(payment.getReservMenuName())
+                .price(payment.getPrice())
+                .date(payment.getCreateDate())
+                .build();
     }
 
     /**
@@ -244,7 +244,7 @@ public class ReservationService {
      * @return 결제 성공 정보를 담은 PaymentSuccessDto 객체
      * @throws RuntimeException 토스 결제 API 호출 중 오류가 발생한 경우
      */
-    public PaymentSuccessDto requestTossPaymentApproval(String paymentKey, String paymentId, Long amount) {
+    public PaymentApprovalDto requestTossPaymentApproval(String paymentKey, String paymentId, Long amount) {
         // HTTP 요청을 보내기 위한 RestTemplate 객체 생성
         RestTemplate restTemplate = new RestTemplate();
 
@@ -257,14 +257,14 @@ public class ReservationService {
         params.put("amount", amount); // 결제 금액 세팅
 
         // 결제 성공 결과를 담을 객체 초기화
-        PaymentSuccessDto result = null;
+        PaymentApprovalDto result = null;
 
         try {
             // 토스 결제 승인 API에 POST 요청을 보내고 응답을 PaymentSuccessDto로 파싱
             result = restTemplate.postForObject(
                     TossPaymentConfig.URL + paymentKey,           // 요청 URL (paymentKey 포함)
                     new HttpEntity<>(params, headers),            // 요청 바디와 헤더
-                    PaymentSuccessDto.class                       // 응답을 매핑할 DTO 클래스
+                    PaymentApprovalDto.class                       // 응답을 매핑할 DTO 클래스
             );
         } catch (Exception e) {
             // API 호출 실패 시 예외 발생 (오류 메시지 포함)

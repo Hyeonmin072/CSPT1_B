@@ -3,6 +3,7 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
+import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
 import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
@@ -28,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -192,17 +192,8 @@ public class UserController {
      * 결제 인증 성공 시 -> 예약 생성
      */
     @GetMapping("/payment/success")
-    public void tossPaymentSuccess(@RequestParam String paymentKey,
-                                                                @RequestParam("orderId") String paymentId,
-                                                                @RequestParam Long amount,
-                                                                HttpServletResponse response) throws IOException {
-        try {
-            reservationService.tossPaymentSuccess(paymentKey, paymentId, amount);
-            response.sendRedirect("http://localhost:5173/reservation/check?success=true");
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("http://localhost:5173/reservation/check?success=false");
-        }
+    public ResponseEntity<PaymentSuccessDto> tossPaymentSuccess(@RequestParam String paymentKey, @RequestParam("orderId") String paymentId, @RequestParam Long amount) {
+            return ResponseEntity.ok(reservationService.tossPaymentSuccess(paymentKey, paymentId, amount));
     }
 
     /**
