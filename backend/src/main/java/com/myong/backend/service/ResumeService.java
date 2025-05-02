@@ -25,6 +25,9 @@ public class ResumeService {
     private final CertificationRepository certificationRepository;
     private final DesignerWantedDayRepository designerWantedDayRepository;
 
+
+
+
     public ResumeService(ResumeRepository resumeRepository, DesignerRepository designerRepository, CareerRepository careerRepository, CertificationRepository certificationRepository, DesignerWantedDayRepository designerWantedDayRepository) {
         this.resumeRepository = resumeRepository;
         this.designerRepository = designerRepository;
@@ -148,36 +151,14 @@ public class ResumeService {
     @Transactional
     public void updateWantedDay(Resume resume, ResumeRequestDto resumeDto) {
         if (resumeDto.getWantedDays() != null) {
-            // 기존 희망 근무 날짜 가져오기
-            List<DesignerWantedDay> existingWantedDays = designerWantedDayRepository.findByResume(resume);
 
-            // 새로운 희망 근무 날짜 목록 생성
-            Set<DayOfWeek> newWantedDays = resumeDto.getWantedDays().stream()
-                    .map(dayDto -> DayFormatting(dayDto.getWantedDay()))
-                    .collect(Collectors.toSet());
+            designerWantedDayRepository.deleteAll(designerWantedDayRepository.findByResume(resume));
 
-            log.info("existingWantedDays before processing: {}", existingWantedDays);
-            log.info("newWantedDays: {}", newWantedDays);
-
-            // 기존 데이터 중 새로운 목록에 없는 항목 삭제
-            List<DesignerWantedDay> daysToDelete = existingWantedDays.stream()
-                    .filter(existing -> !newWantedDays.contains(existing.getWantedDay()))
-                    .collect(Collectors.toList());
-
-            designerWantedDayRepository.deleteAll(daysToDelete);
-            log.info("Deleted days: {}", daysToDelete);
-
-            // 새로운 데이터 추가
-            for (DayOfWeek wantedDay : newWantedDays) {
-                boolean exists = existingWantedDays.stream()
-                        .anyMatch(existing -> existing.getWantedDay().equals(wantedDay));
-
-                if (!exists) {
-                    DesignerWantedDay designerWantedDay = new DesignerWantedDay();
-                    designerWantedDay.updateWantedDay(wantedDay);
-                    designerWantedDay.updateResume(resume);
-                    designerWantedDayRepository.save(designerWantedDay);
-                }
+            for (DesignerWantedDayRequestDto request : resumeDto.getWantedDays()) {
+                DesignerWantedDay designerWantedDay = new DesignerWantedDay();
+                designerWantedDay.updateWantedDay(DayFormatting(request.getWantedDay()));
+                designerWantedDay.updateResume(resume);
+                designerWantedDayRepository.save(designerWantedDay);
             }
         }
     }
@@ -187,100 +168,35 @@ public class ResumeService {
     public void updateCareer(Resume resume, ResumeRequestDto resumeDto) {
         if (resume.getExp().equals(Exp.EXP) && resumeDto.getCareers() != null) {
             log.info("resumeDto.getCareers() : {}", resumeDto.getCareers());
+            careerRepository.deleteAll(careerRepository.findByResume(resume));
+            log.info("삭제성공");
 
-            // 기존 경력 데이터 가져오기 (name + joinDate 기준)
-            List<Career> existingCareers = careerRepository.findByResume(resume);
-            Set<String> newCareerKeys = resumeDto.getCareers().stream()
-                    .map(career -> career.getShopName() + "_" + dateFormatting(career.getJoinDate()))
-                    .collect(Collectors.toSet());
-
-            log.info("existingCareers before processing: {}", existingCareers);
-
-            // 기존 데이터 중 새로운 목록에 없는 항목 삭제
-            List<Career> careersToDelete = new ArrayList<>();
-            for (Career career : existingCareers) {
-                String crKey = career.getName() + "_" + career.getJoinDate();
-                if (!newCareerKeys.contains(crKey)) {
-                    careersToDelete.add(career);
-                    log.info("careersToDelete : {}", careersToDelete);
-                }
-            }
-            careerRepository.deleteAll(careersToDelete);
-
-            log.info("Deleted careers: {}", careersToDelete);
-
-            // 새로운 데이터 추가 또는 기존 데이터 업데이트
-            for (CareerRequestDto careerDto : resumeDto.getCareers()) {
-                LocalDate joinDate = dateFormatting(careerDto.getJoinDate());
-                LocalDate outDate = Optional.ofNullable(dateFormatting(careerDto.getOutDate())).orElse(null);
-                String crKey = careerDto.getShopName() + "_" + joinDate;
-
-                // 기존 데이터 조회 또는 새 객체 생성
-                Career career = existingCareers.stream()
-                        .filter(c -> (c.getName() + "_" + c.getJoinDate()).equals(crKey))
-                        .findFirst()
-                        .orElseGet(() -> new Career());
-
-                career.updateShopName(careerDto.getShopName());
-                career.updateJoinDate(joinDate);
-                career.updateOutDate(outDate);
-                career.updatePosition(careerDto.getPosition());
+            for(CareerRequestDto request : resumeDto.getCareers()){
+                Career career = new Career();
+                career.updateShopName(request.getShopName());
+                career.updateJoinDate(dateFormatting(request.getJoinDate()));
+                career.updateOutDate(dateFormatting(request.getOutDate()));
+                career.updatePosition(request.getPosition());
                 career.updateResume(resume);
                 careerRepository.save(career);
             }
+            log.info("추가성공");
         }
     }
 
 
     //자격증 추가
-    @Transactional
     public void updateCertificates(Resume resume, ResumeRequestDto resumeDto) {
         if(resumeDto.getCertificates() != null){
-            //기존 자격증 데이터 가져오기(name기준)
 
-            Map<String, Certification>existingCertificates = certificationRepository.findByResume(resume)
-                    .stream()
-                    .collect(Collectors.toMap(Certification::getName, Function.identity()));
+            certificationRepository.deleteAll(certificationRepository.findByResume(resume));
 
-            //업데이트된 자격증 목록 생성
-            Set<String> newCertificateName = resumeDto.getCertificates().stream()
-                    .map(CertificationRequestDto::getName)
-                    .collect(Collectors.toSet());
-
-            // 기존 정보와 비교하여 새로운 목록에 없는 자격증 삭제
-            for (String existingName : new HashSet<>(existingCertificates.keySet())) {
-                log.info("existingCertificates: {}", existingCertificates.keySet());
-                if (!newCertificateName.contains(existingName)) {
-                    log.info("newCertificateName : {}", newCertificateName);
-                    log.info("existingName : {}", existingName);
-
-                    certificationRepository.deleteByName(existingName); // 삭제 수행
-
-                    existingCertificates.remove(existingName);
-                }
+            for(CertificationRequestDto request : resumeDto.getCertificates()){
+                Certification certification = new Certification();
+                certification.updateName(request.getName());
+                certification.updateResume(resume);
+                certificationRepository.save(certification);
             }
-
-            // 새로운 정보 추가 또는 기존 정보 업데이트
-            for (CertificationRequestDto request : resumeDto.getCertificates()) {
-                String certificateName = request.getName();
-
-                if (existingCertificates.containsKey(certificateName)) {
-                    // 기존 데이터와 비교하여 변경된 경우에만 업데이트
-                    Certification existingCertification = existingCertificates.get(certificateName);
-                    if (!Objects.equals(existingCertification.getName(), certificateName)) {
-                        existingCertification.updateName(certificateName);
-                        certificationRepository.save(existingCertification);
-                    }
-                } else {
-                    // 새로운 자격증 추가
-                    Certification certification = new Certification();
-                    certification.updateName(certificateName);
-                    certification.updateResume(resume);
-                    certificationRepository.save(certification);
-                }
-
-            }
-
         }
     }
 
@@ -311,7 +227,7 @@ public class ResumeService {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             return LocalDate.parse(day, formatter);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid day format: yyyyMMdd로 형태를 맞춰주세요." );
+            throw new IllegalArgumentException("Invalid day format: yyyy-MM-dd로 형태를 맞춰주세요." );
         }
     }
 }
