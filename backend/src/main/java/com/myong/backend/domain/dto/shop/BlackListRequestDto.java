@@ -7,11 +7,6 @@ import lombok.Getter;
 
 @Getter
 public class BlackListRequestDto {
-
-    @NotBlank
-    @Email
-    String shopEmail; // 가게 이메일
-
     @NotBlank
     String userName; // 유저 이름
 

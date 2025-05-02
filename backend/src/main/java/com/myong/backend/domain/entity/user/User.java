@@ -1,25 +1,21 @@
 package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 
-@Builder
+@Builder(toBuilder = true)
 @Entity
 @Getter
 @NoArgsConstructor
@@ -28,7 +24,8 @@ public class User {
 
     @Id
     @Column(name = "u_id")
-    private UUID id = UUID.randomUUID(); // 유저 고유 키
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id ; // 유저 고유 키
 
     @Column(name = "u_name",  nullable = false)
     private String name; // 이름
@@ -36,14 +33,14 @@ public class User {
     @Column(name = "u_email", nullable = false)
     private String email; // 이메일
 
-    @Column(name = "u_pwd", nullable = false)
-    private String pwd; // 비밀번호
+    @Column(name = "u_pwd")
+    private String pwd; // 비밀번호  * 소셜 로그인을 위한 비밀번호널값 허용 *
 
     @Column(name = "u_tel", nullable = false)
     private String tel; // 연락처
 
     @Column(name = "u_location",nullable = false)
-    private String location; // 위치
+    private String location; // 위치 * 매번 설정하는 유저위치 *
 
     @Column(name = "u_birth_date", nullable = false)
     private LocalDate birthDate = LocalDate.now(); // 생년월일
@@ -64,11 +61,21 @@ public class User {
     @Column(name = "u_latitude",nullable = false)
     private Double latitude;    // y : 위도
 
+    @Column(name = "u_signin_type",nullable = false)
+    private SigninType signinType = SigninType.NONE;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserShop> shops = new ArrayList<>(); // 예약한 샵들
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserDesignerLike> userDesignerLikes = new ArrayList<>(); // 유저가 좋아요 누른 디자이너
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private MemberShip memberShip;   // 유저의 맴버쉽 등급
+
 
 
     public User(String name, String email, String pwd, String tel, LocalDate birthDate, Gender gender, String address, Integer post ,Double longitude, Double latitude,String location) {

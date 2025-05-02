@@ -1,16 +1,18 @@
 package com.myong.backend.domain.dto.shop;
 
-import jakarta.validation.constraints.Email;
+import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
-@Value
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ShopProfileRequestDto {
-    @Email
-    @NotBlank
-    String email;
-
     @NotBlank
     String name;
 
@@ -23,9 +25,6 @@ public class ShopProfileRequestDto {
     @NotBlank
     String tel;
 
-    @NotBlank
-    String pwd;
-
     String newPwd;
 
     String newPwdConfirm;
@@ -36,5 +35,7 @@ public class ShopProfileRequestDto {
 
     String close;
 
-    String regularHoliday;
+    @NotNull
+    RegularHoliday regularHoliday;
+
 }

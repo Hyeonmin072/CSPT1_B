@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -70,6 +71,7 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
         System.out.println("!!");
         UserDetailsDto userDetailsDto = (UserDetailsDto) authentication.getPrincipal();
         String username = userDetailsDto.getUsername();
+        String name = userDetailsDto.getName();
         String role = userDetailsDto.getAuthorities().iterator().next().getAuthority();
 
         System.out.println("successfulAuthentication :"+username);
@@ -77,15 +79,20 @@ public class JwtLoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
         // JWT 토큰 생성
-        String accessToken = jwtService.createAccessToken(username, role);
+        String accessToken = jwtService.createAccessToken(username,name, role);
 
         // RefreshToken 엔티티를 Redis에 저장 (TTL 기반 만료)
         jwtService.saveRedisRefreshToken(username);
 
-        // 응답으로 토큰 반환
-        TokenDto tokenDto = new TokenDto(accessToken);
-        response.setContentType("application/json");
-        objectMapper.writeValue(response.getWriter(), tokenDto);
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken", accessToken)
+                .httpOnly(true)
+                .secure(false)                       //테스트 환경은 false
+                .path("/")
+                .maxAge(60 * 60)        // 1시간 유효
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
     }
 
 }

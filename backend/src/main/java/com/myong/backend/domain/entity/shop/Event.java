@@ -17,14 +17,15 @@ import java.util.UUID;
 public class Event {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "e_id")
-    private UUID id = UUID.randomUUID(); // 이벤트 고유 키
+    private UUID id; // 이벤트 고유 키
     
     @Column(name = "e_name")
     private String name = ""; // 이벤트 이름
 
     @Column(name = "e_discount")
-    private Long amount = 0L; // 이벤트 할인 금액
+    private Integer price = 0; // 이벤트 할인 금액
     
     @Column(name = "e_type", nullable = false)
     private DiscountType type; // 이벤트 할인 타입
@@ -39,10 +40,13 @@ public class Event {
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
 
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
+    private Menu menu;
+
     @Builder
-    public Event(String name, Long amount, DiscountType type, LocalDate startDate, LocalDate endDate, Shop shop) {
+    public Event(String name, Integer price, DiscountType type, LocalDate startDate, LocalDate endDate, Shop shop) {
         this.name = name;
-        this.amount = amount;
+        this.price = price;
         this.type = type;
         this.startDate = startDate;
         this.endDate = endDate;

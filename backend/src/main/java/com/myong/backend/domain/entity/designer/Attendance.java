@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.designer;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -20,8 +21,9 @@ public class Attendance {
 
     //근태아이디
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "at_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     //근무 상태
     @Column(name = "at_status", nullable = false)
@@ -29,21 +31,32 @@ public class Attendance {
     private Status status = Status.NO;;
 
     //출근일시
-    @Column(name = "at_in")
-    private LocalTime in;
+    @Column(name = "at_work_time")
+    private LocalTime workTime;
 
     //퇴근일시
-    @Column(name = "at_out")
-    private LocalTime out;
+    @Column(name = "at_leave_time")
+    private LocalTime leaveTime;
 
     //생성일(근무 날짜)
     @CreatedDate
     @Column(name = "at_date", updatable = false)
     private LocalDate date;
+    
+    //비고
+    @Column(name = "at_note", nullable = false)
+    private String note = "";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "d_id")
     private Designer designer;
+
+    @Builder
+    public Attendance(LocalTime workTime, LocalTime leaveTime, Designer designer) {
+        this.workTime = workTime;
+        this.leaveTime = leaveTime;
+        this.designer = designer;
+    }
 
     @Override
     public final boolean equals(Object o) {

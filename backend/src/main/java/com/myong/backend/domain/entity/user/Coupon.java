@@ -3,15 +3,14 @@ package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.shop.Shop;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -20,11 +19,14 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Coupon {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "c_id")
-    private UUID id = UUID.randomUUID(); // 쿠폰 고유 키
+    private UUID id; // 쿠폰 고유 키
 
     @Column(name = "c_name", nullable = false)
     private String name; // 이름
@@ -33,18 +35,21 @@ public class Coupon {
     @Enumerated(EnumType.STRING)
     private DiscountType type; // 할인방식
 
-    @Column(name = "c_amount", nullable = false)
-    private Long amount; // 할인값
+    @Column(name = "c_price", nullable = false)
+    private Integer price; // 할인값
 
     @Column(name = "c_get_date", nullable = false)
-    private Period getDate; // 수령가능한 기간
+    private LocalDate getDate; // 유저가 수령가능한 날짜
 
     @Column(name = "c_use_date", nullable = false)
-    private Period useDate; // 수령 후 사용 가능 기간
+    private Integer useDate; // 유저가 수령 후 사용가능한 기간
 
-    @CreatedDate
-    @Column(name = "c_create_date", updatable = false)
-    private LocalDate createDate; // 생성일
+    @Column(name = "c_expire_date", nullable = false)
+    private LocalDate expireDate; // 삭제되기 전 살아있을 날짜 -> getDate + useDate의 일 수
+
+    @Column(name = "c_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CouponStatus status = CouponStatus.UNUSED;  // 사용, 미사용 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
@@ -54,12 +59,13 @@ public class Coupon {
     private List<UserCoupon> userCoupons; // 받은 유저들
 
     @Builder
-    public Coupon(String name, DiscountType type, Long amount, Period getDate, Period useDate, Shop shop) { // 고정금액 할인 쿠폰
+    public Coupon(String name, DiscountType type, Integer price, LocalDate getDate, Integer useDate, Shop shop) { // 고정금액 할인 쿠폰
         this.name = name;
         this.type = type;
-        this.amount = amount;
-        this.getDate =  getDate;
+        this.price = price;
+        this.getDate = getDate;
         this.useDate = useDate;
+        this.expireDate = getDate.plusDays(useDate);
         this.shop = shop;
     }
 

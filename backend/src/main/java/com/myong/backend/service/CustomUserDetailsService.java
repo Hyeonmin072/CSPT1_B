@@ -9,7 +9,6 @@ import com.myong.backend.repository.DesignerRepository;
 import com.myong.backend.repository.ShopRepository;
 import com.myong.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -43,7 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 }
                 case "DESIGNER" -> {
                     return designerRepository.findByEmail(user)
-                            .map(this::createDesginerDetails)
+                            .map(this::createDesignerDetails)
                             .orElseThrow(() -> new UsernameNotFoundException("해당 디자이너가 존재하지 않습니다"));
                 }
                 case "SHOP" -> {
@@ -61,35 +60,30 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetailsDto createUserDetails(User user) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("USER"));
         return new UserDetailsDto(
-                user.getId().toString(),
                 user.getEmail(),
-                user.getPwd(),
-                authorities
+                "USER",
+                user.getName(),
+                user.getPwd()
         );
     }
 
-    private UserDetailsDto createDesginerDetails(Designer designer){
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("DESIGNER"));
+    private UserDetailsDto createDesignerDetails(Designer designer){
         return new UserDetailsDto(
-                designer.getId().toString(),
                 designer.getEmail(),
-                designer.getPwd(),
-                authorities
+                "DESIGNER",
+                designer.getName(),
+                designer.getPassword()
         );
     }
 
     private UserDetailsDto createShopDetails(Shop shop){
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("SHOP"));
         return new UserDetailsDto(
-                shop.getId().toString(),
                 shop.getEmail(),
-                shop.getPwd(),
-                authorities
+                "SHOP",
+                shop.getName(),
+                shop.getPwd()
+
         );
     }
 }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myong.backend.repository.mybatis.AttendanceMapper">
+    <select id="findAll" resultType="ShopAttendanceResponseDto">
+        select at.at_date as date,
+               d.d_name as designerName,
+               at.at_status as status,
+               at.at_work_time as workTime,
+               at.at_leave_time as leaveTime,
+               at.at_note as note
+        from attendance at
+        join designer d on at.d_id = d.d_id
+        <where>
+            <!-- 디자이너 이름 -->
+            <if test="request.designerName != null">
+                and d.d_name = #{request.designerName}
+            </if>
+            <!-- 연, 월, 일 조건 -->
+            <if test="request.year != null">
+                and YEAR(at.at_date) = #{request.year}
+            </if>
+            <if test="request.month != null">
+                and MONTH(at.at_date) = #{request.month}
+            </if>
+            <if test="request.day != null">
+                and DAY(at.at_date) = #{request.day}
+            </if>
+        </where>
+        <!-- 정렬 기준(선택) -->
+        <if test="request.order != null">
+        order by
+            <choose>
+                <when test="request.order.name() == 'DATE'">
+                    at.at_date
+                </when>
+                <when test="request.order.name() == 'DESIGNER_NAME'">
+                    d.d_name
+                </when>
+                <when test="request.order.name() == 'STATUS'">
+                    at.at_status
+                </when>
+                <when test="request.order.name() == 'WORK'">
+                    at.at_work_time
+                </when>
+                <when test="request.order.name() == 'LEAVE'">
+                    at.at_leave_time
+                </when>
+            </choose>
+        </if>
+    </select>
+</mapper>

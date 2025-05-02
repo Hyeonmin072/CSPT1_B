@@ -1,15 +1,22 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.dto.shop.ShopProfileRequestDto;
+import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.RegularHoliday;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -20,11 +27,15 @@ import java.util.UUID;
 @Entity
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder
 public class Shop {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "s_id")
-    private UUID id = UUID.randomUUID(); // 가게 고유 키
+    private UUID id; // 가게 고유 키
 
     @Column(name = "s_name", nullable = false)
     private String name; // 이름
@@ -46,6 +57,12 @@ public class Shop {
 
     @Column(name = "s_review_count")
     private Integer reviewCount = 0;   // 리뷰 개수
+
+    @Column(name = "s_score")
+    private Double score = 0.0;         // 베이지안 평균계산법을 적용한 가게점수(정렬시 해당 점수기준 정렬함)
+
+    @Column(name = "s_like")
+    private Integer like = 0;   // 좋아요 개수
 
     @Column(name = "s_desc")
     private String desc = ""; // 소개
@@ -71,6 +88,16 @@ public class Shop {
     @Column(name = "s_post", nullable = false)
     private Integer post; // 우편번호
 
+    @Column(name = "s_thumbnail")
+    private String thumbnail;  // 썸네일 이미지
+
+    @CreatedDate
+    @Column(name = "s_create_date")
+    private LocalDate createDate; // 회원가입일
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<ShopBanner> banners = new ArrayList<>(); // 가게의 배너이미지들
+
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Review> reviews = new ArrayList<>(); // 가게에 대한 리뷰들
 
@@ -84,14 +111,19 @@ public class Shop {
     private List<ShopHoliday> holidays = new ArrayList<>(); // 휴무일(LocalDate)
 
     @Column(name = "s_regular_holiday")
-    private String regularHoliday = ""; // 정기 휴무일
+    @Enumerated(EnumType.STRING)
+    private RegularHoliday regularHoliday = RegularHoliday.NONE; // 정기 휴무일
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Coupon> coupons = new ArrayList<>(); // 등록한 쿠폰들
 
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
     private List<Event> events = new ArrayList<>(); // 등록한 이벤트들
-    
+
+    @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
+    private List<Payment> payments = new ArrayList<>(); // 이 가게에 대한 결제건들
+
+
 
     public Shop(String name, String pwd, String email, String address, String tel, String bizId, Integer post,Double longitude, Double latitude) {
         this.name = name;
@@ -104,9 +136,17 @@ public class Shop {
         this.longitude=longitude;
         this.latitude=latitude;
     }
-    public void updateRating(Double rating){
-        this.rating=rating;
+    public void updateRating(Double rating,Double totalRating,Integer reviewCount){
+        this.rating = rating;
+        this.totalRating = totalRating;
+        this.reviewCount = reviewCount;
     }
+    public void updateScore(Double score){
+        this.score=score;
+    }
+
+
+
 
     @Override
     public final boolean equals(Object o) {
@@ -124,7 +164,7 @@ public class Shop {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void updateProfile(ShopProfileRequestDto request) {
+    public void updateProfile(ShopProfileRequestDto request, String thumbnail) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }
@@ -149,8 +189,11 @@ public class Shop {
         if (!request.getClose().equals(this.closeTime.toString()) && !request.getClose().isBlank()) { // 마감시간
             this.closeTime =  LocalTime.parse(request.getClose(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getRegularHoliday().equals(this.regularHoliday) && !request.getRegularHoliday().isBlank()) { // 정기 휴무일
+        if (request.getRegularHoliday() != this.regularHoliday) { // 정기 휴무일
             this.regularHoliday = request.getRegularHoliday();
+        }
+        if (!thumbnail.equals("")){
+            this.thumbnail = thumbnail;
         }
     }
 }

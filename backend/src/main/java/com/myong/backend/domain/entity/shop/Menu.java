@@ -1,6 +1,6 @@
 package com.myong.backend.domain.entity.shop;
 
-import com.myong.backend.domain.dto.menu.MenuEditDto;
+import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -18,8 +18,9 @@ import java.util.UUID;
 public class Menu {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "m_id")
-    private UUID id = UUID.randomUUID(); // 메뉴 고유 키
+    private UUID id; // 메뉴 고유 키
 
     @Column(name = "m_name", nullable = false)
     private String name; // 이름
@@ -30,11 +31,21 @@ public class Menu {
     @Column(name = "m_price")
     private Integer price = 0; // 금액
 
+    @Column(name = "m_image")
+    private String image = ""; // 메뉴이미지
+
     @Column(name = "m_estimated_time")
     private String estimatedTime = ""; // 소요시간
 
     @Column(name = "m_common", nullable = false)
     private String common; // 공통여부
+
+    @Column(name = "m_category", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private MenuCategory category = MenuCategory.NONE; // 메뉴 카테고리
+
+    @Column(name = "m_recommend")
+    private boolean recommend = false; // 추천 메뉴 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false )
@@ -44,8 +55,12 @@ public class Menu {
     @JoinColumn(name = "d_id", nullable = false )
     private Designer designer; // 디자이너 고유 키
 
+    @OneToOne
+    @JoinColumn(name = "e_id", nullable = true)
+    private Event event;
+
     @Builder
-    public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer) {
+    public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer, MenuCategory category) {
         this.name = name;
         this.desc = desc;
         this.price = price;
@@ -53,6 +68,7 @@ public class Menu {
         this.common = common;
         this.shop = shop;
         this.designer = designer;
+        this.category = category;
     }
 
 
@@ -73,7 +89,7 @@ public class Menu {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void edit(@Valid MenuEditDto request) {
+    public void edit(@Valid MenuRequestDto request) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }
@@ -88,6 +104,9 @@ public class Menu {
         }
         if (!request.getEstimatedTime().equals(this.estimatedTime) && !request.getEstimatedTime().isBlank()) { // 소요시간
             this.estimatedTime = request.getEstimatedTime();
+        }
+        if (!request.getCategory().equals(this.category) && request.getCategory() != null) { // 소요시간
+            this.category = request.getCategory();
         }
     }
 }

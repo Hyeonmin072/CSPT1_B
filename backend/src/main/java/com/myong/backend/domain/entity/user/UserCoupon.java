@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -31,9 +30,8 @@ public class UserCoupon {
     @JoinColumn(name = "c_id", nullable = false)
     private Coupon coupon; // 쿠폰 고유 키
 
-    @CreatedDate
-    @Column(name = "uc_create_date", updatable = false)
-    private LocalDate createDate; // 생성일 (유저가 쿠폰을 받은 날짜)
+    @Column(name = "uc_expire_date", updatable = false)
+    private LocalDate expireDate; // 쿠폰 만료 날짜
 
     @Override
     public final boolean equals(Object o) {
@@ -59,7 +57,7 @@ public class UserCoupon {
     /**
      *  복합키(직렬화 사용)
      */
-    private static class UserCouponId implements Serializable {
+    static class UserCouponId implements Serializable {
         private UUID userId;
         private UUID couponId;
     }

@@ -19,8 +19,9 @@ import java.util.UUID;
 public class Application {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ap_id")
-    private UUID id = UUID.randomUUID(); // 구인구직신청 고유 키
+    private UUID id; // 구인구직신청 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "jp_id", nullable = false)

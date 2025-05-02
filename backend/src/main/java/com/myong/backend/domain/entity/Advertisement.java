@@ -1,9 +1,6 @@
 package com.myong.backend.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -21,8 +18,9 @@ import java.util.UUID;
 public class Advertisement {
     //광고 고유키
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ad_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     //이미지 경로
     @Column(name = "ad_image", nullable = false)

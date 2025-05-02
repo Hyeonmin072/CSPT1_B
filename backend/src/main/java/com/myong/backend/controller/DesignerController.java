@@ -1,24 +1,27 @@
 package com.myong.backend.controller;
 
 
-import com.myong.backend.domain.dto.designer.Api;
-import com.myong.backend.domain.dto.designer.SignUpRequest;
-import com.myong.backend.domain.dto.designer.UpdateProfileRequest;
+import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
+import com.myong.backend.service.ResumeService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 
 @Slf4j
@@ -28,41 +31,35 @@ import java.util.UUID;
 public class DesignerController {
 
     private final DesignerService designerService;
+    private final ResumeService resumeService;
 
 
     @PostMapping("/signup")
     //회원가입
-    public
-    //Api<SignUpRequest>
-    ResponseEntity<?> signup(
+    public ResponseEntity<SignUpRequestDto> signup(
             @Valid
-            @RequestBody SignUpRequest request){
+            @RequestBody
+            SignUpRequestDto request){
         log.info("signup request: {}", request); //디버깅용 로그찍기
 
-        //var body = request.getData();//request의 데이터를 바디에 담고
+        designerService.signUp(request);
 
-        designerService.signUp(request);//서비스에 바디를 넣기
+        ResponseEntity<SignUpRequestDto> response = ResponseEntity.status(HttpStatus.OK).body(request);
 
-//        Api<SignUpRequest> response = Api.<SignUpRequest>builder()
-//                .resultCode(String.valueOf(HttpStatus.OK.value()))//결과코드가 맞으면 200코드를 반환
-//                .resultMessage(HttpStatus.OK.getReasonPhrase())//결과코드가 맞으면 ok메세지를 반화
-//                .data(body)
-//                .build();
-
-        return ResponseEntity.ok("회원가입성공");
+        return response;
     }
 
     //이메일 중복검사
-    @GetMapping("email/check/{email}")
-    public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable String email){
+    @GetMapping("/checkemail/{email}")
+    public ResponseEntity<Boolean> checkedEmailDuplicate(@PathVariable(name = "email") String email){
         log.info("checked email duplicate: {}", email);
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(designerService.checkEmailDuplication(email));
     }
 
     //닉네임 중복검사
-    @GetMapping("nickname/{nickname}/exists")
-    public ResponseEntity<Boolean> checkedNicknameDuplicate(@PathVariable String nickname){
+    @GetMapping("/nickname/{nickname}/exists")
+    public ResponseEntity<Boolean> checkedNicknameDuplicate(@PathVariable(value = "nickname") String nickname){
         log.info("checked nickname duplicate: {}", nickname);
         //중복되면 true, 중복안되면 false
         return ResponseEntity.ok(designerService.checkNicknameDuplication(nickname));
@@ -88,6 +85,7 @@ public class DesignerController {
     @PostMapping("/verifyemail")
     public String authCheck(@RequestBody @Valid EmailCheckDto emailCheckDto){
         Boolean checked = emailSendService.checkAuthNum(emailCheckDto.getEmail(), emailCheckDto.getAuthNum());
+
         if(checked){
             return "이메일 인증 성공!!";
         }else {
@@ -96,22 +94,104 @@ public class DesignerController {
     }
 
     //디자이너 프로필 불러오기
-    @GetMapping("/profile/{nickname}")
-    public ResponseEntity<Designer> profile(@PathVariable String nickname){
-        Designer designer = designerService.getProfile(nickname);
-        return ResponseEntity.ok(designer);
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileResponseDto> profile(){
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+
+        ProfileResponseDto responseDto = designerService.getProfile(designerEmail);
+        return ResponseEntity.ok(responseDto);
     }
 
+    // 디자이너 헤더 로딩
+    @GetMapping("/loadheader")
+    public ResponseEntity<DesignerLoadHeaderResponseDto> loadHeader(){
+        return ResponseEntity.ok(designerService.loadHeader());
+    }
+
+    //로그아웃 요청
+    @PostMapping("/signout")
+    public ResponseEntity<String> Signout(HttpServletResponse response){
+        return designerService.Signout(response);
+    }
+
+
+    //디자이너 프로필 수정 페이지
+    @GetMapping("/profile/update")
+    public ResponseEntity<UpdateProfileResponseDto> updateProfile(
+    ){
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+        return ResponseEntity.ok(designerService.getUpdateProfile(designerEmail));
+    }
+
+
     //디자이너 프로필 수정
-    @PostMapping("/profile/update/{nickname}")
+    @PostMapping("/profile/update")
     public ResponseEntity<Designer> updateProfile(
-            @PathVariable String nickname,
-            @Valid @RequestBody UpdateProfileRequest request
+            @Valid @RequestPart(name = "request") UpdateProfileRequestDto request,
+            @RequestParam(name = "updateImage") MultipartFile updateImage,
+            @RequestParam(name = "updateBackgroundImage") MultipartFile updateBackgroundImage
             ){
             log.info("update profile: {}", request);
 
-            Designer updatedesigner = designerService.updateProfile(nickname, request);
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+            String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+
+            Designer updatedesigner = designerService.updateProfile(designerEmail, request, updateImage, updateBackgroundImage);
             return ResponseEntity.ok(updatedesigner);
     }
 
+
+
+    //디자이너 이력서 수정
+    @PostMapping("/resume/update")
+    public ResponseEntity<Resume> updateResume(
+            @Valid  @RequestBody ResumeRequestDto resumeDto ){
+
+            Authentication authentication =
+                    SecurityContextHolder.getContext().getAuthentication();
+
+            String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+            log.info("update resume: {}", resumeDto);
+
+        Resume resume = resumeService.updateResume(designerEmail, resumeDto);
+        return ResponseEntity.ok(resume);
+    }
+
+
+
+    //디자이너 이력서 가져오기
+    @GetMapping("/resume")
+    public ResponseEntity<ResumeResponseDto> getResume(){
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+
+        ResumeResponseDto responseDto = designerService.getResume(designerEmail);
+
+
+
+        return ResponseEntity.ok(responseDto);
+    }
+
+    //디자이너 예약일 가져오기
+//    @GetMapping("/reservation")
+//    public List<DesignerReservationResponseDto> getReservation(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+//        Authentication authentication =
+//                SecurityContextHolder.getContext().getAuthentication();
+//
+//        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
+//
+//        return designerService.getReservations(designerEmail, date);
+//    }
 }
