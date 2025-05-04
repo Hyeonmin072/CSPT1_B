@@ -4,6 +4,7 @@ package com.myong.backend.controller;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Slf4j
@@ -182,6 +184,26 @@ public class DesignerController {
 
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    //구인포스트 가져오기
+    @GetMapping("/job/posts")
+    public ResponseEntity<JobPostListResponseDto> getJobPostList(
+            @RequestParam(defaultValue = "0") int page
+    ){
+        JobPostListResponseDto response = designerService.getJopPostList(page);
+
+        return ResponseEntity.ok(response);
+    }
+
+    //구인 포스터 상세페이지
+    @GetMapping("/job/post")
+    public ResponseEntity<ResponseJobPostDetailDto> getJobPost(
+            @RequestParam UUID id
+    ){
+        ResponseJobPostDetailDto response = designerService.getJobDetail(id);
+
+        return ResponseEntity.ok(response);
     }
 
     //디자이너 예약일 가져오기
