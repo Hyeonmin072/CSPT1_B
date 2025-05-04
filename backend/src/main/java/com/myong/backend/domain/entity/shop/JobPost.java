@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class JobPost {
     //생성일
     @CreatedDate
     @Column(name = "jp_create_date")
-    private LocalDate createDate;
+    private LocalDateTime createDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
