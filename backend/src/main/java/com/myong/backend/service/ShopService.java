@@ -17,7 +17,8 @@ import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationJPAResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationMyBatisResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.Period;
@@ -260,12 +261,15 @@ public class ShopService {
         return ShopMainResponseDto.builder()
                 .remainReservation(remainReservation)
                 .monthSales(monthSales)
-                .bestSalesdesignerEmail(bestSalesDesigner.getDesignerEmail())
-                .bestSalesdesignerName(bestSalesDesigner.getDesignerName())
+                .bestSalesDesignerEmail(bestSalesDesigner.getDesignerEmail())
+                .bestSalesDesignerName(bestSalesDesigner.getDesignerName())
+                .bestSalesDesignerImage(bestSalesDesigner.getDesignerImage())
                 .sales(bestSalesDesigner.getDesignerSales())
                 .bestLikedesignerEmail(bestLikeDesinger.getDesignerEmail())
                 .bestLikedesignerName(bestLikeDesinger.getDesignerName())
+                .bestLikedesignerImage(bestLikeDesinger.getDesignerImage())
                 .IncreasedLikes(bestLikeDesinger.getIncreasedLikes())
+                .shopName(shop.getName())
                 .rating(rating)
                 .reviewCount(reviewCount)
                 .build();
@@ -731,15 +735,14 @@ public class ShopService {
                 .build();
         designerRegularHolidayRepository.save(designerRegularHoliday);
 
-        // 디자이너의 location, longitude, latitude를 가입된 가게의 것으로 변경
-        designer.changeLocationInfo();
-
+        // 디자이너의 위치정보를 가입된 가게의 것으로 변경
+        designer.changeLocationByJoin(shop.getAddress(), shop.getLongitude(), shop.getLatitude());
 
         return "성공적으로 디자이너가 추가되었습니다.";
     }
 
     /**
-     * 사업자 추가할 디자이너 정보조회
+     * 사업자 추가할 디자이너 정보 조회
      */
     public ShopDesignerDetailResponseDto searchDesigner(ShopDesignerRequestDto request) {
         // 디자이너 찾기
@@ -856,7 +859,7 @@ public class ShopService {
      * @param request 디자이너 삭제 요청 정보가 담긴 DTO
      * @return 디자이너 삭제 결과 메시지
      */
-    public String deleteDesigner(ShopDesignerRequestDto request) {
+    public String fireDesigner(ShopDesignerRequestDto request) {
         // 디자이너 조회
         Designer designer = getDesigner(request.getDesignerEmail());
 
@@ -873,6 +876,9 @@ public class ShopService {
         designerRegularHolidayRepository.deleteByDesigner(designer);
         designerHolidayRepository.deleteByDesigner(designer);
         attendanceRepository.deleteByDesigner(designer);
+
+        // 디자이너의 위치정보를 초기화
+        designer.changeLocationByFire();
 
         // 성공 구문 반환
         return "성공적으로 디자이너가 삭제되었습니다.";
@@ -1006,7 +1012,7 @@ public class ShopService {
      * @param request 예약 조회 요청 정보가 담긴 DTO
      * @return 예약 목록
      */
-    public List<ShopReservationResponseDto> getReservations(ShopReservationRequestDto request) {
+    public List<ShopReservationMyBatisResponseDto> getReservations(ShopReservationRequestDto request) {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -1027,6 +1033,21 @@ public class ShopService {
         // 예약 상세 조회 결과 반환
         return reservationRepository.findDetailById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException("해당 예약을 찾을 수 없습니다."));
+    }
+
+    /**
+     * 지난 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
+     * @return 최근 7일 간의 예약 목록
+     */
+    public List<ShopReservationJPAResponseDto> getLastSevenDaysReservation() {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        // 가게 찾기
+        Shop shop = getShop(email);
+
+        LocalDateTime startDate = LocalDateTime.now().minusDays(7);
+        return reservationRepository.findLastSevenDays(startDate, shop);
     }
 
     /**
@@ -1289,7 +1310,7 @@ public class ShopService {
 
         // DTO 반환
         return groupingSales.entrySet().stream()
-                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue()))
+                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue(), e.getKey().getImage()))
                 .toList();
     }
 
@@ -1372,8 +1393,8 @@ public class ShopService {
                 .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
-                .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue()))
-                .orElse(new DesignerSalesResponseDto("","", 0L));
+                .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue(), entry.getKey().getImage()))
+                .orElse(new DesignerSalesResponseDto("","", 0L, ""));
     }
 
     /**
@@ -1392,7 +1413,7 @@ public class ShopService {
                     long likeCountThisMonth = designer.getUserDesignerLikes().stream() // 디자이너 별 좋아요로 스트림
                             .filter(like -> like.getCreatedDate().isAfter(startOfMonth.minusDays(1))) // 이번 달의 좋아요한 날짜를 필터링
                             .count(); // 필터링한 좋아요 개수 계산
-                    return new DesignerLikeResponseDto(designer.getName(), designer.getEmail(), likeCountThisMonth); // -> DTO
+                    return new DesignerLikeResponseDto(designer.getName(), designer.getEmail(), likeCountThisMonth, designer.getImage()); // -> DTO
                 })
                 .max(Comparator.comparingLong(DesignerLikeResponseDto::getIncreasedLikes)) // 가장 많이 증가한 디자이너 찾기
                 .orElse(null);

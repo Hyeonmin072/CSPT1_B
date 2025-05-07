@@ -2,13 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.myong.backend.repository.mybatis.ReservationMapper">
-    <select id="findAll" resultType="ShopReservationResponseDto">
+    <select id="findAll" resultType="ShopReservationMyBatisResponseDto">
         select r.r_service_date as serviceDate,
                u.u_name as userName,
                d.d_name as designerName,
                m.m_name as menuName,
                m.m_price as menuPrice,
-               r.r_id as reservationId
+               BIN_TO_UUID(r.r_id) as reservationId,
+               BIN_TO_UUID(u.u_id) as userId
         from reservation r
         join shop s on r.s_id = s.s_id
         join user u on r.u_id = u.u_id
@@ -19,24 +20,25 @@
             <if test="shopEmail != null">
                and s.s_email = #{shopEmail}
             </if>
-            <!-- 예약받은 날짜(필수) -->
-            <if test="request.date != null">
-                and DATE(r.r_service_date) = #{request.date}
-            </if>
-            <!-- 추가 검색기간(선택) -->
-            <if test="request.latest != null">
-                <choose>
-                    <when test="request.latest.name() == 'ONE_WEEK'">
-                        and r.r_service_date >= #{request.date} - interval 1 week
-                    </when>
-                    <when test="request.latest.name() == 'ONE_MONTH'">
-                        and r.r_service_date >= #{request.date} - interval 1 month
-                    </when>
-                    <when test="request.latest.name() == 'ONE_YEAR'">
-                        and r.r_service_date >= #{request.date} - interval 1 year
-                    </when>
-                </choose>
-            </if>
+            <!-- 추가 검색기간(선택) 또는 기준 날짜(필수) -->
+            <choose>
+                <when test="request.latest != null">
+                    <choose>
+                        <when test="request.latest.name() == 'ONE_WEEK'">
+                            and r.r_service_date between #{request.date} - interval 1 week and #{request.date} + interval 1 day
+                        </when>
+                        <when test="request.latest.name() == 'ONE_MONTH'">
+                            and r.r_service_date between #{request.date} - interval 1 month and #{request.date} + interval 1 day
+                        </when>
+                        <when test="request.latest.name() == 'ONE_YEAR'">
+                            and r.r_service_date between #{request.date} - interval 1 year and #{request.date} + interval 1 day
+                        </when>
+                    </choose>
+                </when>
+                <otherwise>
+                    and DATE(r.r_service_date) = #{request.date}
+                </otherwise>
+            </choose>
             <!-- 검색어(선택) -->
             <if test="request.search != null">
                and (u.u_name like concat('%', #{request.search}, '%') or
