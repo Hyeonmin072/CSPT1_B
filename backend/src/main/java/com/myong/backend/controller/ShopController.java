@@ -15,7 +15,8 @@ import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationJPAResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationMyBatisResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Period;
 import com.myong.backend.service.DesignerService;
@@ -331,7 +332,7 @@ public class ShopController {
      * 사업자 예약 관리(조회)
      */
     @GetMapping("/reservations")
-    public ResponseEntity<List<ShopReservationResponseDto>> getReservations(@Validated @RequestBody ShopReservationRequestDto request) {
+    public ResponseEntity<List<ShopReservationMyBatisResponseDto>> getReservations(@Validated @RequestBody ShopReservationRequestDto request) {
         return ResponseEntity.ok(shopService.getReservations(request));
     }
 
@@ -346,8 +347,8 @@ public class ShopController {
     /**
      * 지난 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
      */
-    @GetMapping("/blacklists")
-    public ResponseEntity<List<ShopReservationResponseDto>> getLastSevenDaysReservation() {
+    @GetMapping("/reservations/seven")
+    public ResponseEntity<List<ShopReservationJPAResponseDto>> getLastSevenDaysReservation() {
         return ResponseEntity.ok(shopService.getLastSevenDaysReservation());
     }
 

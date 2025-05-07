@@ -1,7 +1,7 @@
 package com.myong.backend.repository;
 
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationJPAResponseDto;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
@@ -23,6 +23,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
 
     List<Reservation> findAllByUser(User user);
 
+    List<Reservation> findByShop(Shop shop);
+
     @Query("select new com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto(" +
             "m.name, r.serviceDate, u.name, d.name,r.price) " +
             "from Reservation r " +
@@ -40,10 +42,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
                                             @Param("endDate")LocalDateTime endDate);
 
 
-    List<Reservation> findByShop(Shop shop);
-
-    @Query("select new com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto(" +
-            ") " +
-            "from ")
-    List<ShopReservationResponseDto> findLastSevenDays(Shop shop);
+    @Query("select new com.myong.backend.domain.dto.reservation.response.ShopReservationJPAResponseDto(" +
+            "r.serviceDate, u.name, d.name, m.name, m.price, r.id, u.id) " +
+            "from Reservation r " +
+            "join r.user u " +
+            "join r.menu m " +
+            "join r.designer d " +
+            "where r.serviceDate >= :startDate")
+    List<ShopReservationJPAResponseDto> findLastSevenDays(LocalDateTime startDate, Shop shop);
 }
