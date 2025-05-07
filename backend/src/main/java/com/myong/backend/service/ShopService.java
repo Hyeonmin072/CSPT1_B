@@ -1032,6 +1032,20 @@ public class ShopService {
     }
 
     /**
+     * 최근 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
+     * @return 최근 7일 간의 예약 목록
+     */
+    public List<ShopReservationResponseDto> getLastSevenDaysReservation() {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        // 가게 찾기
+        Shop shop = getShop(email);
+
+        reservationRepository.findLastSevenDays(shop);
+    }
+
+    /**
      * 사업자 오늘 남은 예약 개수 조회
      * 오늘 날짜와 시분초를 기준으로 하루동안 남은 예약건 수를 조회 -> 1, 3, 5
      *

@@ -1,6 +1,7 @@
 package com.myong.backend.repository;
 
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
@@ -40,4 +41,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
 
 
     List<Reservation> findByShop(Shop shop);
+
+    @Query("select new com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto(" +
+            ") " +
+            "from ")
+    List<ShopReservationResponseDto> findLastSevenDays(Shop shop);
 }

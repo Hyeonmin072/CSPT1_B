@@ -176,19 +176,19 @@ public class ShopController {
     }
 
     /**
-     * 사업자 메뉴 단건 조회
-     */
-    @GetMapping("/menu/{menuId}")
-    public ResponseEntity<MenuDetailResponseDto> getMenu(@PathVariable("menuId") String id) {
-        return ResponseEntity.ok(shopService.getMenu(id)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
-    }
-
-    /**
      * 사업자 메뉴 수정
      */
     @PatchMapping("/menu")
     public ResponseEntity<String> updateMenu(@Valid @RequestBody MenuRequestDto request) {
         return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    }
+
+    /**
+     * 사업자 메뉴 단건 조회
+     */
+    @GetMapping("/menu/{menuId}")
+    public ResponseEntity<MenuDetailResponseDto> getMenu(@PathVariable("menuId") String id) {
+        return ResponseEntity.ok(shopService.getMenu(id)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
 
     /**
@@ -238,7 +238,7 @@ public class ShopController {
     public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostRequestDto request) {
         return ResponseEntity.ok(shopService.deleteJobPost(request));
     }
-    
+
     /**
      * 사업자 소속 디자이너 추가
      */
@@ -341,6 +341,14 @@ public class ShopController {
     @GetMapping("/reservations/{reservationId}")
     public ResponseEntity<ShopReservationDetailResponseDto> getReservation(@PathVariable UUID reservationId) {
         return ResponseEntity.ok(shopService.getReservation(reservationId));
+    }
+
+    /**
+     * 최근 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
+     */
+    @GetMapping("/blacklists")
+    public ResponseEntity<List<ShopReservationResponseDto>> getLastSevenDaysReservation() {
+        return ResponseEntity.ok(shopService.getLastSevenDaysReservation());
     }
 
     /**
