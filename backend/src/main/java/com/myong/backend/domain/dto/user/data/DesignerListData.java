@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class DesignerListData {
 
     private String designerEmail;
-    private String designerName;
+    private String designerNickName;
     private String designerDesc;
     private Integer designerLike;
     private Double designerRating;
@@ -23,7 +23,7 @@ public class DesignerListData {
     public static DesignerListData fromDesigner(Designer designer){
         return DesignerListData.builder()
                 .designerEmail(designer.getEmail())
-                .designerName(designer.getName())
+                .designerNickName(designer.getNickName())
                 .designerDesc(designer.getDesc())
                 .designerLike(designer.getLike())
                 .designerRating(designer.getRating())
