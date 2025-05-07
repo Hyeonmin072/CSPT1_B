@@ -66,7 +66,7 @@ public class Designer {
     private Gender gender; //성별
 
     @Column(name = "d_location", nullable = false)
-    private String location = ""; // 디자이너 위치 (소속 가게 위치, 없으면  빈값)
+    private String location = ""; // 디자이너 상세주소 (소속 가게 상세주소, 없으면  빈값)
 
     @Column(name = "d_longitude", nullable = false)
     private Double longitude = 0.0;     // 디자이너 경도 (소속 가게 위치, 없으면 빈값)
@@ -202,7 +202,22 @@ public class Designer {
         if(!this.leaveTime.equals(leaveTime)) this.leaveTime = leaveTime;
     }
 
-    public void changeLocationInfo() {
-
+    /**
+     * 디자이너가 사업자 가게에 가입 시 위치정보 변경용 편의 메서드
+     */
+    public void changeLocationByJoin(String address, Double longitude, Double latitude) {
+        this.location = address;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
+
+    /**
+     * 디자이너가 사업자 가게에서 탈퇴 시 위치정보 변경용 편의 메서드
+     */
+    public void changeLocationByFire() {
+        this.location = "";
+        this.longitude = 0.0;
+        this.latitude = 0.0;
+    }
+
 }

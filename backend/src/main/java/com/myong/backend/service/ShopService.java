@@ -731,15 +731,14 @@ public class ShopService {
                 .build();
         designerRegularHolidayRepository.save(designerRegularHoliday);
 
-        // 디자이너의 location, longitude, latitude를 가입된 가게의 것으로 변경
-        designer.changeLocationInfo();
-
+        // 디자이너의 위치정보를 가입된 가게의 것으로 변경
+        designer.changeLocationByJoin(shop.getAddress(), shop.getLongitude(), shop.getLatitude());
 
         return "성공적으로 디자이너가 추가되었습니다.";
     }
 
     /**
-     * 사업자 추가할 디자이너 정보조회
+     * 사업자 추가할 디자이너 정보 조회
      */
     public ShopDesignerDetailResponseDto searchDesigner(ShopDesignerRequestDto request) {
         // 디자이너 찾기
@@ -856,7 +855,7 @@ public class ShopService {
      * @param request 디자이너 삭제 요청 정보가 담긴 DTO
      * @return 디자이너 삭제 결과 메시지
      */
-    public String deleteDesigner(ShopDesignerRequestDto request) {
+    public String fireDesigner(ShopDesignerRequestDto request) {
         // 디자이너 조회
         Designer designer = getDesigner(request.getDesignerEmail());
 
@@ -873,6 +872,9 @@ public class ShopService {
         designerRegularHolidayRepository.deleteByDesigner(designer);
         designerHolidayRepository.deleteByDesigner(designer);
         attendanceRepository.deleteByDesigner(designer);
+
+        // 디자이너의 위치정보를 초기화
+        designer.changeLocationByFire();
 
         // 성공 구문 반환
         return "성공적으로 디자이너가 삭제되었습니다.";

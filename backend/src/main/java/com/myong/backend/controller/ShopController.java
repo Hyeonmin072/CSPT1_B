@@ -291,8 +291,8 @@ public class ShopController {
      * 사업자 소속 디자이너 삭제
      */
     @DeleteMapping("/designer")
-    public ResponseEntity<String> deleteDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(shopService.deleteDesigner(request));
+    public ResponseEntity<String> fireDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
+        return ResponseEntity.ok(shopService.fireDesigner(request));
     }
 
     /**
