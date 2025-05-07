@@ -31,6 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -389,14 +390,37 @@ public class UserService {
     /**
      * 디자이너 페이지 로드
      *
-     * @return
+     * @return 탑디자이너, 핫디자이너, 유저기반디자이너 정보리스트
      */
     public DesignerPageResponseDto loadDesignerPage(UserDetailsDto requestUser){
         String email = requestUser.getUsername();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
+        // 가장 점수가 높은 디자이너들
         List<DesignerListData> topDesigners = designerRepository.findTopDesigners(PageRequest.of(0,3));
-        List<ShopListData>
+
+
+        // 저번달 기준 핫 한 디자이너들(리뷰 갯수)
+        LocalDateTime startDate = LocalDateTime.now().minusMonths(1).withDayOfMonth(1);
+        LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
+        List<Object[]> result = reviewRepository.findDesignerWithReviewCountBetweenDates(startDate, endDate,PageRequest.of(0,3));
+
+        List<DesignerListData> hotDesigners = result.stream()
+                .map(obj -> DesignerListData.fromDesigner((Designer) obj[0]))
+                .toList();
+
+        // 유저 기반 추천 디자이너(위치 + 점수)
+        List<Designer> result2 = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,6));
+        List<DesignerListData> designersForUser =  result2.stream()
+                .map(DesignerListData::fromDesigner)
+                .toList();
+
+        return DesignerPageResponseDto.builder()
+                .topDesigners(topDesigners)
+                .hotDesigners(hotDesigners)
+                .designersForUser(designersForUser)
+                .build();
+
     }
 
     /**

@@ -2,10 +2,12 @@ package com.myong.backend.repository;
 
 import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.entity.usershop.Review;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,4 +22,12 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             "From Review r Join r.reservation res " +
             "Where r.designer.email = :designerEmail")
     List<ReviewData> findAllByDesignerEmail(@Param("designerEmail") String email);
+
+
+    @Query("select r.designer , count(r.id)" +
+            "from Review r " +
+            "where r.createDate between :startDate and :endDate " +
+            "group by r.designer.id " +
+            "order by count(r.id) desc")
+    List<Object[]> findDesignerWithReviewCountBetweenDates(@Param("startDate")LocalDateTime startDate, @Param("endDate")LocalDateTime endDate, Pageable pageable);
 }
