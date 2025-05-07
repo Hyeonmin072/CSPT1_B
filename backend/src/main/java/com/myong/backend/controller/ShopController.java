@@ -10,7 +10,6 @@ import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
-import com.myong.backend.domain.dto.payment.DesignerLikeResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;

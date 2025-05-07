@@ -201,4 +201,8 @@ public class Designer {
         if(!this.workTime.equals(workTime)) this.workTime = workTime;
         if(!this.leaveTime.equals(leaveTime)) this.leaveTime = leaveTime;
     }
+
+    public void changeLocationInfo() {
+
+    }
 }

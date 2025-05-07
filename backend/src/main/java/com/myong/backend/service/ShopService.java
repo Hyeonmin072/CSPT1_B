@@ -74,8 +74,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ShopService {
-
     private final ShopBannerRepository shopBannerRepository;
+
     private final ShopRepository shopRepository;
     private final DefaultMessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -206,8 +206,6 @@ public class ShopService {
         // 엘라스틱 써치 도큐멘트 저장
         searchService.shopSave(shop);
 
-        // 기본 공통항목 생성
-        addCommon(signedShop);
         return "사업자 회원가입에 성공했습니다.";
     }
 
@@ -242,6 +240,36 @@ public class ShopService {
         }
 
         return ResponseEntity.ok("로그아웃에 성공하셨습니다");
+    }
+
+    /**
+     * 사업자 메인 페이지
+     *
+     * @return 메인 페이지에 필요한 정보 (오늘 남은 예약 인원, 이번 달 매출, 이번 달 매출 우수 디자이너, 이번 달 좋아요 우수 디자이너, 리뷰평점과 리뷰개수)
+     */
+    public ShopMainResponseDto getShopMain() {
+        Long remainReservation = getReservationsToday(); // 오늘 남은 예약 인원
+        Long monthSales = getShopSales(Period.ONE_MONTH).getTotalAmount(); // 이번 달 매출
+        DesignerSalesResponseDto bestSalesDesigner = getBestSalesDesigner(); // 이번 달 매출 우수 디자이너
+        DesignerLikeResponseDto bestLikeDesinger = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
+        Shop shop = getShop(getAuthenticatedEmail()); // 로그인한 가게 조회
+        Double rating = shop.getRating(); // 리뷰평점
+        int reviewCount = shop.getReviews().size(); // 리뷰개수
+
+        // DTO 반환
+        return ShopMainResponseDto.builder()
+                .remainReservation(remainReservation)
+                .monthSales(monthSales)
+                .bestSalesdesignerEmail(bestSalesDesigner.getDesignerEmail())
+                .bestSalesdesignerName(bestSalesDesigner.getDesignerName())
+                .sales(bestSalesDesigner.getDesignerSales())
+                .bestLikedesignerEmail(bestLikeDesinger.getDesignerEmail())
+                .bestLikedesignerName(bestLikeDesinger.getDesignerName())
+                .IncreasedLikes(bestLikeDesinger.getIncreasedLikes())
+                .rating(rating)
+                .reviewCount(reviewCount)
+                .build();
+
     }
 
     /**
@@ -702,6 +730,9 @@ public class ShopService {
                 .designer(designer)
                 .build();
         designerRegularHolidayRepository.save(designerRegularHoliday);
+
+        // 디자이너의 location, longitude, latitude를 가입된 가게의 것으로 변경
+        designer.changeLocationInfo();
 
 
         return "성공적으로 디자이너가 추가되었습니다.";
@@ -1417,67 +1448,9 @@ public class ShopService {
     }
 
     /**
-     * 사업자 공통 항목 추가
-     * 사업자가 회원가입 시 추후 메뉴에서 활용할 공통항목 추가
-     */
-    private void addCommon(Shop shop) {
-        // 공통 항목 생성 후 저장(디자이너 로직 생성 로직과 유사)
-        Designer common = Designer.builder()
-                .name("공통")
-                .nickName("공통")
-                .email(UUID.randomUUID().toString() + "@dummy.com") // 무작위의 이메일 지정
-                .password(UUID.randomUUID().toString()) // 무작위의 비밀번호 지정 -> 향후 디자이너로 로그인 시도 등 악용 방지
-                .tel("")
-                .birth(LocalDate.of(9999, 12, 31)) // 9999-12-3
-                .gender(Gender.NO)
-                .like(0)
-                .rating(0.0)
-                .totalRating(0.0)
-                .reviewCount(0)
-                .workTime(LocalTime.of(0,0))
-                .leaveTime(LocalTime.of(0,0))
-                .build();
-
-        designerRepository.save(common);
-
-        // 회원가입된 가게에 공통 항목 추가
-        common.getJob(shop);
-    }
-
-    /**
      * 사업자 이름 조회 (헤더 반환)
      */
     public String loadHeader() {
         return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회
-    }
-
-    /**
-     * 사업자 메인 페이지
-     * 
-     * @return 메인 페이지에 필요한 정보 (오늘 남은 예약 인원, 이번 달 매출, 이번 달 매출 우수 디자이너, 이번 달 좋아요 우수 디자이너, 리뷰평점과 리뷰개수)
-     */
-    public ShopMainResponseDto getShopMain() {
-        Long remainReservation = getReservationsToday(); // 오늘 남은 예약 인원
-        Long monthSales = getShopSales(Period.ONE_MONTH).getTotalAmount(); // 이번 달 매출
-        DesignerSalesResponseDto bestSalesDesigner = getBestSalesDesigner(); // 이번 달 매출 우수 디자이너
-        DesignerLikeResponseDto bestLikeDesinger = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
-        Shop shop = getShop(getAuthenticatedEmail()); // 로그인한 가게 조회
-        Double rating = shop.getRating(); // 리뷰평점
-        int reviewCount = shop.getReviews().size(); // 리뷰개수
-
-        // DTO 반환
-        return ShopMainResponseDto.builder()
-                .remainReservation(remainReservation)
-                .monthSales(monthSales)
-                .bestSalesdesignerEmail(bestSalesDesigner.getDesignerEmail())
-                .bestSalesdesignerName(bestSalesDesigner.getDesignerName())
-                .sales(bestSalesDesigner.getDesignerSales())
-                .bestLikedesignerEmail(bestLikeDesinger.getDesignerEmail())
-                .bestLikedesignerName(bestLikeDesinger.getDesignerName())
-                .IncreasedLikes(bestLikeDesinger.getIncreasedLikes())
-                .rating(rating)
-                .reviewCount(reviewCount)
-                .build();
-
     }
 }
