@@ -10,6 +10,7 @@ import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerLikeResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
@@ -460,5 +461,13 @@ public class ShopController {
     @GetMapping("/sales/designers/best")
     public ResponseEntity<DesignerSalesResponseDto> getBestDesigner() {
         return ResponseEntity.ok(shopService.getBestDesigner());
+    }
+
+    /**
+     * 사업자 이번 달의 좋아요 우수 디자이너
+     */
+    @GetMapping("/designers/like")
+    public ResponseEntity<DesignerLikeResponseDto> getBestLikeDesinger() {
+        return ResponseEntity.ok(shopService.getBestLikeDesinger());
     }
 }

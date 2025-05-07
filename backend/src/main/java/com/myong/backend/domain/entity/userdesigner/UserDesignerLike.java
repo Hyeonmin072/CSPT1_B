@@ -5,16 +5,18 @@ import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class UserDesignerLike {
 
     @EmbeddedId
@@ -28,6 +30,15 @@ public class UserDesignerLike {
     @ManyToOne(fetch = FetchType.LAZY)
     private Designer designer; // 디자이너 고유 키
 
+    @CreatedDate
+    private LocalDate createdDate; // 유저가 디자이너를 좋아요 한 날짜
+
+    @Builder
+    public UserDesignerLike(UserDesignerLikeId id, User user, Designer designer) {
+        this.id = id;
+        this.user = user;
+        this.designer = designer;
+    }
 
     @Override
     public final boolean equals(Object o) {

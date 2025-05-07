@@ -11,6 +11,7 @@ import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
 import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.payment.DesignerLikeResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
@@ -1341,6 +1342,14 @@ public class ShopService {
                 .max(Map.Entry.comparingByValue())
                 .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue()))
                 .orElse(null);
+    }
+
+    /**
+     * 이번달 좋아요 수가 가장 많이 증가한 디자이너 조회
+     * @return
+     */
+    public DesignerLikeResponseDto getBestLikeDesinger() {
+        Shop shop = getShop(getAuthenticatedEmail());
     }
 
     /**
