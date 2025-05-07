@@ -18,7 +18,7 @@ import java.util.Map;
 @Getter
 public class UserDetailsDto implements UserDetails, OAuth2User {
     private String name;
-    private String username;
+    private String username; //이메일
     private String password;
     private List<GrantedAuthority> authorities;
     private Map<String, Object> attributes; // OAuth2 정보 저장

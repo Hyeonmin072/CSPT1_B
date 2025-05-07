@@ -8,8 +8,10 @@ import lombok.Data;
 @AllArgsConstructor
 public class DesignerListData {
 
-    private String name;
-    private String desc;
-    private Integer like;
-    private Double rating;
+    private String designerEmail;
+    private String designerName;
+    private String designerDesc;
+    private Integer designerLike;
+    private Double designerRating;
+    private String designerImage;
 }

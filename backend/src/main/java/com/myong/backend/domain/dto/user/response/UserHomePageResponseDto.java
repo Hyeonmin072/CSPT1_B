@@ -1,5 +1,6 @@
 package com.myong.backend.domain.dto.user.response;
 
+import com.myong.backend.domain.dto.user.data.DesignerListData;
 import com.myong.backend.domain.dto.user.data.DesignerTop4ListData;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.data.ShopTop3ListData;
@@ -18,7 +19,7 @@ import java.util.List;
 public class UserHomePageResponseDto {
 
     private List<ShopTop3ListData> top3Shops;
-    private List<DesignerTop4ListData> top4Designers;
+    private List<DesignerListData> top4Designers;
     private List<Advertisement> advertisements;
 
 
