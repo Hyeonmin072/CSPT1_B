@@ -390,11 +390,10 @@ public class UserService {
     /**
      * 디자이너 페이지 로드
      *
-     * @return 탑디자이너, 핫디자이너, 유저기반디자이너 정보리스트
+     * @return 로그인시 -> 탑디자이너, 핫디자이너, 유저기반디자이너 리스트 제공
+     *         비로그인시  -> 탑디자이너, 핫디자이너 리스트만 제공
      */
     public DesignerPageResponseDto loadDesignerPage(UserDetailsDto requestUser){
-        String email = requestUser.getUsername();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
 
         // 가장 점수가 높은 디자이너들
         List<DesignerListData> topDesigners = designerRepository.findTopDesigners(PageRequest.of(0,3));
@@ -408,6 +407,18 @@ public class UserService {
         List<DesignerListData> hotDesigners = result.stream()
                 .map(obj -> DesignerListData.fromDesigner((Designer) obj[0]))
                 .toList();
+
+        // 비로그인 시, 유저 기반 추천 디자이너는 제외
+        if(requestUser == null){
+            return DesignerPageResponseDto.builder()
+                    .topDesigners(topDesigners)
+                    .hotDesigners(hotDesigners)
+                    .build();
+        }
+
+        String email = requestUser.getUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+
 
         // 유저 기반 추천 디자이너(위치 + 점수)
         List<Designer> result2 = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,6));

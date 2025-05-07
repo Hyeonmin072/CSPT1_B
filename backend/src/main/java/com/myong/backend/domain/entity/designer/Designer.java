@@ -65,13 +65,13 @@ public class Designer {
     @Enumerated(EnumType.STRING)
     private Gender gender; //성별
 
-    @Column(name = "d_location")
+    @Column(name = "d_location", nullable = false)
     private String location = ""; // 디자이너 위치 (소속 가게 위치, 없으면  빈값)
 
-    @Column(name = "d_longitude")
+    @Column(name = "d_longitude", nullable = false)
     private Double longitude = 0.0;     // 디자이너 경도 (소속 가게 위치, 없으면 빈값)
 
-    @Column(name = "d_latitude")
+    @Column(name = "d_latitude", nullable = false)
     private Double latitude = 0.0;      // 디자이너 위도 (소속 가게 위치, 없으면 빈값)
 
     @Column(name = "d_like")
