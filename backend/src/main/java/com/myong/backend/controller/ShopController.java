@@ -354,14 +354,6 @@ public class ShopController {
     }
 
     /**
-     * 사업자 오늘 남은 예약 개수 조회
-     */
-    @GetMapping("/reservations/today")
-    public ResponseEntity<Long> getReservationsToday() {
-        return ResponseEntity.ok(shopService.getReservationsToday());
-    }
-
-    /**
      * 사업자 근태 관리(조회)
      */
     @GetMapping("/attendances")
@@ -456,18 +448,10 @@ public class ShopController {
     }
 
     /**
-     * 사업자 이번 달의 매출 우수 디자이너
+     * 사업자 메인 페이지(오늘 남은 예약 인원, 이번 달 매출, 이번 달 매출 우수 디자이너, 이번 달 좋아요 우수 디자이너, 가게 평점과 리뷰개수)
      */
-    @GetMapping("/sales/designers/best")
-    public ResponseEntity<DesignerSalesResponseDto> getBestDesigner() {
-        return ResponseEntity.ok(shopService.getBestDesigner());
-    }
-
-    /**
-     * 사업자 이번 달의 좋아요 우수 디자이너
-     */
-    @GetMapping("/designers/like")
-    public ResponseEntity<DesignerLikeResponseDto> getBestLikeDesinger() {
-        return ResponseEntity.ok(shopService.getBestLikeDesinger());
+    @GetMapping("/main")
+    public ResponseEntity<ShopMainResponseDto> getShopMain() {
+        return ResponseEntity.ok(shopService.getShopMain());
     }
 }

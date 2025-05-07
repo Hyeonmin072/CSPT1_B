@@ -1318,7 +1318,7 @@ public class ShopService {
      * 사업자 이번 달의 매출 우수 디자이너
      * @return 우수 디자이너의 관련 정보를 담은 DTO
      */
-    public DesignerSalesResponseDto getBestDesigner() {
+    public DesignerSalesResponseDto getBestSalesDesigner() {
         // 로그인 정보에서 가게 이메일을 꺼내고, 가게 조회
         String shopEmail = getAuthenticatedEmail();
         Shop shop = getShop(shopEmail);
@@ -1342,7 +1342,7 @@ public class ShopService {
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue()))
-                .orElse(null);
+                .orElse(new DesignerSalesResponseDto("","", 0L));
     }
 
     /**
@@ -1449,5 +1449,35 @@ public class ShopService {
      */
     public String loadHeader() {
         return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회
+    }
+
+    /**
+     * 사업자 메인 페이지
+     * 
+     * @return 메인 페이지에 필요한 정보 (오늘 남은 예약 인원, 이번 달 매출, 이번 달 매출 우수 디자이너, 이번 달 좋아요 우수 디자이너, 리뷰평점과 리뷰개수)
+     */
+    public ShopMainResponseDto getShopMain() {
+        Long remainReservation = getReservationsToday(); // 오늘 남은 예약 인원
+        Long monthSales = getShopSales(Period.ONE_MONTH).getTotalAmount(); // 이번 달 매출
+        DesignerSalesResponseDto bestSalesDesigner = getBestSalesDesigner(); // 이번 달 매출 우수 디자이너
+        DesignerLikeResponseDto bestLikeDesinger = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
+        Shop shop = getShop(getAuthenticatedEmail()); // 로그인한 가게 조회
+        Double rating = shop.getRating(); // 리뷰평점
+        int reviewCount = shop.getReviews().size(); // 리뷰개수
+
+        // DTO 반환
+        return ShopMainResponseDto.builder()
+                .remainReservation(remainReservation)
+                .monthSales(monthSales)
+                .bestSalesdesignerEmail(bestSalesDesigner.getDesignerEmail())
+                .bestSalesdesignerName(bestSalesDesigner.getDesignerName())
+                .sales(bestSalesDesigner.getDesignerSales())
+                .bestLikedesignerEmail(bestLikeDesinger.getDesignerEmail())
+                .bestLikedesignerName(bestLikeDesinger.getDesignerName())
+                .IncreasedLikes(bestLikeDesinger.getIncreasedLikes())
+                .rating(rating)
+                .reviewCount(reviewCount)
+                .build();
+
     }
 }
