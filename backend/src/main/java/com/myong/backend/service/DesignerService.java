@@ -4,10 +4,12 @@ import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.designer.data.ReviewData;
+import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.JobPost;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.ReviewRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -340,6 +342,16 @@ public class DesignerService {
 
     }
 
+    /**
+     * 디자이너 리뷰 이미지 불러오기
+     *
+     * @param
+     * @return 이미지 리스트
+     */
+    public List<DesignerReviewImageResponseDto> getDesignerReviewImage(String email){
+        Designer designer = designerRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return reviewRepository.findReviewImages(designer,PageRequest.of(0,10));
+    }
 
 
     //이메일 중복검사 매서드

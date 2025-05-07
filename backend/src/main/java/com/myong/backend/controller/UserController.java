@@ -16,10 +16,7 @@ import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
-import com.myong.backend.service.ReservationService;
-import com.myong.backend.service.ReviewService;
-import com.myong.backend.service.SearchService;
-import com.myong.backend.service.UserService;
+import com.myong.backend.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -45,6 +42,7 @@ public class UserController {
     private final ReservationService reservationService;
     private final ReviewService reviewService;
     private final SearchService searchService;
+    private final DesignerService designerService;
 
     // 회원가입
     @PostMapping("/signup")
@@ -142,6 +140,14 @@ public class UserController {
     @GetMapping("/designerpage")
     public ResponseEntity<DesignerPageResponseDto> loadDesignerPage(@AuthenticationPrincipal UserDetailsDto user){
         return ResponseEntity.ok(userService.loadDesignerPage(user));
+    }
+
+    /**
+     *   디자이너 리뷰 이미지 요청
+     */
+    @GetMapping("/{designeremail}/review-images")
+    public ResponseEntity<List<DesignerReviewImageResponseDto>> getDesignerReviewImage(@PathVariable(name = "designeremail")String email){
+        return ResponseEntity.ok(designerService.getDesignerReviewImage(email));
     }
 
     /**
