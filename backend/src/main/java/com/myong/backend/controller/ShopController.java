@@ -344,7 +344,7 @@ public class ShopController {
     }
 
     /**
-     * 최근 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
+     * 지난 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
      */
     @GetMapping("/blacklists")
     public ResponseEntity<List<ShopReservationResponseDto>> getLastSevenDaysReservation() {

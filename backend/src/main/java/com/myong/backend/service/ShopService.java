@@ -1032,7 +1032,7 @@ public class ShopService {
     }
 
     /**
-     * 최근 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
+     * 지난 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
      * @return 최근 7일 간의 예약 목록
      */
     public List<ShopReservationResponseDto> getLastSevenDaysReservation() {
