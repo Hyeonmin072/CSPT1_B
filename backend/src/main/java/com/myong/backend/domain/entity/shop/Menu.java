@@ -1,9 +1,8 @@
 package com.myong.backend.domain.entity.shop;
 
-import com.myong.backend.domain.dto.menu.MenuRequestDto;
+import com.myong.backend.domain.dto.menu.MenuUpdateRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -89,15 +88,12 @@ public class Menu {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void edit(@Valid MenuRequestDto request) {
+    public void edit(MenuUpdateRequestDto request) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }
         if (!request.getDesc().equals(this.desc)) { // 설명
             this.desc = request.getDesc();
-        }
-        if (!request.getCommon().equals(this.common)) { // 공통여부
-            this.common = request.getCommon();
         }
         if (!request.getPrice().equals(this.price) && request.getPrice() > 0) { // 금액
             this.price = request.getPrice();
@@ -105,7 +101,7 @@ public class Menu {
         if (!request.getEstimatedTime().equals(this.estimatedTime) && !request.getEstimatedTime().isBlank()) { // 소요시간
             this.estimatedTime = request.getEstimatedTime();
         }
-        if (!request.getCategory().equals(this.category) && request.getCategory() != null) { // 소요시간
+        if (!request.getCategory().equals(this.category) && request.getCategory() != null) { // 카테고리
             this.category = request.getCategory();
         }
     }

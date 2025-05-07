@@ -8,9 +8,7 @@ import com.myong.backend.domain.dto.event.EventResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
-import com.myong.backend.domain.dto.menu.MenuRequestDto;
-import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.menu.*;
 import com.myong.backend.domain.dto.payment.DesignerLikeResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
@@ -492,58 +490,43 @@ public class ShopService {
      * @param request 메뉴 등록 요청 정보가 담긴 DTO
      * @return 메뉴 등록 결과 메시지
      */
-    public String addMenu(@Valid MenuRequestDto request) {
-        // 인증정보에서 사업자 이메일 꺼내기
+    public String createMenu(@Valid MenuCreateRequestDto request) {
+        // 인증정보에서 사업자 이메일 꺼내고, 가게 조회
         String email = getAuthenticatedEmail();
-
+        
         Shop shop = getShop(email);
 
-        // 디자이너 이메일로 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        // 디자이너 당 메뉴 엔티티 개체 생성 후 저장
+        for (String designerEmail : request.getDesignerEmails()) {
+            Designer designer = getDesigner(designerEmail);
 
-        // 메뉴 엔티티 개체 생성 후 저장
-        Menu menu = Menu.builder()
-                .name(request.getName())
-                .desc(request.getDesc())
-                .price(request.getPrice())
-                .estimatedTime(request.getEstimatedTime())
-                .common(request.getCommon())
-                .shop(shop)
-                .designer(designer)
-                .category(request.getCategory())
-                .build();
+            Menu menu = Menu.builder()
+                    .name(request.getName())
+                    .desc(request.getDesc())
+                    .price(request.getPrice())
+                    .estimatedTime(request.getEstimatedTime())
+                    .shop(shop)
+                    .designer(designer)
+                    .category(request.getCategory())
+                    .build();
 
-        menuRepository.save(menu);
+            menuRepository.save(menu);
+        }
+
         return "성공적으로 메뉴가 등록되었습니다.";
     }
 
     /**
-     * 사업자 메뉴 목록 조회
-     * 로그인 인증 정보를 통해 등록된 메뉴 목록 반환
+     * 사업자 소속 디자이너의 메뉴 목록 조회
+     * 가게에 소속된 디자이너이 등록된 메뉴 목록을 반환
      *
      * @return 메뉴 목록
      */
-    public List<MenuResponseDto> getMenus() {
-        // 로그인 인증 정보에서 이메일 가져오기
-        String email = getAuthenticatedEmail();
-
-        Shop shop = shopRepository.findByEmail(email)
-                .orElseThrow(() ->  new NoSuchElementException("가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
-
-
-        List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
-        List<MenuResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
-        for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
-            MenuResponseDto menuResponseDto = MenuResponseDto.builder().
-                    id(menu.getId().toString()).
-                    name(menu.getName()).
-                    designerName(menu.getDesigner().getName()).
-                    price(menu.getPrice()).
-                    category(menu.getCategory())
-                    .build();
-            response.add(menuResponseDto);
-        }
-        return response; // 메뉴 목록 반환
+    public List<MenuResponseDto> getMenus(String designerEmail) {
+        Designer designer = getDesigner(designerEmail);
+        return designer.getMenus().stream()
+                .map(m -> new MenuResponseDto(m.getId(), m.getName(), designer.getName(), m.getPrice(), m.getCategory()))
+                .toList();
     }
 
     /**
@@ -575,7 +558,7 @@ public class ShopService {
      * @param request 메뉴 수정 요청 정보가 담긴 DTO
      * @return 메뉴 수정 결과 메시지
      */
-    public String updateMenu(@Valid MenuRequestDto request) {
+    public String updateMenu(MenuUpdateRequestDto request) {
         Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정
@@ -587,11 +570,11 @@ public class ShopService {
      * 사업자 메뉴 삭제
      * 메뉴 정보 삭제
      *
-     * @param request 메뉴 삭제 요청 정보가 담긴 DTO
+     * @param menuId 메뉴 삭제 요청 정보가 담긴 DTO
      * @return 메뉴 삭제 결과 메시지
      */
-    public String deleteMenu(@Valid MenuRequestDto request) {
-        Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
+    public String deleteMenu(String menuId) {
+        Menu menu = menuRepository.findById(UUID.fromString(menuId))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환

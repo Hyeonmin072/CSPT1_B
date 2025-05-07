@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public interface DesignerRepository extends JpaRepository<Designer, UUID> {
              nativeQuery = true)
     List<Designer> findDesignersForUser(@Param("longitude")double longitude, @Param("latitude")double latitude,Pageable pageable);
 
+    List<Designer> findByEmailIn(Collection<String> emails);
 }
 
 

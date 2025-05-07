@@ -2,14 +2,20 @@ package com.myong.backend.domain.dto.menu;
 
 import com.myong.backend.domain.entity.shop.MenuCategory;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
-public class MenuRequestDto {
+import java.util.List;
+
+@Getter
+@NoArgsConstructor
+public class MenuUpdateRequestDto {
 
     @NotBlank
-    String designerEmail;
+    List<String> designerEmails;
 
+    @NotBlank
     String id;
 
     @NotBlank
@@ -18,12 +24,11 @@ public class MenuRequestDto {
     @NotBlank
     String desc;
 
+    @NotNull
     MenuCategory category;
 
+    @NotNull
     Integer price;
 
     String estimatedTime;
-
-    @NotBlank
-    String common; // yes or no
 }

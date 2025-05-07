@@ -7,9 +7,7 @@ import com.myong.backend.domain.dto.event.EventResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
-import com.myong.backend.domain.dto.menu.MenuRequestDto;
-import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.menu.*;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
@@ -164,23 +162,23 @@ public class ShopController {
      * 사업자 메뉴 등록
      */
     @PostMapping("/menu")
-    public ResponseEntity<String> addMenu(@Valid @RequestBody MenuRequestDto request) {
-        return ResponseEntity.ok(shopService.addMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    public ResponseEntity<String> createMenu(@Valid @RequestBody MenuCreateRequestDto request) {
+        return ResponseEntity.ok(shopService.createMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
-     * 사업자 메뉴 목록 조회
+     * 사업자 소속 디자이너의 메뉴 목록 조회
      */
     @GetMapping("/menus")
-    public ResponseEntity<List<MenuResponseDto>> getMenu() {
-        return ResponseEntity.ok(shopService.getMenus()); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
+    public ResponseEntity<List<MenuResponseDto>> getMenus(@RequestParam String designerEmail) {
+        return ResponseEntity.ok(shopService.getMenus(designerEmail)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
 
     /**
      * 사업자 메뉴 수정
      */
     @PatchMapping("/menu")
-    public ResponseEntity<String> updateMenu(@Valid @RequestBody MenuRequestDto request) {
+    public ResponseEntity<String> updateMenu(@Valid @RequestBody MenuUpdateRequestDto request) {
         return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
@@ -195,9 +193,9 @@ public class ShopController {
     /**
      * 사업자 메뉴 삭제
      */
-    @DeleteMapping("/menu")
-    public ResponseEntity<String> deleteMenu(@Valid @RequestBody MenuRequestDto request) {
-        return ResponseEntity.ok(shopService.deleteMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    @DeleteMapping("/menu/{menuId}")
+    public ResponseEntity<String> deleteMenu(@PathVariable("menuId") String id) {
+        return ResponseEntity.ok(shopService.deleteMenu(id)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
