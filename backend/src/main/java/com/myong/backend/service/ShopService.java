@@ -30,6 +30,7 @@ import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
@@ -1166,21 +1167,21 @@ public class ShopService {
         // 이번 주, 이번 달, 이번 해 기준에 따라 필터링한 결과의 총 금액 계산
         // 기본값 세팅
         long totalAmount = 0L;
-        Map<String, Long> graph = Map.of(); 
+        Map<String, Long> graph = Map.of();
         LocalDate now = LocalDate.now();
 
         if (period.equals(Period.ONE_WEEK)) { // 이번 주인 경우 -> ONE_WEEK
             LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); // 현재 날짜가 소속된 주의 월요일인 날짜 가져오기
-            
+
             // 현재 날짜가 소속된 주의 총 금액 계산
             totalAmount = payments.stream()
-                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
+                    .filter(p -> p.getCreateDate().toLocalDate().isEqual(startOfWeek) || p.getCreateDate().toLocalDate().isAfter(startOfWeek))
                     .mapToLong(Payment::getPrice)
                     .sum();
 
             // 요일 별로 합산 -> Map<요일, 요일 별 매출>
             graph = payments.stream()
-                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfWeek))
+                    .filter(p -> p.getCreateDate().toLocalDate().isEqual(startOfWeek) || p.getCreateDate().toLocalDate().isAfter(startOfWeek))
                     .collect(Collectors.groupingBy(
                             p -> p.getCreateDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN), // 요일 기준 그룹화
                             Collectors.summingLong(Payment::getPrice) // 가격 합산
@@ -1190,13 +1191,13 @@ public class ShopService {
 
             // 현재 날짜가 소속된 달의 총 금액 계산
             totalAmount = payments.stream()
-                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth.minusDays(1)))
                     .mapToLong(Payment::getPrice)
                     .sum();
 
             // 날짜 별로 합산 -> Map<날짜, 날짜 별 매출>
             graph = payments.stream()
-                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth.minusDays(1)))
                     .collect(Collectors.groupingBy(
                             p -> String.valueOf(p.getCreateDate().getDayOfMonth()) + "일", // 날짜 기준 그룹화
                             Collectors.summingLong(Payment::getPrice) // 가격 합산
@@ -1206,13 +1207,13 @@ public class ShopService {
 
             // 현재 날짜가 소속된 년도의 총 금액 계산
             totalAmount = payments.stream()
-                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
+                    .filter(p -> p.getCreateDate().toLocalDate().isEqual(startOfYear) || p.getCreateDate().toLocalDate().isAfter(startOfYear))
                     .mapToLong(Payment::getPrice)
                     .sum();
 
             // 날짜 별로 합산 -> Map<년도, 년도 별 매출>
             graph = payments.stream()
-                    .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfYear))
+                    .filter(p -> p.getCreateDate().toLocalDate().isEqual(startOfYear) || p.getCreateDate().toLocalDate().isAfter(startOfYear))
                     .collect(Collectors.groupingBy(
                             p -> p.getCreateDate().getMonth().getDisplayName(TextStyle.FULL, Locale.KOREAN), // 월 기준 그룹화
                             Collectors.summingLong(Payment::getPrice) // 가격 합산
@@ -1252,7 +1253,7 @@ public class ShopService {
         // 이번 달 기준에 따라 필터링한 뒤, 디자이너 별로 그룹화한 총 금액 계산
         LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         Map<Designer, Long> groupingSales = payments.stream()
-                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth.minusDays(1)))
                 .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)));
 
         // DTO 반환
@@ -1281,7 +1282,7 @@ public class ShopService {
         List<Payment> payments = filteredPayments.stream()
                 .filter(p -> {
                     LocalDate paymentDate = p.getCreateDate().toLocalDate();
-                    return paymentDate.isAfter(startOfMonth) && !paymentDate.isAfter(endOfMonth);
+                    return paymentDate.isAfter(startOfMonth.minusDays(1)) && !paymentDate.isAfter(endOfMonth.plusDays(1));
                 })
                 .toList();
 
@@ -1330,13 +1331,13 @@ public class ShopService {
         // 이번 달 기준에 따라 필터링한 뒤, 디자이너 별로 그룹화한 총 금액 계산
         LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
         Map<Designer, Long> groupingSales = payments.stream()
-                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth.minusDays(1)))
                 .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)));
 
         // 최고 매출 디자이너 찾기
         return shop.getPayments().stream()
                 .filter(p -> p.getPaySuccessYN() && (p.getCancelYN() == null || !p.getCancelYN()))
-                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth))
+                .filter(p -> p.getCreateDate().toLocalDate().isAfter(startOfMonth.minusDays(1)))
                 .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -1350,6 +1351,21 @@ public class ShopService {
      */
     public DesignerLikeResponseDto getBestLikeDesinger() {
         Shop shop = getShop(getAuthenticatedEmail());
+        List<Designer> designers = shop.getDesigners();
+        List<UserDesignerLike> designerLikes = new ArrayList<>();
+
+        LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+
+        return designers.stream()// 디자이너 별 스트림
+                .map(designer -> { // map을 통해 designer -> DTO로 변환
+                    long likeCountThisMonth = designer.getUserDesignerLikes().stream() // 디자이너 별 좋아요로 스트림
+                            .filter(like -> like.getCreatedDate().isAfter(startOfMonth.minusDays(1))) // 이번 달의 좋아요한 날짜를 필터링
+                            .count(); // 필터링한 좋아요 개수 계산
+                    return new DesignerLikeResponseDto(designer.getName(), designer.getEmail(), likeCountThisMonth); // -> DTO
+                })
+                .max(Comparator.comparingLong(DesignerLikeResponseDto::getIncreasedLikes)) // 가장 많이 증가한 디자이너 찾기
+                .orElse(null);
+
     }
 
     /**

@@ -20,6 +20,7 @@ import java.util.UUID;
 public class UserDesignerLike {
 
     @EmbeddedId
+    @Column(name = "udl_id")
     private UserDesignerLikeId id; // 좋아요 아이디
 
     @JoinColumn(name = "u_id", nullable = false)
@@ -31,6 +32,7 @@ public class UserDesignerLike {
     private Designer designer; // 디자이너 고유 키
 
     @CreatedDate
+    @Column(name = "udl_create_date")
     private LocalDate createdDate; // 유저가 디자이너를 좋아요 한 날짜
 
     @Builder
