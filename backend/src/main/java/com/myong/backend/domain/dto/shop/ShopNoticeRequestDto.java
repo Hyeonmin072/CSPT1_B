@@ -2,14 +2,16 @@ package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 /**
  * DTO for {@link com.myong.backend.domain.entity.shop.Notice}
  */
-@Value
+@Getter
+@NoArgsConstructor
 public class ShopNoticeRequestDto implements Serializable {
 
     @NotBlank
@@ -20,5 +22,4 @@ public class ShopNoticeRequestDto implements Serializable {
 
     @NotNull
     Boolean importance;
-
 }
