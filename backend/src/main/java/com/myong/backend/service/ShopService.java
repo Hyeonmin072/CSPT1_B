@@ -206,8 +206,6 @@ public class ShopService {
         // 엘라스틱 써치 도큐멘트 저장
         searchService.shopSave(shop);
 
-        // 기본 공통항목 생성
-        addCommon(signedShop);
         return "사업자 회원가입에 성공했습니다.";
     }
 
@@ -1414,34 +1412,6 @@ public class ShopService {
     private Designer getDesigner(String email) {
         return designerRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾을 수 없습니다."));
-    }
-
-    /**
-     * 사업자 공통 항목 추가
-     * 사업자가 회원가입 시 추후 메뉴에서 활용할 공통항목 추가
-     */
-    private void addCommon(Shop shop) {
-        // 공통 항목 생성 후 저장(디자이너 로직 생성 로직과 유사)
-        Designer common = Designer.builder()
-                .name("공통")
-                .nickName("공통")
-                .email(UUID.randomUUID().toString() + "@dummy.com") // 무작위의 이메일 지정
-                .password(UUID.randomUUID().toString()) // 무작위의 비밀번호 지정 -> 향후 디자이너로 로그인 시도 등 악용 방지
-                .tel("")
-                .birth(LocalDate.of(9999, 12, 31)) // 9999-12-3
-                .gender(Gender.NO)
-                .like(0)
-                .rating(0.0)
-                .totalRating(0.0)
-                .reviewCount(0)
-                .workTime(LocalTime.of(0,0))
-                .leaveTime(LocalTime.of(0,0))
-                .build();
-
-        designerRepository.save(common);
-
-        // 회원가입된 가게에 공통 항목 추가
-        common.getJob(shop);
     }
 
     /**
