@@ -1,4 +1,4 @@
-package com.myong.backend.domain.dto.user.request;
+package com.myong.backend.domain.dto.user.response;
 
 
 import com.myong.backend.domain.dto.user.data.DesignerListData;

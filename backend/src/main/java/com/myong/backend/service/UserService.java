@@ -2,7 +2,7 @@ package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.user.data.*;
-import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
@@ -17,31 +17,24 @@ import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Service
 @Transactional
@@ -283,19 +276,10 @@ public class UserService {
 
         List<Shop> top3Shops = shopRepository.findTopShops(PageRequest.of(0,3));
 
-        List<Designer> top4Designers = designerRepository.findTopDesigners(PageRequest.of(0,4));
+        List<DesignerListData> top4Designers = designerRepository.findTopDesigners(PageRequest.of(0,4));
 
         List<Advertisement> adList = advertisementRepository.findAll();
 
-        // 디자이너 리스트 반환
-        List<DesignerTop4ListData> designerTop4ListData =
-                top4Designers.stream().map(designer -> DesignerTop4ListData.builder()
-                        .designerEmail(designer.getEmail())
-                        .designerName(designer.getName())
-                        .designerDesc(designer.getDesc())
-                        .designerImage(designer.getImage())
-                        .designerRating(designer.getRating())
-                        .build()).collect(Collectors.toList());
 
         // 샵리스트 변환
         List<ShopTop3ListData> shopTop3ListData =
@@ -309,7 +293,7 @@ public class UserService {
                     .build()).collect(Collectors.toList());
 
         return  UserHomePageResponseDto.builder()
-                .top4Designers(designerTop4ListData)
+                .top4Designers(top4Designers)
                 .top3Shops(shopTop3ListData)
                 .advertisements(adList)
                 .build();
@@ -345,10 +329,12 @@ public class UserService {
         List<Designer> designers = shop.getDesigners();
         List<DesignerListData> designerListDtos =
                 designers.stream().map(designer -> new DesignerListData(
+                    designer.getEmail(),
                     designer.getName(),
                     designer.getDesc(),
                     designer.getLike(),
-                    designer.getRating()
+                    designer.getRating(),
+                    designer.getImage()
                 )).collect(Collectors.toList());
 
 
@@ -394,23 +380,58 @@ public class UserService {
      *
      * @return 디자이너 이름,설명,가게명,이미지
      */
-    public List<DesignerPageResponseDto> loadDesignerPage() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("현재 authentication : "+authentication);
-        String userEmail = authentication.getName();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
+    public List<LikeDesignerPageResponseDto> loadLikeDesignerPage() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        return userDesignerLikeRepository.findLikedDesignersByEmail(email);
+    }
 
-        List<UserDesignerLike> designers = user.getUserDesignerLikes();
 
-        List<DesignerPageResponseDto> responseDtos = designers.stream().map(
-                UserDesignerLike -> new DesignerPageResponseDto(
-                        UserDesignerLike.getDesigner().getName(),
-                        UserDesignerLike.getDesigner().getDesc(),
-                        UserDesignerLike.getDesigner().getShop().getName(),
-                        UserDesignerLike.getDesigner().getImage()
-                )).collect(Collectors.toList());
+    /**
+     * 디자이너 페이지 로드
+     *
+     * @return 로그인시 -> 탑디자이너, 핫디자이너, 유저기반디자이너 리스트 제공
+     *         비로그인시  -> 탑디자이너, 핫디자이너 리스트만 제공
+     */
+    public DesignerPageResponseDto loadDesignerPage(UserDetailsDto requestUser){
 
-        return responseDtos;
+        // 가장 점수가 높은 디자이너들
+        List<DesignerListData> topDesigners = designerRepository.findTopDesigners(PageRequest.of(0,3));
+
+
+        // 저번달 기준 핫 한 디자이너들(리뷰 갯수)
+        LocalDateTime startDate = LocalDateTime.now().minusMonths(1).withDayOfMonth(1);
+        LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
+        List<Object[]> result = reviewRepository.findDesignerWithReviewCountBetweenDates(startDate, endDate,PageRequest.of(0,3));
+
+        List<DesignerListData> hotDesigners = result.stream()
+                .map(obj -> DesignerListData.fromDesigner((Designer) obj[0]))
+                .toList();
+
+        // 비로그인 시, 유저 기반 추천 디자이너는 제외
+        if(requestUser == null){
+            return DesignerPageResponseDto.builder()
+                    .topDesigners(topDesigners)
+                    .hotDesigners(hotDesigners)
+                    .build();
+        }
+
+        String email = requestUser.getUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+
+
+        // 유저 기반 추천 디자이너(위치 + 점수)
+        List<Designer> result2 = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,6));
+        List<DesignerListData> designersForUser =  result2.stream()
+                .map(DesignerListData::fromDesigner)
+                .toList();
+
+        return DesignerPageResponseDto.builder()
+                .topDesigners(topDesigners)
+                .hotDesigners(hotDesigners)
+                .designersForUser(designersForUser)
+                .build();
+
     }
 
     /**

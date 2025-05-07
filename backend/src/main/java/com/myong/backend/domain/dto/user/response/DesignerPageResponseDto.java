@@ -1,16 +1,20 @@
 package com.myong.backend.domain.dto.user.response;
 
 
+import com.myong.backend.domain.dto.user.data.DesignerListData;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
+import java.util.List;
+
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Data
 public class DesignerPageResponseDto {
-
-    private String designerName; // 디자이너이름
-    private String desc;         // 디자이너 설명
-    private String shopName;     // 소속가게이름
-    private String designerIamge;// 디자이너 이미지
-
+    private List<DesignerListData> topDesigners;
+    private List<DesignerListData> hotDesigners;
+    private List<DesignerListData> designersForUser;
 }

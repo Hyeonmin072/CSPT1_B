@@ -11,10 +11,11 @@ import com.myong.backend.domain.dto.shop.PaymentResponseDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
-import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ReviewService;
 import com.myong.backend.service.SearchService;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -126,16 +128,24 @@ public class UserController {
 
     // 디자이너 카테고리 시작 =============================================================
 
-    /*
-     *   디자이너 누르면 초기화면
+    /**
+     *  좋아요 누른 디자이너 페이지
      */
-    @GetMapping("/designerpage")
-    public ResponseEntity<List<DesignerPageResponseDto>> loadDesignerPage(){
-        return ResponseEntity.ok(userService.loadDesignerPage());
+    @GetMapping("/like-designerpage")
+    public ResponseEntity<List<LikeDesignerPageResponseDto>> loadLikeDesignerPage(){
+        return ResponseEntity.ok(userService.loadLikeDesignerPage());
     }
 
-    /*
-     *   디자이너 좋아요 토글처리
+    /**
+     *   디자이너 페이지
+     */
+    @GetMapping("/designerpage")
+    public ResponseEntity<DesignerPageResponseDto> loadDesignerPage(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadDesignerPage(user));
+    }
+
+    /**
+     *   디자이너 좋아요 토글 처리
      */
     @PostMapping("/designerlike")
     public ResponseEntity<Boolean> requestLikeForDesigner (@RequestBody DesignerLikeRequestDto request){
