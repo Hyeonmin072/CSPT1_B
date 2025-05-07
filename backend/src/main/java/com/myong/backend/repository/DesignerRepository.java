@@ -20,7 +20,7 @@ public interface DesignerRepository extends JpaRepository<Designer, UUID> {
     long count();
 
     @Query("select new com.myong.backend.domain.dto.user.data.DesignerListData(" +
-            "d.email, d.name, d.desc, d.like, d.rating, d.image) " +
+            "d.email, d.nickName, d.desc, d.like, d.rating, d.image) " +
             "from Designer d " +
             "order by d.score desc")
     List<DesignerListData> findTopDesigners(Pageable pageable);

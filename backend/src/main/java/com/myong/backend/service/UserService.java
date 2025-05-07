@@ -330,7 +330,7 @@ public class UserService {
         List<DesignerListData> designerListDtos =
                 designers.stream().map(designer -> new DesignerListData(
                     designer.getEmail(),
-                    designer.getName(),
+                    designer.getNickName(),
                     designer.getDesc(),
                     designer.getLike(),
                     designer.getRating(),
@@ -343,7 +343,7 @@ public class UserService {
         List<ReviewListData> reviewListDtos =
                 reviews.stream().map(review -> new ReviewListData(
                         review.getReservation().getMenu().getName(),
-                        review.getDesigner().getName(),
+                        review.getDesigner().getNickName(),
                         review.getUser().getName(),
                         review.getContent(),
                         review.getRating()
@@ -409,7 +409,7 @@ public class UserService {
                 .toList();
 
         // 비로그인 시, 유저 기반 추천 디자이너는 제외
-        if(requestUser == null){
+        if(requestUser == null || "anonymousUser".equals(requestUser.getName())){
             return DesignerPageResponseDto.builder()
                     .topDesigners(topDesigners)
                     .hotDesigners(hotDesigners)

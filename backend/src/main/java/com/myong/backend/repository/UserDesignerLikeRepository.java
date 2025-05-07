@@ -16,7 +16,7 @@ public interface UserDesignerLikeRepository extends JpaRepository<UserDesignerLi
     Optional<UserDesignerLike> findByDesignerAndUser(Designer designer, User user);
 
     @Query("select new com.myong.backend.domain.dto.user.response.LikeDesignerPageResponseDto" +
-            "(d.email, d.name, d.desc, d.shop.name, d.image ) " +
+            "(d.email, d.nickName, d.desc, d.shop.name, d.image ) " +
             "from UserDesignerLike udl JOIN udl.designer d where udl.user.email = :email")
     List<LikeDesignerPageResponseDto> findLikedDesignersByEmail(@Param("email")String email);
 }
