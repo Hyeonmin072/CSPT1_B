@@ -22,4 +22,6 @@ public class MenuDetailResponseDto {
     String image;
 
     MenuCategory category;
+
+    String estimateTime;
 }

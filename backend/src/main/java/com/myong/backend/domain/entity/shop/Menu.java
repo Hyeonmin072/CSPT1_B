@@ -36,9 +36,6 @@ public class Menu {
     @Column(name = "m_estimated_time")
     private String estimatedTime = ""; // 소요시간
 
-    @Column(name = "m_common", nullable = false)
-    private String common; // 공통여부
-
     @Column(name = "m_category", nullable = false)
     @Enumerated(EnumType.STRING)
     private MenuCategory category = MenuCategory.NONE; // 메뉴 카테고리
@@ -59,12 +56,11 @@ public class Menu {
     private Event event;
 
     @Builder
-    public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer, MenuCategory category) {
+    public Menu(String name, String desc, Integer price, String estimatedTime, Shop shop, Designer designer, MenuCategory category) {
         this.name = name;
         this.desc = desc;
         this.price = price;
         this.estimatedTime = estimatedTime;
-        this.common = common;
         this.shop = shop;
         this.designer = designer;
         this.category = category;
@@ -98,10 +94,10 @@ public class Menu {
         if (!request.getPrice().equals(this.price) && request.getPrice() > 0) { // 금액
             this.price = request.getPrice();
         }
-        if (!request.getEstimatedTime().equals(this.estimatedTime) && !request.getEstimatedTime().isBlank()) { // 소요시간
+        if (request.getEstimatedTime() != null && !request.getEstimatedTime().equals(this.estimatedTime)) { // 소요시간
             this.estimatedTime = request.getEstimatedTime();
         }
-        if (!request.getCategory().equals(this.category) && request.getCategory() != null) { // 카테고리
+        if (request.getCategory() != null && !request.getCategory().equals(this.category)) { // 카테고리
             this.category = request.getCategory();
         }
     }

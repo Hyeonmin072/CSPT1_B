@@ -6,15 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
 public class MenuUpdateRequestDto {
-
-    @NotBlank
-    List<String> designerEmails;
-
     @NotBlank
     String id;
 

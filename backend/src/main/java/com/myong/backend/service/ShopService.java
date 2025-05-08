@@ -548,6 +548,7 @@ public class ShopService {
                 .desc(menu.getDesc())
                 .image(menu.getImage())
                 .category(menu.getCategory())
+                .estimateTime(menu.getEstimatedTime())
                 .build();
     }
 

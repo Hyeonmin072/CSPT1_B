@@ -167,19 +167,11 @@ public class ShopController {
     }
 
     /**
-     * 사업자 소속 디자이너의 메뉴 목록 조회
+     * 사업자 소속 디자이너의 메뉴 조회
      */
-    @GetMapping("/menus")
-    public ResponseEntity<List<MenuResponseDto>> getMenus(@RequestParam String designerEmail) {
+    @GetMapping("/menu/{designerEmail}/menus")
+    public ResponseEntity<List<MenuResponseDto>> getMenus(@PathVariable String designerEmail) {
         return ResponseEntity.ok(shopService.getMenus(designerEmail)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
-    }
-
-    /**
-     * 사업자 메뉴 수정
-     */
-    @PatchMapping("/menu")
-    public ResponseEntity<String> updateMenu(@Valid @RequestBody MenuUpdateRequestDto request) {
-        return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
@@ -188,6 +180,14 @@ public class ShopController {
     @GetMapping("/menu/{menuId}")
     public ResponseEntity<MenuDetailResponseDto> getMenu(@PathVariable("menuId") String id) {
         return ResponseEntity.ok(shopService.getMenu(id)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
+    }
+
+    /**
+     * 사업자 메뉴 수정
+     */
+    @PatchMapping("/menu")
+    public ResponseEntity<String> updateMenu(@Validated @RequestBody MenuUpdateRequestDto request) {
+        return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
