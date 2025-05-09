@@ -35,5 +35,4 @@ public class ReservationInfoResponseDto {
                 .menuImage(reservation.getMenu().getImage())
                 .build();
     }
-
 }
