@@ -19,6 +19,27 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     long count();
 
 
+    // 해당 디자이너의 유저 성별에 맞는 랜덤한 리뷰 이미지 가져오는 로직
+    @Query(value = """
+    SELECT *
+    FROM (SELECT *
+          FROM (
+              SELECT r.*,
+                     ROW_NUMBER() OVER (PARTITION BY r.designer_id ORDER BY RAND()) AS rn
+              FROM review r
+              JOIN user u ON r.user_id = u.id
+              WHERE r.designer_id IN (:designerIds)
+                AND u.gender = :gender
+          ) sub
+          WHERE rn <= 5;
+    """, nativeQuery = true)
+    List<Review> findTop5ReviewsPerDesignerByUserGender(
+            @Param("designerIds") List<UUID> designerIds,
+            @Param("gender") String gender
+    );
+
+
+
     // 리뷰 이미지 가져오기
     @Query("select new com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto(" +
             "r.image) " +

@@ -32,7 +32,8 @@ public interface DesignerRepository extends JpaRepository<Designer, UUID> {
             "where ST_Distance_Sphere(point(:longitude,:latitude),point(d.d_longitude,d.d_latitude)) <= 5000 " +
             "order by d.d_score desc",
              nativeQuery = true)
-    List<Designer> findDesignersForUser(@Param("longitude")double longitude, @Param("latitude")double latitude,Pageable pageable);
+    List<Designer> findDesignersForUser(@Param("longitude")double longitude, @Param("latitude")double latitude, Pageable pageable);
+
 
 }
 

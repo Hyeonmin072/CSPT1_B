@@ -435,6 +435,29 @@ public class UserService {
     }
 
     /**
+     * 나만의 디자이너 찾기 페이지
+     *
+     *
+     * @return 디자이너 정보, 디자이너 리뷰 이미지
+     */
+    public List<UserOwnDesignerPageResponseDto> loadOwnDesignerPage (UserDetailsDto requestUser) {
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다"));
+
+        List<Designer> designers = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,7));
+        // 유저 아이디 리스트 담기
+        List<UUID> designerIds = new ArrayList<>();
+        for(Designer designer : designers){
+            designerIds.add(designer.getId());
+        }
+        // 7명의 디자이너의 대해 리뷰 이미지 찾는 로직
+        List<Review> reviews = reviewRepository.findTop5ReviewsPerDesignerByUserGender(designerIds,user.getGender().toString());
+
+
+
+
+    }
+
+    /**
      * 디자이너 좋아요 토글처리
      *
      * @param designerEmail
