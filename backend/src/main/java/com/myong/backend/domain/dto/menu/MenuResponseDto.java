@@ -1,14 +1,14 @@
 package com.myong.backend.domain.dto.menu;
 
 import com.myong.backend.domain.entity.shop.MenuCategory;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.UUID;
 
 
 @Getter
-@AllArgsConstructor
+@Builder
 public class MenuResponseDto {
     UUID id;
 

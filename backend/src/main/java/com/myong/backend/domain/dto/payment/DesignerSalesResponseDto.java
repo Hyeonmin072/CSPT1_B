@@ -1,12 +1,10 @@
 package com.myong.backend.domain.dto.payment;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-@AllArgsConstructor
 public class DesignerSalesResponseDto {
     private String designerName; // 디자이너 이름
     private String designerEmail; // 디자이너 이메일

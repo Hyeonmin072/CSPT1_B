@@ -8,7 +8,10 @@ import com.myong.backend.domain.dto.event.EventResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.menu.*;
+import com.myong.backend.domain.dto.menu.MenuCreateRequestDto;
+import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
+import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.menu.MenuUpdateRequestDto;
 import com.myong.backend.domain.dto.payment.DesignerLikeResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
@@ -29,7 +32,6 @@ import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
-import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
@@ -84,7 +86,6 @@ public class ShopService {
     private final DesignerRepository designerRepository;
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
-    private final ReviewRepository reviewRepository;
     private final KakaoMapApi kakaoMapApi;
     private final JobPostRepository jobPostRepository;
     private final BlackListRepository blackListRepository;
@@ -200,7 +201,7 @@ public class ShopService {
                 Double.parseDouble(longitude),
                 Double.parseDouble(latitude)
         );
-        Shop signedShop = shopRepository.save(shop);
+        shopRepository.save(shop);
 
         // 엘라스틱 써치 도큐멘트 저장
         searchService.shopSave(shop);
@@ -525,7 +526,14 @@ public class ShopService {
     public List<MenuResponseDto> getMenus(String designerEmail) {
         Designer designer = getDesigner(designerEmail);
         return designer.getMenus().stream()
-                .map(m -> new MenuResponseDto(m.getId(), m.getName(), designer.getName(), m.getPrice(), m.getCategory()))
+//                .map(m -> new MenuResponseDto(m.getId(), m.getName(), designer.getName(), m.getPrice(), m.getCategory()))
+                .map(m -> MenuResponseDto.builder()
+                        .id(m.getId())
+                        .name(m.getName())
+                        .designerName(designer.getName())
+                        .price(m.getPrice())
+                        .category(m.getCategory())
+                        .build())
                 .toList();
     }
 
@@ -625,7 +633,6 @@ public class ShopService {
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
 
         List<JobPostResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
             JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder().
                     shopName(jobPost.getShop().getName()).
@@ -1294,7 +1301,13 @@ public class ShopService {
 
         // DTO 반환
         return groupingSales.entrySet().stream()
-                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue(), e.getKey().getImage()))
+//                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue(), e.getKey().getImage()))
+                .map(e -> DesignerSalesResponseDto.builder()
+                        .designerName(e.getKey().getName())
+                        .designerEmail(e.getKey().getEmail())
+                        .designerSales(e.getValue())
+                        .designerImage(e.getKey().getImage())
+                        .build())
                 .toList();
     }
 
@@ -1346,7 +1359,12 @@ public class ShopService {
 
         return filteredPayments.stream()
                 .filter(p -> p.getCreateDate().toLocalDate().equals(LocalDate.of(year, month, day)))
-                .map(p -> new DesignerSalesDetailResponseDto(p.getCreateDate(), p.getReservMenuName(), p.getPrice(), p.getUser().getName()))
+                .map( p -> DesignerSalesDetailResponseDto.builder()
+                        .paymentTime(p.getCreateDate())
+                        .menuName(p.getReservMenuName())
+                        .sales(p.getPrice())
+                        .userName(p.getUser().getName())
+                        .build())
                 .toList();
     }
 
@@ -1377,8 +1395,18 @@ public class ShopService {
                 .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
-                .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue(), entry.getKey().getImage()))
-                .orElse(new DesignerSalesResponseDto("","", 0L, ""));
+                .map(entry -> DesignerSalesResponseDto.builder()
+                        .designerName(entry.getKey().getName())
+                        .designerEmail(entry.getKey().getEmail())
+                        .designerSales(entry.getValue())
+                        .designerImage(entry.getKey().getImage())
+                        .build())
+                .orElse(DesignerSalesResponseDto.builder()
+                        .designerName("")
+                        .designerEmail("")
+                        .designerSales(0L)
+                        .designerImage("")
+                        .build());
     }
 
     /**
@@ -1388,7 +1416,6 @@ public class ShopService {
     public DesignerLikeResponseDto getBestLikeDesinger() {
         Shop shop = getShop(getAuthenticatedEmail());
         List<Designer> designers = shop.getDesigners();
-        List<UserDesignerLike> designerLikes = new ArrayList<>();
 
         LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
 

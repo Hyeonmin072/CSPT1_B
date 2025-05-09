@@ -7,7 +7,10 @@ import com.myong.backend.domain.dto.event.EventResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
-import com.myong.backend.domain.dto.menu.*;
+import com.myong.backend.domain.dto.menu.MenuCreateRequestDto;
+import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
+import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.menu.MenuUpdateRequestDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
@@ -17,7 +20,6 @@ import com.myong.backend.domain.dto.reservation.response.ShopReservationJPARespo
 import com.myong.backend.domain.dto.reservation.response.ShopReservationMyBatisResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Period;
-import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ShopService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,7 +42,6 @@ import java.util.UUID;
 @Slf4j
 public class ShopController {
     private final ShopService shopService;
-    private final DesignerService designerService;
     private final ReservationService reservationService;
 
     /**
