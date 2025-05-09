@@ -2,9 +2,11 @@ package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Value
+@Getter
+@NoArgsConstructor
 public class ShopVerifyCodeRequestDto {
 
     @NotBlank

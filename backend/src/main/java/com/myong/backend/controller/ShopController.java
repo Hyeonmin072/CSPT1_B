@@ -145,8 +145,8 @@ public class ShopController {
      */
     @PatchMapping("/profile")
     public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request,
-                                                @RequestParam(name = "thumbnail")MultipartFile thumbnail,
-                                                @RequestParam(name = "banner")List<MultipartFile> banner) {
+                                                @RequestParam(name = "thumbnail") MultipartFile thumbnail,
+                                                @RequestParam(name = "banner") List<MultipartFile> banner) {
         return ResponseEntity.ok(shopService.updateProflie(request, thumbnail, banner)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
     }
 

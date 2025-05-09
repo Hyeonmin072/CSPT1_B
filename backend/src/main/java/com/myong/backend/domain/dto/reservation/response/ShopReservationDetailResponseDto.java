@@ -6,8 +6,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Value@Builder
-
+@Getter
+@Builder
 public class ShopReservationDetailResponseDto {
 
     @NotBlank

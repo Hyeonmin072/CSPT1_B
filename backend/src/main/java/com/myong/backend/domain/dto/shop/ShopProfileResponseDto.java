@@ -4,11 +4,11 @@ import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
-@Value
+@Getter
 @Builder
 public class ShopProfileResponseDto {
 

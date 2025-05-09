@@ -3,14 +3,10 @@ package com.myong.backend.domain.dto.shop;
 import com.myong.backend.domain.entity.designer.RegularHoliday;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class ShopProfileRequestDto {
     @NotBlank

@@ -2,12 +2,12 @@ package com.myong.backend.domain.dto.shop;
 
 import com.myong.backend.domain.entity.designer.Status;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Value
+@Getter
 @Builder
 public class ShopAttendanceResponseDto {
 

@@ -2,9 +2,9 @@ package com.myong.backend.domain.dto.job;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
 
-@Value
+@Getter
 @Builder
 public class JobPostResponseDto {
     @NotBlank

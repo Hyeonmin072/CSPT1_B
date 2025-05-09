@@ -7,12 +7,10 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/**
- * DTO for {@link com.myong.backend.domain.entity.shop.Notice}
- */
+
 @Getter
 @NoArgsConstructor
-public class ShopNoticeRequestDto implements Serializable {
+public class ShopNoticeRequestDto {
 
     @NotBlank
     String title;
