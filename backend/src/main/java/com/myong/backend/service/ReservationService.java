@@ -420,7 +420,7 @@ public class ReservationService {
         }
 
         User user = ou.get();
-        List<Reservation> reservationList =  reservationRepository.findAllByUser(user);
+        List<Reservation> reservationList = reservationRepository.findAllByUser(user);
 
         return reservationList.stream()
                 .map(ReservationInfoResponseDto::from)

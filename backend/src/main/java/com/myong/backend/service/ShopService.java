@@ -563,7 +563,7 @@ public class ShopService {
         Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정
-
+        
         return "성공적으로 메뉴가 수정되었습니다."; // 성공 구문 반환
     }
 

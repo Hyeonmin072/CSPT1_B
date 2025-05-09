@@ -22,6 +22,7 @@ public class ReservationInfoResponseDto {
     private String shop;
     private String designer;
     private Integer price;
+    private String menuImage;
 
     public static ReservationInfoResponseDto from (Reservation reservation) {
         return ReservationInfoResponseDto.builder()
@@ -31,6 +32,7 @@ public class ReservationInfoResponseDto {
                 .shop(reservation.getShop().getName())
                 .designer(reservation.getDesigner().getName())
                 .price(reservation.getPrice())
+                .menuImage(reservation.getMenu().getImage())
                 .build();
     }
 
