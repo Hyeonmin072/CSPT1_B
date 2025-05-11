@@ -420,21 +420,29 @@ public class ShopService {
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
-        return ShopProfileResponseDto.builder().
-                name(shop.getName()).
-                address(shop.getAddress()).
-                post(shop.getPost()).
-                tel(shop.getTel()).
-                pwd(shop.getPwd()).
-                desc(shop.getDesc()).
-                open(shop.getOpenTime().toString()).
-                close(shop.getCloseTime().toString()).
-                regularHoliday(shop.getRegularHoliday()).
-                reservationNumber(shop.getUsers().size()).
-                reviewNumber(shop.getReviewCount()).
-                joinDate(shop.getCreateDate()).
-                rating(shop.getRating()).
-                build();
+
+        // 가게 배너 이미지들 조회
+        List<String> shopBannerImages = shop.getBanners().stream()
+                .map(ShopBanner::getImage)
+                .toList();
+
+        return ShopProfileResponseDto.builder()
+                .name(shop.getName())
+                .address(shop.getAddress())
+                .post(shop.getPost())
+                .tel(shop.getTel())
+                .pwd(shop.getPwd())
+                .desc(shop.getDesc())
+                .open(shop.getOpenTime().toString())
+                .close(shop.getCloseTime().toString())
+                .regularHoliday(shop.getRegularHoliday())
+                .reservationNumber(shop.getUsers().size())
+                .reviewNumber(shop.getReviewCount())
+                .joinDate(shop.getCreateDate())
+                .rating(shop.getRating())
+                .thumbnail(shop.getThumbnail())
+                .banners(shopBannerImages)
+                .build();
     }
 
     /**
@@ -533,6 +541,7 @@ public class ShopService {
                         .designerName(designer.getName())
                         .price(m.getPrice())
                         .category(m.getCategory())
+                        .image(m.getImage())
                         .build())
                 .toList();
     }
@@ -790,6 +799,7 @@ public class ShopService {
                     .name(designer.getName())
                     .like(designer.getLike())
                     .gender(designer.getGender().toString())
+                    .image(designer.getImage())
                     .build();
             dtos.add(dto);
         }

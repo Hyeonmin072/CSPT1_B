@@ -19,4 +19,6 @@ public class MenuResponseDto {
     Integer price;
 
     MenuCategory category;
+
+    String image;
 }

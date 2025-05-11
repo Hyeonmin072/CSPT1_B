@@ -22,4 +22,6 @@ public class ShopDesignerResponseDto {
     
     @NotNull
     Integer like; // 디자이너 좋아요 개수
+
+    String image;
 }
