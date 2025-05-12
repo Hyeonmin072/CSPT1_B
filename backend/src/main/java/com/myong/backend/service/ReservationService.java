@@ -230,9 +230,16 @@ public class ReservationService {
         // 성공한 결제 및 예약 관련 정보를 반환
         return PaymentSuccessDto.builder()
                 .shopName(shop.getName())
+                .shopEmail(shop.getEmail())
+                .serviceDate(reservation.getServiceDate())
+                .designerImage(designer.getImage())
+                .designerName(designer.getName())
+                .designrDesc(designer.getDesc())
                 .menuName(payment.getReservMenuName())
+                .menuDesc(menu.getDesc())
+                .menuImage(menu.getImage())
                 .price(payment.getPrice())
-                .date(payment.getCreateDate())
+                .paymentDate(payment.getCreateDate())
                 .build();
     }
 
