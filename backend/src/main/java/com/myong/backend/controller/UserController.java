@@ -127,6 +127,13 @@ public class UserController {
     // 디자이너 카테고리 시작 =============================================================
 
     /**
+     *  나만의 디자이너 찾기
+     */
+    @GetMapping("/own-designerpage")
+    public ResponseEntity<List<UserOwnDesignerPageResponseDto>> loadOwnDesignerPage(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadOwnDesignerPage(user));
+    }
+    /**
      *  좋아요 누른 디자이너 페이지
      */
     @GetMapping("/like-designerpage")
