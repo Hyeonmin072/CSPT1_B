@@ -21,21 +21,17 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
     // 해당 디자이너의 유저 성별에 맞는 랜덤한 리뷰 이미지 가져오는 로직
     @Query(value = """
-    SELECT *
-    FROM (SELECT *
-          FROM (
-              SELECT r.*,
-                     ROW_NUMBER() OVER (PARTITION BY r.designer_id ORDER BY RAND()) AS rn
-              FROM review r
-              JOIN user u ON r.user_id = u.id
-              WHERE r.designer_id IN (:designerIds)
-                AND u.gender = :gender
-          ) sub
-          WHERE rn <= 5;
-    """, nativeQuery = true)
-    List<Review> findTop5ReviewsPerDesignerByUserGender(
-            @Param("designerIds") List<UUID> designerIds,
-            @Param("gender") String gender
+            SELECT r.rv_image
+            FROM review r
+            JOIN user u ON r.u_id = u.u_id
+            WHERE r.d_id = :designerId
+              AND u.u_gender = :userGender
+            ORDER BY RAND()
+            LIMIT 5
+            """, nativeQuery = true)
+    List<String> findRandomReviewImagesForDesigner(
+            @Param("designerId") UUID designerId,
+            @Param("userGender") String userGender
     );
 
 

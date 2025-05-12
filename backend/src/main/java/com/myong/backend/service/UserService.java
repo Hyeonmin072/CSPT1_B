@@ -438,25 +438,32 @@ public class UserService {
      * 나만의 디자이너 찾기 페이지
      *
      *
-     * @return 디자이너 정보, 디자이너 리뷰 이미지
+     * @return 디자이너 정보, 디자이너 리뷰 이미지 List<UserOwnDesignerPageResponseDto>
      */
     public List<UserOwnDesignerPageResponseDto> loadOwnDesignerPage (UserDetailsDto requestUser) {
         User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다"));
 
         List<Designer> designers = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,7));
-        // 유저 아이디 리스트 담기
-        List<UUID> designerIds = new ArrayList<>();
-        for(Designer designer : designers){
-            designerIds.add(designer.getId());
+        // 디자이너별로 리뷰 이미지 5개를 랜덤으로 가져오기
+        List<UserOwnDesignerPageResponseDto> responseDtos = new ArrayList<>();
+        for (Designer designer : designers) {
+            //  해당 디자이너의 성별에 맞는 리뷰 이미지 URL을 가져오기
+            List<String> reviewImages = reviewRepository.findRandomReviewImagesForDesigner(designer.getId(), user.getGender().toString());
+
+            // DTO 객체 생성
+            UserOwnDesignerPageResponseDto dto = UserOwnDesignerPageResponseDto.builder()
+                    .designerNickname(designer.getNickName())
+                    .designerEmail(designer.getEmail())
+                    .designerImage(designer.getImage()) // 디자이너 프로필 이미지
+                    .reviewImage(reviewImages) // 리뷰 이미지 목록
+                    .build();
+
+            responseDtos.add(dto);
         }
-        // 7명의 디자이너의 대해 리뷰 이미지 찾는 로직
-        List<Review> reviews = reviewRepository.findTop5ReviewsPerDesignerByUserGender(designerIds,user.getGender().toString());
 
-
-
-
+        //  결과 반환
+        return responseDtos;
     }
-
     /**
      * 디자이너 좋아요 토글처리
      *
