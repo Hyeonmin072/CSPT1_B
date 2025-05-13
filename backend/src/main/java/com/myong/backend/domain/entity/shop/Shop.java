@@ -89,7 +89,7 @@ public class Shop {
     private Integer post; // 우편번호
 
     @Column(name = "s_thumbnail")
-    private String thumbnail;  // 썸네일 이미지
+    private String thumbnail = "";  // 썸네일 이미지
 
     @CreatedDate
     @Column(name = "s_create_date")

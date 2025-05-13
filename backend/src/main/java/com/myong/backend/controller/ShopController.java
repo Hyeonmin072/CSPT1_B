@@ -145,9 +145,9 @@ public class ShopController {
      * 사업자 프로필 수정
      */
     @PatchMapping("/profile")
-    public ResponseEntity<String> updateProfile(@Valid @RequestBody ShopProfileRequestDto request,
-                                                @RequestParam(name = "thumbnail") MultipartFile thumbnail,
-                                                @RequestParam(name = "banner") List<MultipartFile> banner) {
+    public ResponseEntity<String> updateProfile(@Validated @RequestPart(name = "request") ShopProfileRequestDto request,
+                                                @RequestPart(name = "thumbnail", required = false) MultipartFile thumbnail,
+                                                @RequestPart(name = "banner", required = false) List<MultipartFile> banner) {
         return ResponseEntity.ok(shopService.updateProflie(request, thumbnail, banner)); // 성공적으로 로직이 수행될 경우 프로필 정보 반환
     }
 
@@ -421,7 +421,7 @@ public class ShopController {
      * 사업자 가게 매출 조회
      */
     @GetMapping("/sales")
-    public ResponseEntity<ShopSalesResponseDto> getShopSales(@RequestParam Period period) {
+    public ResponseEntity<ShopSalesResponseDto> getShopSales(@RequestParam(name = "period") Period period) {
         return ResponseEntity.ok(shopService.getShopSales(period));
     }
 

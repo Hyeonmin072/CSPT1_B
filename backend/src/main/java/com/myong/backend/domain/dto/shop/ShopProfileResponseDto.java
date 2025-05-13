@@ -50,5 +50,5 @@ public class ShopProfileResponseDto {
 
     String thumbnail;
 
-    List<String> banners;
+    List<String> bannerImages;
 }

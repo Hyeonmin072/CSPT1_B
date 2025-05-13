@@ -441,7 +441,7 @@ public class ShopService {
                 .joinDate(shop.getCreateDate())
                 .rating(shop.getRating())
                 .thumbnail(shop.getThumbnail())
-                .banners(shopBannerImages)
+                .bannerImages(shopBannerImages)
                 .build();
     }
 
