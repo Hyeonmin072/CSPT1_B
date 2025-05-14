@@ -1,6 +1,9 @@
-package com.myong.backend.domain.entity.usershop;
+package com.myong.backend.domain.entity.chating;
 
+import com.myong.backend.domain.dto.chating.request.ChatMessageRequestDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -8,6 +11,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -15,6 +20,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder
 public class Message {
 
     @Id
@@ -27,25 +34,49 @@ public class Message {
     private MessageType messageType; // 타입
 
     @Column(name = "me_content", nullable = false)
-    private String content; // 내용, 메시지 타입에 따라 일반 텍스트인지, 클라우드URL인지 구분되다
+    private String content; // 내용
+
 
     @CreatedDate
     @Column(name = "me_send_date", updatable = false)
     private LocalDateTime sendDate; // 전송 시간
     
     @Column(name = "me_sender", nullable = false)
-    private UUID sender; // 보낸 사람 고유 키
+    private String sender; // 보낸 사람 이메일
+
+    @Column(name = "me_read")
+    private boolean read; // 읽은 여부 판단
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cr_id", nullable = false)
     private ChatRoom chatRoom; // 채팅방 고유 키
 
-    public Message(MessageType messageType, String content, UUID sender, ChatRoom chatRoom) {
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
+    private List<MessageFile> files = new ArrayList<>();    // 파일 리스트
+
+    public Message(MessageType messageType, String content, String sender, ChatRoom chatRoom) {
         this.messageType = messageType;
         this.content = content;
         this.sender = sender;
         this.chatRoom = chatRoom;
     }
+    public static Message saveMessage(ChatMessageRequestDto request, String userEmail, ChatRoom chatRoom){
+        return Message.builder()
+                .messageType(MessageType.TEXT)
+                .content(request.content())
+                .sendDate(request.sendDate())
+                .sender(userEmail)
+                .read(false)
+                .chatRoom(chatRoom)
+                .build();
+    }
+
+    public static Message saveFileMessage(ChatMessageRequestDto request, String userEmail, ChatRoom chatRoom){
+        return Message.builder()
+                .messageType()
+                .build();
+    }
+
 
     @Override
     public final boolean equals(Object o) {

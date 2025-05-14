@@ -1,4 +1,4 @@
-package com.myong.backend.domain.entity.usershop;
+package com.myong.backend.domain.entity.chating;
 
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.User;

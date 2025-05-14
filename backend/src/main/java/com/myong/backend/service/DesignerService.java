@@ -181,8 +181,9 @@ public class DesignerService {
         //이미지 변경
         if (updateImage != null) {
 
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getImage() != null){
                 fileUploadService.deleteFile(designer.getImage());
@@ -194,9 +195,9 @@ public class DesignerService {
         //백그라운드이미지 변경
         if (updateBackgroundImage != null) {
 
-
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateBackgroundImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateBackgroundImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getBackgroundImage() != null){
                 fileUploadService.deleteFile(designer.getBackgroundImage());

@@ -24,22 +24,22 @@ public class FileUploadService {
     /**
      *  파일 업로드 후 url 리턴
      */
-    public String uploadFile(MultipartFile file,String role, String email, String route){
+    public String uploadFile(MultipartFile file, String route){
         if(file.isEmpty())return null;
 
         try{
             String fileName = file.getOriginalFilename();
-            String dir = role + "/" + email + "/" + route + "/" + fileName;
-
+            route += fileName;
+            System.out.println("저장될 파일 경로 :: "+route);
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
 
             // S3 풋 오브젝트 저장
-            amazonS3.putObject(bucketName,dir,file.getInputStream(),metadata);
+            amazonS3.putObject(bucketName,route,file.getInputStream(),metadata);
 
             // 디비에 저장될 url 리턴 ex)https://hairism-bucket.s3.{region}.amazons.com/{dir}
-            return amazonS3.getUrl(bucketName,dir).toString();
+            return amazonS3.getUrl(bucketName,route).toString();
 
 
         } catch(IOException e){
