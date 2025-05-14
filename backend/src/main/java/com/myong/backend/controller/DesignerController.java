@@ -4,7 +4,6 @@ package com.myong.backend.controller;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
-import com.myong.backend.domain.dto.job.JobPostResponseDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.service.DesignerService;
@@ -97,14 +96,14 @@ public class DesignerController {
 
     //디자이너 프로필 불러오기
     @GetMapping("/profile")
-    public ResponseEntity<ProfileResponseDto> profile(){
+    public ResponseEntity<DesignerProfileResponseDto> profile(){
 
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
         String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
 
-        ProfileResponseDto responseDto = designerService.getProfile(designerEmail);
+        DesignerProfileResponseDto responseDto = designerService.getProfile(designerEmail);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -204,6 +203,14 @@ public class DesignerController {
         ResponseJobPostDetailDto response = designerService.getJobDetail(id);
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 디자이너 이메일로 디자이너 프로필 조회
+     */
+    @GetMapping("/profile/{designerEmail}")
+    public ResponseEntity<DesignerProfileResponseDto> getProfileByEmail(@PathVariable(name = "designerEmail") String designerEmail) {
+        return ResponseEntity.ok(designerService.getProfileByEmail(designerEmail)); // 성공적으로 로직이 수행될 경우 디자이너 프로필 정보 반환
     }
 
     //디자이너 예약일 가져오기
