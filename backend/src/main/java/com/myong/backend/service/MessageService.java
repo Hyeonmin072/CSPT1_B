@@ -52,7 +52,7 @@ public class MessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅방을 찾지 못했습니다."));
 
         // 메세지 저장
-        Message message = Message.saveMessage(request,user.getEmail(),chatRoom);
+        Message message = Message.saveMessage(request,user.getName() ,chatRoom);
 
         // 마지막 메세지 , 보낸시간 업데이트
         chatRoom.updateLastMessage(request.content(),request.sendDate());
@@ -106,7 +106,7 @@ public class MessageService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅방을 찾지 못했습니다."));
 
         // 메세지 저장
-        Message message = Message.saveFileMessage(request,user.getEmail(),chatRoom,request.messageType());
+        Message message = Message.saveFileMessage(request,user.getName(),chatRoom,request.messageType());
 
         // 파일 메세지들 저장
         List<MessageFile> messageFiles = request.fileUrls().stream()

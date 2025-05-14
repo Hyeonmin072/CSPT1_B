@@ -1,6 +1,7 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chating.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chating.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -300,6 +302,14 @@ public class UserController {
     @GetMapping("/chatroom")
     public ResponseEntity<List<ChatRoomResponseDto>> loadChatRoom(@AuthenticationPrincipal UserDetailsDto user){
         return ResponseEntity.ok(userService.loadChatRoom(user));
+    }
+
+    /**
+     *  채팅방 메세지들 조회
+     */
+    @GetMapping("/chatroom/{chatRoomId}")
+    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId){
+        return ResponseEntity.ok(userService.loadChatRoomMessages(chatRoomId));
     }
 
 

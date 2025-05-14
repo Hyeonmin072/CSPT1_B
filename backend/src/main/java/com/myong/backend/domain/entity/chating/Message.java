@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.chating;
 
 import com.myong.backend.domain.dto.chating.request.ChatMessageRequestDto;
+import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,13 +37,12 @@ public class Message {
     @Column(name = "me_content", nullable = false)
     private String content; // 내용
 
-
     @CreatedDate
     @Column(name = "me_send_date", updatable = false)
     private LocalDateTime sendDate; // 전송 시간
-    
+
     @Column(name = "me_sender", nullable = false)
-    private String sender; // 보낸 사람 이메일
+    private String sender; // 보낸 사람 이름
 
     @Column(name = "me_read")
     private boolean read; // 읽은 여부 판단
@@ -50,6 +50,10 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cr_id", nullable = false)
     private ChatRoom chatRoom; // 채팅방 고유 키
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "u_id",nullable = false)
+    private User user;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<MessageFile> files = new ArrayList<>();    // 파일 리스트
@@ -60,26 +64,30 @@ public class Message {
         this.sender = sender;
         this.chatRoom = chatRoom;
     }
-    public static Message saveMessage(ChatMessageRequestDto request, String userEmail, ChatRoom chatRoom){
+    public static Message saveMessage(ChatMessageRequestDto request, String sender, ChatRoom chatRoom){
         return Message.builder()
                 .messageType(MessageType.TEXT)
                 .content(request.content())
                 .sendDate(request.sendDate())
-                .sender(userEmail)
+                .sender(sender)
                 .read(false)
                 .chatRoom(chatRoom)
                 .build();
     }
 
-    public static Message saveFileMessage(ChatMessageRequestDto request, String userEmail, ChatRoom chatRoom, MessageType messageType){
+    public static Message saveFileMessage(ChatMessageRequestDto request, String sender, ChatRoom chatRoom, MessageType messageType){
         return Message.builder()
                 .messageType(messageType)
                 .content(request.content())
                 .sendDate(request.sendDate())
-                .sender(userEmail)
+                .sender(sender)
                 .read(false)
                 .chatRoom(chatRoom)
                 .build();
+    }
+
+    public void markAsRead(){
+        this.read = true;
     }
 
 

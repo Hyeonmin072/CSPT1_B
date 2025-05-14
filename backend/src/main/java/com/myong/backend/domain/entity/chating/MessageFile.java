@@ -4,6 +4,7 @@ package com.myong.backend.domain.entity.chating;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 public class MessageFile {
     @Id
     @GeneratedValue( strategy = GenerationType.AUTO)

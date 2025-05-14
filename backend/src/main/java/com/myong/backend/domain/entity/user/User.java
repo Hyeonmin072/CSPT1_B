@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.chating.Message;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
@@ -63,6 +64,9 @@ public class User {
 
     @Column(name = "u_signin_type",nullable = false)
     private SigninType signinType = SigninType.NONE;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Message> messages = new ArrayList<>();  // 자기가 쓴 메세지들
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들
