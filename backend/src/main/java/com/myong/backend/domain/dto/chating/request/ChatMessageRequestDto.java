@@ -1,7 +1,10 @@
 package com.myong.backend.domain.dto.chating.request;
 
-import java.time.LocalDateTime;
+import com.myong.backend.domain.entity.chating.MessageType;
 
-public record ChatMessageRequestDto (String content, LocalDateTime sendDate){
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record ChatMessageRequestDto (String content, LocalDateTime sendDate, List<String> fileUrls, MessageType messageType){
 
 }

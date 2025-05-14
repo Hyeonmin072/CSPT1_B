@@ -71,9 +71,14 @@ public class Message {
                 .build();
     }
 
-    public static Message saveFileMessage(ChatMessageRequestDto request, String userEmail, ChatRoom chatRoom){
+    public static Message saveFileMessage(ChatMessageRequestDto request, String userEmail, ChatRoom chatRoom, MessageType messageType){
         return Message.builder()
-                .messageType()
+                .messageType(messageType)
+                .content(request.content())
+                .sendDate(request.sendDate())
+                .sender(userEmail)
+                .read(false)
+                .chatRoom(chatRoom)
                 .build();
     }
 

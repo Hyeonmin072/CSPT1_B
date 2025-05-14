@@ -24,4 +24,11 @@ public class MessageFile {
     @ManyToOne
     @JoinColumn(name = "me_id")
     private Message message;
+
+    public static MessageFile save(String url, Message message){
+        return MessageFile.builder()
+                .fileUrl(url)
+                .message(message)
+                .build();
+    }
 }

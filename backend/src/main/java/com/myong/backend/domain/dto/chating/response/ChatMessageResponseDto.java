@@ -1,8 +1,6 @@
 package com.myong.backend.domain.dto.chating.response;
 
 
-import com.myong.backend.domain.dto.chating.request.ChatMessageRequestDto;
-
 import com.myong.backend.domain.entity.chating.Message;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +16,7 @@ import java.util.List;
 @Builder
 public class ChatMessageResponseDto {
     private String content;     // 메세지 내용
-    private List<String> file;  // 파일 url
+    private List<String> fileUrls;  // 파일 url
     private LocalDateTime sendDate;  // 보낸 시간
 
     public static ChatMessageResponseDto noFiles(Message message){
@@ -28,10 +26,11 @@ public class ChatMessageResponseDto {
                 .build();
     }
 
-    public static ChatMessageResponseDto withFiles(Message message){
+    public static ChatMessageResponseDto withFileUrls(Message message, List<String> fileUrls){
         return ChatMessageResponseDto.builder()
                 .content(message.getContent())
                 .sendDate(message.getSendDate())
+                .fileUrls(fileUrls)
                 .build();
     }
 
