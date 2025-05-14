@@ -29,8 +29,11 @@ public class ChatRoom {
     @Column(name = "cr_create_date", updatable = false)
     private LocalDateTime createDate; // 채팅방 생성일
 
-    @Column(name = "cr_last_message", nullable = false)
+    @Column(name = "cr_last_message")
     private String lastMessage = ""; // 채팅방 마지막 메시지
+
+    @Column(name = "cr_last_senddate")
+    private LocalDateTime lastSendDate;  // 채팅방 마지막 메세지 보낸 시간
 
     @ManyToOne
     @JoinColumn(name = "d_id", nullable = false)
@@ -47,6 +50,12 @@ public class ChatRoom {
     public ChatRoom(Designer designer, User user) {
         this.designer = designer;
         this.user = user;
+    }
+
+    public void updateLastMessage(String message, LocalDateTime sendDate){
+        this.lastMessage = message;
+        this.lastSendDate = sendDate;
+
     }
 
     @Override

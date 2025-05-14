@@ -1,12 +1,14 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.chating.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
+import com.myong.backend.domain.entity.chating.ChatRoom;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.*;
@@ -52,6 +54,7 @@ public class UserService {
     private final MemberShipRepository memberShipRepository;
     private final UserCouponRepository userCouponRepository;
     private final ReviewRepository reviewRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
 
     /**
@@ -525,7 +528,7 @@ public class UserService {
      * 유저 쿠폰함 조회
      *
      * @return 쿠폰 데이터
-     * @throws NotFoundException
+     * @throws NotFoundException;
      */
     public List<UserGetAllCouponsResponseDto> getAllCoupons() throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -559,7 +562,7 @@ public class UserService {
     /**
      * 유저 위치 업데이트
      *
-     * @param requestDto
+     * @param requestDto;
      * @return 메세지
      */
     public String updateLocation (UserUpdateLocationRequestDto requestDto){
@@ -598,5 +601,15 @@ public class UserService {
                 .build();
     }
 
+    /**
+     * 유저 채팅방 로드
+     *
+     * @param requestUser;
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate
+     */
+    public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        return chatRoomRepository.findAllByUser(user);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chating.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
@@ -291,7 +292,15 @@ public class UserController {
 
     // 위치 끝 ===============================================================
 
-    //
+    //  유저 채팅방 시작 =====================================================
+
+    /**
+     *  나의 채팅방 조회
+     */
+    @GetMapping("/chatroom")
+    public ResponseEntity<List<ChatRoomResponseDto>> loadChatRoom(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadChatRoom(user));
+    }
 
 
 

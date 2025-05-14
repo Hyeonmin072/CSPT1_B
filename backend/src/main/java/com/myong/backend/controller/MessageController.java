@@ -27,11 +27,6 @@ public class MessageController {
 
     /**
      * 메세지 보내기
-     *
-     * @param request
-     * @param chatRoomId
-     * @param user
-     * @return ChatMessageResponseDto :: content, fileUrls, sendDate
      */
     @MessageMapping("/chat/{chatRoomId}")
     @SendTo("/subscribe/chat/{chatRoomId}")
@@ -46,6 +41,10 @@ public class MessageController {
         return messageService.sendMessage(request,chatRoomId,user);
     }
 
+
+    /**
+     * 채팅방 파일 업로드
+     */
     @PostMapping("/fileupload/{chatRoomId}")
     public ResponseEntity<ChatSaveFilesResponseDto> saveFiles(@RequestPart(value = "file", required = false) List<MultipartFile> file,
                                                               @PathVariable(name = "chatRoomId")UUID chatRoomId){

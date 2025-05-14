@@ -45,6 +45,7 @@ public class MessageService {
      *
      * @return ChatMessageResponseDto :: content, sendDate,
      */
+    @Transactional
     public ChatMessageResponseDto sendMessage(ChatMessageRequestDto request, UUID chatRoomId, UserDetailsDto requestUser){
 
         User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
@@ -52,7 +53,9 @@ public class MessageService {
 
         // 메세지 저장
         Message message = Message.saveMessage(request,user.getEmail(),chatRoom);
-        messageRepository.save(message);
+
+        // 마지막 메세지 , 보낸시간 업데이트
+        chatRoom.updateLastMessage(request.content(),request.sendDate());
 
         return ChatMessageResponseDto.noFiles(message);
 
@@ -104,13 +107,15 @@ public class MessageService {
 
         // 메세지 저장
         Message message = Message.saveFileMessage(request,user.getEmail(),chatRoom,request.messageType());
-        messageRepository.save(message);
 
         // 파일 메세지들 저장
         List<MessageFile> messageFiles = request.fileUrls().stream()
                 .map(url -> MessageFile.save(url, message))
                 .collect(Collectors.toList());
         messageFileRepository.saveAll(messageFiles);
+
+        // 마지막 메세지 , 보낸 시각 업데이트
+        chatRoom.updateLastMessage(request.content()+"+파일",request.sendDate());
 
         return ChatMessageResponseDto.withFileUrls(message,request.fileUrls());
     }
