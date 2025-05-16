@@ -45,7 +45,7 @@ public class MessageController {
     /**
      * 채팅방 파일 업로드
      */
-    @PostMapping("/fileupload/{chatRoomId}")
+    @PostMapping("/chat/fileupload/{chatRoomId}")
     public ResponseEntity<ChatSaveFilesResponseDto> saveFiles(@RequestPart(value = "file", required = false) List<MultipartFile> file,
                                                               @PathVariable(name = "chatRoomId")UUID chatRoomId){
         return ResponseEntity.ok(messageService.saveFiles(file,chatRoomId));
