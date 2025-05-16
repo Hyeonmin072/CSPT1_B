@@ -40,6 +40,7 @@ public class RedisConfig {
         return template;
     }
 
+
     @Value("${spring.mail.redis.host}")
     private String host;
     @Value("${spring.mail.redis.port}")

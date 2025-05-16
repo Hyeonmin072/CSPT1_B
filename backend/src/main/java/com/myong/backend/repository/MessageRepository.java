@@ -1,7 +1,6 @@
 package com.myong.backend.repository;
 
-import com.myong.backend.domain.dto.chating.response.ChatRoomMessageResponseDto;
-import com.myong.backend.domain.entity.chating.Message;
+import com.myong.backend.domain.entity.chatting.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

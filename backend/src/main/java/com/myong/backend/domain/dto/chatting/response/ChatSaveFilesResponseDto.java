@@ -1,6 +1,5 @@
-package com.myong.backend.domain.dto.chating.response;
+package com.myong.backend.domain.dto.chatting.response;
 
-import com.myong.backend.domain.entity.chating.MessageType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

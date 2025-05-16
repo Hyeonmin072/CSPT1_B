@@ -1,7 +1,7 @@
 package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.Gender;
-import com.myong.backend.domain.entity.chating.Message;
+import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;

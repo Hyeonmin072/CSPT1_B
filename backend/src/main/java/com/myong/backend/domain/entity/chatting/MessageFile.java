@@ -1,4 +1,4 @@
-package com.myong.backend.domain.entity.chating;
+package com.myong.backend.domain.entity.chatting;
 
 
 import jakarta.persistence.*;

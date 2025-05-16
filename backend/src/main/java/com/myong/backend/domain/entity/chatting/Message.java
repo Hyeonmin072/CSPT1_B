@@ -1,7 +1,6 @@
-package com.myong.backend.domain.entity.chating;
+package com.myong.backend.domain.entity.chatting;
 
-import com.myong.backend.domain.dto.chating.request.ChatMessageRequestDto;
-import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.domain.dto.chatting.request.ChatMessageRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,18 +41,19 @@ public class Message {
     private LocalDateTime sendDate; // 전송 시간
 
     @Column(name = "me_sender", nullable = false)
-    private String sender; // 보낸 사람 이름
+    private UUID senderId; // 보낸 사람 아이디
 
-    @Column(name = "me_read")
-    private boolean read; // 읽은 여부 판단
+    @Column(name = "me_sender_type",nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SenderType senderType; // 보낸 사람 타입 ex) USER,DESIGNER
+
+    @Column(name = "me_read", nullable = false)
+    private boolean read = false; // 읽은 여부 판단
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cr_id", nullable = false)
     private ChatRoom chatRoom; // 채팅방 고유 키
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "u_id",nullable = false)
-    private User user;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<MessageFile> files = new ArrayList<>();    // 파일 리스트
@@ -61,26 +61,27 @@ public class Message {
     public Message(MessageType messageType, String content, String sender, ChatRoom chatRoom) {
         this.messageType = messageType;
         this.content = content;
-        this.sender = sender;
         this.chatRoom = chatRoom;
     }
-    public static Message saveMessage(ChatMessageRequestDto request, String sender, ChatRoom chatRoom){
+    public static Message saveMessage(ChatMessageRequestDto request, UUID senderId, SenderType senderType, ChatRoom chatRoom){
         return Message.builder()
                 .messageType(MessageType.TEXT)
                 .content(request.content())
                 .sendDate(request.sendDate())
-                .sender(sender)
+                .senderId(senderId)
+                .senderType(senderType)
                 .read(false)
                 .chatRoom(chatRoom)
                 .build();
     }
 
-    public static Message saveFileMessage(ChatMessageRequestDto request, String sender, ChatRoom chatRoom, MessageType messageType){
+    public static Message saveFileMessage(ChatMessageRequestDto request, UUID senderId, SenderType senderType,ChatRoom chatRoom, MessageType messageType){
         return Message.builder()
                 .messageType(messageType)
                 .content(request.content())
                 .sendDate(request.sendDate())
-                .sender(sender)
+                .senderId(senderId)
+                .senderType(senderType)
                 .read(false)
                 .chatRoom(chatRoom)
                 .build();

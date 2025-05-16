@@ -1,4 +1,4 @@
-package com.myong.backend.domain.entity.chating;
+package com.myong.backend.domain.entity.chatting;
 
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.User;

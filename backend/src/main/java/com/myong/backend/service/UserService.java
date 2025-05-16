@@ -1,16 +1,16 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
-import com.myong.backend.domain.dto.chating.response.ChatRoomMessageResponseDto;
-import com.myong.backend.domain.dto.chating.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
-import com.myong.backend.domain.entity.chating.ChatRoom;
-import com.myong.backend.domain.entity.chating.Message;
+import com.myong.backend.domain.entity.chatting.ChatRoom;
+import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.*;
@@ -58,6 +58,7 @@ public class UserService {
     private final ReviewRepository reviewRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
+    private final ChattingOnlineService chattingOnlineService;
 
 
     /**
@@ -617,28 +618,44 @@ public class UserService {
 
 
     /**
-     * 채팅방 메세지들 로드
+     * 채팅방 입장
+     * 채팅방 입장시 메세지 로드
+     * 채팅방 입장시 레디스에 온라인 유저 저장
      *
      * @param chatRoomId;
      * @return ChatRoomMessageResponseDto :: content, fileUrls, sendDate, sender
      */
-    public List<ChatRoomMessageResponseDto> loadChatRoomMessages (UUID chatRoomId){
+    @Transactional
+    public List<ChatRoomMessageResponseDto> loadChatRoomMessages (UUID chatRoomId, UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅룸을 찾지 못했습니다."));
 
         // 1주일 전 최근 메세지들 가져오기
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
 
-
         // 메세지 읽음 처리 로직
         for(Message message : messages){
-            if(!message.isRead()){
+            if(!message.isRead() && message.getSenderId() != user.getId()){
                 message.markAsRead();
             }
         }
 
-        return messages.stream().map(
-                ChatRoomMessageResponseDto::from).toList();
+        // 채팅방에 관하여 온라인 상태
+        chattingOnlineService.addUserToChatRoom(chatRoomId,user.getEmail());
+
+        return messages.stream().map(message ->
+                ChatRoomMessageResponseDto.from(message,(message.getSenderId() == user.getId()) ? "me" : "partner" )).toList();
+    }
+
+    /**
+     * 채팅방 퇴장 레디스에서 온라인 삭제
+     * @param chatRoomId
+     * @param requestUser
+     */
+    public void exitChatRoom(UUID chatRoomId, UserDetailsDto requestUser){
+        chattingOnlineService.removeUserFromChatRoom(chatRoomId,requestUser.getUsername());
+
     }
 
 

@@ -1,9 +1,9 @@
 package com.myong.backend.controller;
 
 
-import com.myong.backend.domain.dto.chating.request.ChatMessageRequestDto;
-import com.myong.backend.domain.dto.chating.response.ChatMessageResponseDto;
-import com.myong.backend.domain.dto.chating.response.ChatSaveFilesResponseDto;
+import com.myong.backend.domain.dto.chatting.request.ChatMessageRequestDto;
+import com.myong.backend.domain.dto.chatting.response.ChatMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatSaveFilesResponseDto;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.service.MessageService;
 import lombok.RequiredArgsConstructor;

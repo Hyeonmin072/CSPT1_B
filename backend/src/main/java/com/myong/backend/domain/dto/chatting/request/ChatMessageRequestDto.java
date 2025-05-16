@@ -1,6 +1,6 @@
-package com.myong.backend.domain.dto.chating.request;
+package com.myong.backend.domain.dto.chatting.request;
 
-import com.myong.backend.domain.entity.chating.MessageType;
+import com.myong.backend.domain.entity.chatting.MessageType;
 
 import java.time.LocalDateTime;
 import java.util.List;

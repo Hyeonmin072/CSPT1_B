@@ -28,14 +28,14 @@ public class UserDetailsDto implements UserDetails, OAuth2User {
         this.username = username;
         this.password = password;
         this.authorities = new ArrayList<>();
-        this.authorities.add(new SimpleGrantedAuthority(role));
+        this.authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
     }
 
     public UserDetailsDto (String username, String role, String name){
         this.name = name;
         this.username = username;
         this.authorities = new ArrayList<>();
-        this.authorities.add(new SimpleGrantedAuthority(role));
+        this.authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
     }
 
     // OAuth2 로그인용 생성자
@@ -43,7 +43,7 @@ public class UserDetailsDto implements UserDetails, OAuth2User {
         this.name = name;
         this.username = username;
         this.authorities = new ArrayList<>();
-        this.authorities.add(new SimpleGrantedAuthority(role));
+        this.authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
         this.attributes = attributes;
     }
 

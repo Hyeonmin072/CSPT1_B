@@ -1,8 +1,8 @@
 package com.myong.backend.controller;
 
 
-import com.myong.backend.domain.dto.chating.response.ChatRoomMessageResponseDto;
-import com.myong.backend.domain.dto.chating.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
@@ -305,13 +305,20 @@ public class UserController {
     }
 
     /**
-     *  채팅방 메세지들 조회
+     *  채팅방 입장
      */
-    @GetMapping("/chatroom/{chatRoomId}")
-    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId){
-        return ResponseEntity.ok(userService.loadChatRoomMessages(chatRoomId));
+    @PostMapping("/chatroom/join/{chatRoomId}")
+    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadChatRoomMessages(chatRoomId,user));
     }
 
-
+    /**
+     *  채팅방 퇴장
+     */
+    @PostMapping("chatroom/exit/{chatRoomId}")
+    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        userService.exitChatRoom(chatRoomId,user);
+        return ResponseEntity.ok().build();
+    }
 
 }

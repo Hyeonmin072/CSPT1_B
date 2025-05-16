@@ -1,6 +1,6 @@
 package com.myong.backend.repository;
 
-import com.myong.backend.domain.entity.chating.MessageFile;
+import com.myong.backend.domain.entity.chatting.MessageFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
