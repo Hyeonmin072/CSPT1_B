@@ -1,6 +1,6 @@
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    image: elasticsearch:8.11.1
     container_name: elasticsearch-container
     environment:
       - discovery.type=single-node
@@ -11,7 +11,7 @@ services:
     networks:
       - backend-net
   redis:
-    image: redis
+    image: redis:latest
     container_name: redis-container
     ports:
       - "6379:6379"
