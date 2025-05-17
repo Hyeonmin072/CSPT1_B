@@ -1,29 +1,15 @@
 package com.myong.backend.repository;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-@Repository
-public class EmitterRepository {
-    private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
-
-    public SseEmitter save(String userId){
-        SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
-        emitters.put(userId, sseEmitter);
-        return sseEmitter;
-    }
-
-    public SseEmitter findByUserId(String userId){
-        if(!emitters.containsKey(userId)){
-            return null;
-        }
-        return emitters.get(userId);
-    }
-
-    public void deleteByUserId(String userId){
-        emitters.remove(userId);
-    }
+public interface EmitterRepository {
+    public SseEmitter save(String emitterId, SseEmitter sseEmitter);
+    public void saveEventCache(String emitterId, Object event);
+    public Map<String, SseEmitter> findAllEmitterStartWithByuserEmail(String userEmail);
+    public Map<String, Object> findAllEventCacheStartWithByuserEmail(String userEmail);
+    public void deleteById(String emitterId);
+    public void deleteAllEmitterStartWithEmail(String userEmail);
+    public void deleteAllEventCacheStartWithEmail(String userEmail);
 }
