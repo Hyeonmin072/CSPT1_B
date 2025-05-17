@@ -22,12 +22,6 @@ public class Notification {
     @Column(name = "n_content")
     private String content;
 
-    @Column(name = "n_url")
-    private String url;
-
-    @Column(name = "n_toName")
-    private String toName;
-
     @Column(name = "n_notification_type")
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
@@ -37,10 +31,8 @@ public class Notification {
     private User user;
 
     @Builder
-    public Notification(String toName, String content, String url, NotificationType notificationType, User user) {
-        this.toName = toName;
+    public Notification(String content, NotificationType notificationType, User user) {
         this.content = content;
-        this.url = url;
         this.notificationType = notificationType;
         this.user = user;
     }

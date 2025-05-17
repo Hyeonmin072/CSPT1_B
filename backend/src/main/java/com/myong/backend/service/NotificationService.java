@@ -68,13 +68,13 @@ public class NotificationService {
     }
 
     /**
-     * 다른 서비스 클래스에서 이벤트 발생 시, 이 메서드를 호출하여 SSE 연결을 통해 알림을 보낸다
+     * 다른 서비스 클래스에서 이벤트 발생 시, 이 메서드를 호출하여 SSE 연결을 통해 보낼 알람을 준비한다.
      * @param notification 알람 객체(이 객체를 DB에 저장한 후 넘어올 것으로 기대)
      */
     public void send(Notification notification) {
         String eventId = notification.getUser().getEmail() + "_" + System.currentTimeMillis();
 
-        // 한 사용자가 여러 클라이언트(브라우저 탭, 모바일 앱 등)에서 접속할 수 있으므로, 사용자의 모든 SSE 연결(emitter)을 가져와 알림을 전송한다.
+        // 한 사용자가 여러 클라이언트(브라우저 탭, 모바일 앱 등)에서 접속할 수 있으므로, 사용자의 모든 SSE 연결(emitter)을 가져온다.
         Map<String, Object> sseEmiters = emitterRepository.findAllEventCacheStartWithByuserEmail(notification.getUser().getEmail());
         sseEmiters.forEach(
                 (key, emitter) -> {
