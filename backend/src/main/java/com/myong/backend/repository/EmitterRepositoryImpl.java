@@ -24,16 +24,16 @@ public class EmitterRepositoryImpl implements EmitterRepository {
     }
 
     @Override
-    public Map<String, SseEmitter> findAllEmitterStartWithByuserEmail(String userEmail) {
+    public Map<String, SseEmitter> findAllEmitterStartWithEmail(String receiverEmail) {
         return emitterMap.entrySet().stream()
-                .filter(e -> e.getKey().startsWith(userEmail))
+                .filter(e -> e.getKey().startsWith(receiverEmail))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     @Override
-    public Map<String, Object> findAllEventCacheStartWithByuserEmail(String userEmail) {
+    public Map<String, Object> findAllEventCacheStartWithEmail(String receiverEmail) {
         return eventCache.entrySet().stream()
-                .filter(e -> e.getKey().startsWith(userEmail))
+                .filter(e -> e.getKey().startsWith(receiverEmail))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -43,20 +43,20 @@ public class EmitterRepositoryImpl implements EmitterRepository {
     }
 
     @Override
-    public void deleteAllEmitterStartWithEmail(String userEmail) {
+    public void deleteAllEmitterStartWithEmail(String receiverEmail) {
         emitterMap.forEach(
                 (key, emitter) -> {
-            if (key.startsWith(userEmail)) {
+            if (key.startsWith(receiverEmail)) {
                 emitterMap.remove(key);
             }
         });
     }
 
     @Override
-    public void deleteAllEventCacheStartWithEmail(String userEmail) {
+    public void deleteAllEventCacheStartWithEmail(String receiverEmail) {
         eventCache.forEach(
                 (key, event) -> {
-                    if (key.startsWith(userEmail)) {
+                    if (key.startsWith(receiverEmail)) {
                         eventCache.remove(key);
                     }
                 }

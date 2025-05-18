@@ -1,6 +1,5 @@
 package com.myong.backend.domain.entity;
 
-import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -26,15 +25,14 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(name = "n_receiver_email")
+    private String receiverEmail;
 
     @Builder
-    public Notification(String content, NotificationType notificationType, User user) {
+    public Notification(String content, NotificationType notificationType, String receiverEmail) {
         this.content = content;
         this.notificationType = notificationType;
-        this.user = user;
+        this.receiverEmail = receiverEmail;
     }
 
 }

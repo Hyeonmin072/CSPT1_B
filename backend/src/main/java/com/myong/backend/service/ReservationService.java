@@ -7,6 +7,8 @@ import com.myong.backend.domain.dto.reservation.MenuListData;
 import com.myong.backend.domain.dto.reservation.response.*;
 import com.myong.backend.domain.dto.shop.PaymentRequestDto;
 import com.myong.backend.domain.dto.shop.PaymentResponseDto;
+import com.myong.backend.domain.entity.Notification;
+import com.myong.backend.domain.entity.NotificationType;
 import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
@@ -25,7 +27,10 @@ import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -44,6 +49,7 @@ import java.util.stream.Collectors;
 import static com.myong.backend.service.ShopService.getAuthenticatedEmail;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ReservationService {
 
@@ -59,13 +65,14 @@ public class ReservationService {
     private final TossPaymentConfig tossPaymentConfig;
     private final RedisTemplate<String, Object> redisTemplate;
     private static final Duration TTL = Duration.ofMinutes(10); // Redis에 저장할 TTL
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
     /**
      * 결제하기 버튼 -> 임시 예약 데이터 및 결제 객체 생성
      * @param request 결제 요청 정보를 담은 DTO
      * @return 생성한 결제 객체의 관련 정보를 담은 DTO
      */
-    @Transactional
     public PaymentResponseDto createReservation(PaymentRequestDto request) {
         // 인증정보에서 유저 이메일 꺼내기
         String userEmail = getAuthenticatedEmail();
@@ -173,7 +180,6 @@ public class ReservationService {
      * @param amount 결제한 액수
      * @return 결제 인증 성공 관련 정보를 담은 DTO
      */
-    @Transactional
     public PaymentSuccessDto tossPaymentSuccess(String paymentKey, String paymentId, Long amount) {
         // 결제 검색
         Payment payment = paymentRepository.findById(UUID.fromString(paymentId))
@@ -226,6 +232,19 @@ public class ReservationService {
 
         // 결제 인증을 성공했으므로, 결제 승인 요청
         requestTossPaymentApproval(paymentKey, paymentId, amount);
+
+        // 사업자에게 제공할 예약 알람 생성 및 저장
+        String notificationContent =  user.getName() + " 고객님이 디자이너 " + designer.getName() + " 님에게 " + menu.getName() +" 을 예약했어요. [ 시술일자 : " + reservation.getServiceDate() + " ]";
+        Notification notification = Notification.builder()
+                .content(notificationContent)
+                .notificationType(NotificationType.SHOP)
+                .receiverEmail(shop.getEmail())
+                .build();
+        Notification savedNotification = notificationRepository.save(notification);
+
+        // SSE를 통해 알람을 클라이언트에게 전송
+        notificationService.send(savedNotification);
+
 
         // 성공한 결제 및 예약 관련 정보를 반환
         return PaymentSuccessDto.builder()
@@ -290,7 +309,6 @@ public class ReservationService {
      * @param message 실패한 이유를 담은 메시지
      * @return 결제 인증 실패 관련 정보를 담은 DTO
      */
-    @Transactional
     public PaymentFailDto tossPaymentFail(String code, String paymentId, String message) {
         // 결제 검색
         Payment payment = paymentRepository.findById(UUID.fromString(paymentId))
@@ -391,7 +409,6 @@ public class ReservationService {
      * 유저의 결제 내역 조회
      * @return 결제 내역 정보를 담은 DTO들
      */
-    @Transactional
     public List<PaymentHistoryDto> findAllChargingHistories() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsDto principal = (UserDetailsDto)authentication.getPrincipal();

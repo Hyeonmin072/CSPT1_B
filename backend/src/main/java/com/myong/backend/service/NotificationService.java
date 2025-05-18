@@ -20,15 +20,16 @@ public class NotificationService {
     private final EmitterRepository  emitterRepository;
     private final NotificationRepository notificationRepository;
 
+
     // 연결 지속 시간 -> 1시간  -> 1시간 동안 아무 이벤트도 보내지 않으면 타임아웃
     // 중간에 알람이라도 하나 보내면 타임아웃이 갱신된다
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
-    public SseEmitter connect(String userEmail, String lastEventId) {
+    public SseEmitter connect(String receiverEmail, String lastEventId) {
         // 매 연결마다 고유한 이벤트 아이디 생성
         // 이 값은 클라이언트가 수신한 마지막 이벤트를 기억할 수 있게 하기 위해 사용
         // 이 ID는 클라이언트가 자동 재연결 시 Last-Event-ID로 되돌려 보내주는 기준이 된다.
-        String eventId = userEmail + "_" + System.currentTimeMillis();
+        String eventId = receiverEmail + "_" + System.currentTimeMillis();
         
         // SseEmitter 인스턴스 생성 후 Map에 저장
         // 연결된 클라이언트 1명에 대한 SSE 스트림 객체
@@ -49,14 +50,14 @@ public class NotificationService {
         });
 
         // 최초 연결 시 응답을 보내지 않으면 503 오류가 발생 -> 오류 방지를 위해 최초 연결시 더미 이벤트 생성 후 클라이언트에 전송
-        sendToClient(eventId, emitter, "알림 서버 연결 성공. [userEmail=" + userEmail + "]");
+        sendToClient(eventId, emitter, "알림 서버 연결 성공. [receiverEmail=" + receiverEmail + "]");
 
         // [재전송 로직]
         // 클라이언트가 마지막으로 받은 이벤트 ID(Last-Event-ID)를 서버에 보내면,
         // 그 이후에 서버에서 발생한 이벤트들만 필터링하여 재전송함.
         // 클라이언트와의 연결 끊긴 사이에 놓친 알림들을 복구하는 역할
         if(!lastEventId.isEmpty()) {
-            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithByuserEmail(userEmail);
+            Map<String, Object> events = emitterRepository.findAllEventCacheStartWithEmail(receiverEmail);
             events.entrySet().stream()
                     // a.compareTo(b) 가 음수 -> a 가 b 보다 작다는 뜻 -> lastEventId보다 큰 것들만 필터링
                     .filter(e -> lastEventId.compareTo(e.getKey()) < 0)
@@ -72,10 +73,11 @@ public class NotificationService {
      * @param notification 알람 객체(이 객체를 DB에 저장한 후 넘어올 것으로 기대)
      */
     public void send(Notification notification) {
-        String eventId = notification.getUser().getEmail() + "_" + System.currentTimeMillis();
+
+        String eventId = notification.getReceiverEmail() + "_" + System.currentTimeMillis();
 
         // 한 사용자가 여러 클라이언트(브라우저 탭, 모바일 앱 등)에서 접속할 수 있으므로, 사용자의 모든 SSE 연결(emitter)을 가져온다.
-        Map<String, Object> sseEmiters = emitterRepository.findAllEventCacheStartWithByuserEmail(notification.getUser().getEmail());
+        Map<String, Object> sseEmiters = emitterRepository.findAllEventCacheStartWithEmail(notification.getReceiverEmail());
         sseEmiters.forEach(
                 (key, emitter) -> {
                     try {

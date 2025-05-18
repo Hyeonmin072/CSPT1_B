@@ -7,8 +7,8 @@ import java.util.Map;
 public interface EmitterRepository {
     public SseEmitter save(String emitterId, SseEmitter sseEmitter);
     public void saveEventCache(String emitterId, Object event);
-    public Map<String, SseEmitter> findAllEmitterStartWithByuserEmail(String userEmail);
-    public Map<String, Object> findAllEventCacheStartWithByuserEmail(String userEmail);
+    public Map<String, SseEmitter> findAllEmitterStartWithEmail(String userEmail);
+    public Map<String, Object> findAllEventCacheStartWithEmail(String userEmail);
     public void deleteById(String emitterId);
     public void deleteAllEmitterStartWithEmail(String userEmail);
     public void deleteAllEventCacheStartWithEmail(String userEmail);
