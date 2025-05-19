@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, UUID> {
@@ -22,6 +23,8 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, UUID> {
             "from ChatRoom cr join cr.designer d " +
             "where d = :designer")
     List<ChatRoomResponseDto> findAllByDesigner(@Param("designer") Designer designer);
+
+    Optional<ChatRoom> findByUserAndDesigner(User user, Designer designer);
 
 
 }

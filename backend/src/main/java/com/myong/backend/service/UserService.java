@@ -1,8 +1,10 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
@@ -656,6 +658,29 @@ public class UserService {
     public void exitChatRoom(UUID chatRoomId, UserDetailsDto requestUser){
         chattingOnlineService.removeUserFromChatRoom(chatRoomId,requestUser.getUsername());
 
+    }
+
+    /**
+     *  디자이너에게 채팅 요청
+     *  채팅방이 존재시 기존 채팅방 리턴
+     *  채팅방이 존재하지 않을시 새로운 채팅방 리턴
+     *
+     * @param request
+     * @param requestUser
+     * @return UUID chatRoomId
+     */
+    public ChattingResponseDto requestChatting(ChattingRequestDto request, UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        Designer designer = designerRepository.findByEmail(request.designerEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findByUserAndDesigner(user,designer).orElse(null);
+        // 기존 채팅방이 있을시
+        if(chatRoom != null){
+            return new ChattingResponseDto(chatRoom.getId());
+        }
+        // 새로운 채팅방 생성
+        ChatRoom newChatRoom = ChatRoom.save(user,designer);
+        chatRoomRepository.save(newChatRoom);
+        return new ChattingResponseDto(newChatRoom.getId());
     }
 
 

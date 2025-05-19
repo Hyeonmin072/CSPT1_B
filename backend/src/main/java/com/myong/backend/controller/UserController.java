@@ -1,8 +1,10 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
@@ -295,6 +297,14 @@ public class UserController {
     // 위치 끝 ===============================================================
 
     //  유저 채팅방 시작 =====================================================
+
+    /**
+     *  채팅방 생성
+     */
+    @PostMapping("/chatroom/request")
+    public ResponseEntity<ChattingResponseDto> requestChatting(@RequestBody ChattingRequestDto request, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.requestChatting(request,user));
+    }
 
     /**
      *  나의 채팅방 조회

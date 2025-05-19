@@ -3,6 +3,8 @@ package com.myong.backend.domain.entity.chatting;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder
 public class ChatRoom {
 
     @Id
@@ -50,6 +54,14 @@ public class ChatRoom {
     public ChatRoom(Designer designer, User user) {
         this.designer = designer;
         this.user = user;
+    }
+
+    public static ChatRoom save(User user,Designer designer){
+        return ChatRoom.builder()
+                .createDate(LocalDateTime.now())
+                .designer(designer)
+                .user(user)
+                .build();
     }
 
     public void updateLastMessage(String message, LocalDateTime sendDate){
