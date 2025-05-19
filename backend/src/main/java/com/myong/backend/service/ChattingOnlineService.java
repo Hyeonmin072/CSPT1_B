@@ -2,6 +2,7 @@ package com.myong.backend.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +10,13 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class ChattingOnlineService {
 
-    private final RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    public ChattingOnlineService(@Qualifier("redisTpl") RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     private String getUserSetKey(UUID chatRoomId){
         return "chatroom:" + chatRoomId + ":users";

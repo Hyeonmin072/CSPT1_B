@@ -16,7 +16,7 @@ import java.util.UUID;
 @Getter
 public class MessageFile {
     @Id
-    @GeneratedValue( strategy = GenerationType.AUTO)
+    @GeneratedValue( strategy = GenerationType.UUID)
     @Column(name = "mf_id")
     private UUID id;        // 아이디
 

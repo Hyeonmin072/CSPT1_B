@@ -638,7 +638,7 @@ public class UserService {
 
         // 메세지 읽음 처리 로직
         for(Message message : messages){
-            if(!message.isRead() && message.getSenderId() != user.getId()){
+            if(!message.isRead() && !message.getSenderEmail().equals(user.getEmail())){
                 message.markAsRead();
             }
         }
@@ -647,7 +647,7 @@ public class UserService {
         chattingOnlineService.addUserToChatRoom(chatRoomId,user.getEmail());
 
         return messages.stream().map(message ->
-                ChatRoomMessageResponseDto.from(message,(message.getSenderId() == user.getId()) ? "me" : "partner" )).toList();
+                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(user.getEmail())) ? "me" : "partner" )).toList();
     }
 
     /**
@@ -675,12 +675,12 @@ public class UserService {
         ChatRoom chatRoom = chatRoomRepository.findByUserAndDesigner(user,designer).orElse(null);
         // 기존 채팅방이 있을시
         if(chatRoom != null){
-            return new ChattingResponseDto(chatRoom.getId());
+            return new ChattingResponseDto(chatRoom.getId().toString());
         }
         // 새로운 채팅방 생성
         ChatRoom newChatRoom = ChatRoom.save(user,designer);
         chatRoomRepository.save(newChatRoom);
-        return new ChattingResponseDto(newChatRoom.getId());
+        return new ChattingResponseDto(newChatRoom.getId().toString());
     }
 
 

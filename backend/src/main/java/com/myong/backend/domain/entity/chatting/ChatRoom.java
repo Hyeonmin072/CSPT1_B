@@ -25,7 +25,7 @@ import java.util.UUID;
 public class ChatRoom {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "cr_id")
     private UUID id; // 채팅방 고유 키
 
@@ -61,6 +61,7 @@ public class ChatRoom {
                 .createDate(LocalDateTime.now())
                 .designer(designer)
                 .user(user)
+                .lastMessage("")
                 .build();
     }
 

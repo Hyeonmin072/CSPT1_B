@@ -13,7 +13,6 @@ import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.JobPost;
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
@@ -428,7 +427,7 @@ public class DesignerService {
 
         // 메세지 읽음 처리 로직
         for(Message message : messages){
-            if(!message.isRead() && message.getSenderId() != designer.getId()){
+            if(!message.isRead() && !message.getSenderEmail().equals(designer.getEmail())){
                 message.markAsRead();
             }
         }
@@ -437,7 +436,7 @@ public class DesignerService {
         chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail());
 
         return messages.stream().map(message ->
-                ChatRoomMessageResponseDto.from(message,(message.getSenderId() == designer.getId()) ? "me" : "partner" )).toList();
+                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(designer.getEmail())) ? "me" : "partner" )).toList();
     }
 
     /**

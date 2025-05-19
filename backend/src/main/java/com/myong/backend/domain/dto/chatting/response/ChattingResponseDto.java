@@ -9,5 +9,5 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class ChattingResponseDto {
-    private UUID chatRoomId;
+    private String chatRoomId;
 }

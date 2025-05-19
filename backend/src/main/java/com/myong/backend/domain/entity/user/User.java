@@ -25,7 +25,7 @@ public class User {
 
     @Id
     @Column(name = "u_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id ; // 유저 고유 키
 
     @Column(name = "u_name",  nullable = false)
@@ -64,9 +64,6 @@ public class User {
 
     @Column(name = "u_signin_type",nullable = false)
     private SigninType signinType = SigninType.NONE;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Message> messages = new ArrayList<>();  // 자기가 쓴 메세지들
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCoupon> coupons = new ArrayList<>(); // 소유한 쿠폰들

@@ -41,7 +41,7 @@ public class Message {
     private LocalDateTime sendDate; // 전송 시간
 
     @Column(name = "me_sender", nullable = false)
-    private UUID senderId; // 보낸 사람 아이디
+    private String senderEmail; // 보낸 사람 이메일
 
     @Column(name = "me_sender_type",nullable = false)
     @Enumerated(EnumType.STRING)
@@ -63,24 +63,24 @@ public class Message {
         this.content = content;
         this.chatRoom = chatRoom;
     }
-    public static Message saveMessage(ChatMessageRequestDto request, UUID senderId, SenderType senderType, ChatRoom chatRoom){
+    public static Message saveMessage(ChatMessageRequestDto request, String senderEmail, SenderType senderType, ChatRoom chatRoom){
         return Message.builder()
                 .messageType(MessageType.TEXT)
                 .content(request.content())
                 .sendDate(request.sendDate())
-                .senderId(senderId)
+                .senderEmail(senderEmail)
                 .senderType(senderType)
                 .read(false)
                 .chatRoom(chatRoom)
                 .build();
     }
 
-    public static Message saveFileMessage(ChatMessageRequestDto request, UUID senderId, SenderType senderType,ChatRoom chatRoom, MessageType messageType){
+    public static Message saveFileMessage(ChatMessageRequestDto request, String senderEmail, SenderType senderType,ChatRoom chatRoom, MessageType messageType){
         return Message.builder()
                 .messageType(messageType)
                 .content(request.content())
                 .sendDate(request.sendDate())
-                .senderId(senderId)
+                .senderEmail(senderEmail)
                 .senderType(senderType)
                 .read(false)
                 .chatRoom(chatRoom)

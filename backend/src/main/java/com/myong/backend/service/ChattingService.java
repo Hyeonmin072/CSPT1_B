@@ -15,6 +15,7 @@ import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class MessageService {
+public class ChattingService {
 
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
@@ -42,30 +43,33 @@ public class MessageService {
      *
      * @param request
      * @param chatRoomId
-     * @param requestUser
+     * @param accessor
      *
      * @return ChatMessageResponseDto :: content, sendDate,
      */
     @Transactional
-    public ChatMessageResponseDto sendMessage(ChatMessageRequestDto request, UUID chatRoomId, UserDetailsDto requestUser){
+    public ChatMessageResponseDto sendMessage(ChatMessageRequestDto request, UUID chatRoomId, SimpMessageHeaderAccessor accessor){
 
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅방을 찾지 못했습니다."));
 
+        String requestRole = (String) accessor.getSessionAttributes().get("role");
+        String requestEmail = (String) accessor.getSessionAttributes().get("username");
 
         // 유저인지 디자이너인지 판별
         Message message = new Message();
-        if(requestUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))){
-            User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        if(requestRole.equals("USER")){
+            System.out.println("유저임");
             // 메세지 저장
-            message = Message.saveMessage(request,user.getId(), SenderType.USER ,chatRoom);
-        }else if(requestUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_DESIGNER"))){
-            Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+            message = Message.saveMessage(request,requestEmail, SenderType.USER ,chatRoom);
+        }else if(requestRole.equals("DESIGNER")){
+            System.out.println("디자이너임");
             // 메세지 저장
-            message = Message.saveMessage(request,designer.getId(), SenderType.DESIGNER ,chatRoom);
+            message = Message.saveMessage(request,requestEmail, SenderType.DESIGNER ,chatRoom);
         }
 
+        messageRepository.save(message);
         // 상대방 온라인 여부 체크
-        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestUser.getUsername());
+        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestEmail);
 
         // 상대방 온라인이면 메세지 바로 읽음
         if(isOnlinePartner){
@@ -75,7 +79,7 @@ public class MessageService {
         // 마지막 메세지 , 보낸시간 업데이트
         chatRoom.updateLastMessage(request.content(),request.sendDate());
 
-        return ChatMessageResponseDto.noFiles(message);
+        return ChatMessageResponseDto.noFiles(message,requestEmail);
 
     }
 
@@ -110,27 +114,30 @@ public class MessageService {
      *
      * @param request
      * @param chatRoomId
-     * @param requestUser
+     * @param accessor
      * @return ChatMessageResponseDto :: content, sendDate, 리스트files
      */
     @Transactional
-    public ChatMessageResponseDto sendFileMessage(ChatMessageRequestDto request, UUID chatRoomId, UserDetailsDto requestUser){
+    public ChatMessageResponseDto sendFileMessage(ChatMessageRequestDto request, UUID chatRoomId, SimpMessageHeaderAccessor accessor){
 
         if (request.fileUrls() == null || request.fileUrls().isEmpty()) {
             throw new BindException("파일이 첨부되지 않았습니다.");
         }
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅방을 찾지 못했습니다."));
 
+        String requestRole = (String) accessor.getSessionAttributes().get("role");
+        String requestEmail = (String) accessor.getSessionAttributes().get("username");
+
         // 유저인지 디자이너인지 판별
         Message message = new Message();
-        if(requestUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))){
-            User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        if(requestRole.equals("USER")){
+            System.out.println("유저임");
             // 메세지 저장
-            message = Message.saveFileMessage(request,user.getId(), SenderType.USER ,chatRoom,request.messageType());
-        }else if(requestUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_DESIGNER"))){
-            Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+            message = Message.saveMessage(request,requestEmail, SenderType.USER ,chatRoom);
+        }else if(requestRole.equals("DESIGNER")){
+            System.out.println("디자이너임");
             // 메세지 저장
-            message = Message.saveFileMessage(request,designer.getId(), SenderType.DESIGNER ,chatRoom,request.messageType());
+            message = Message.saveMessage(request,requestEmail, SenderType.DESIGNER ,chatRoom);
         }
 
 
@@ -142,7 +149,7 @@ public class MessageService {
         messageFileRepository.saveAll(messageFiles);
 
         // 상대방 온라인 여부 체크
-        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestUser.getUsername());
+        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestEmail);
 
         // 상대방 온라인이면 메세지 바로 읽음
         if(isOnlinePartner){
@@ -152,6 +159,6 @@ public class MessageService {
         // 마지막 메세지 , 보낸 시각 업데이트
         chatRoom.updateLastMessage(request.content()+"+파일",request.sendDate());
 
-        return ChatMessageResponseDto.withFileUrls(message,request.fileUrls());
+        return ChatMessageResponseDto.withFileUrls(message,request.fileUrls(),requestEmail);
     }
 }

@@ -20,36 +20,33 @@ public class UserDetailsDto implements UserDetails, OAuth2User {
     private String name;
     private String username; //이메일
     private String password;
-    private List<GrantedAuthority> authorities;
+    private List<GrantedAuthority> authorities = new ArrayList<>();
     private Map<String, Object> attributes; // OAuth2 정보 저장
 
     public UserDetailsDto (String username, String role, String name, String password){
         this.name = name;
         this.username = username;
         this.password = password;
-        this.authorities = new ArrayList<>();
-        this.authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
+        this.authorities.add(new SimpleGrantedAuthority(role));
     }
 
     public UserDetailsDto (String username, String role, String name){
         this.name = name;
         this.username = username;
-        this.authorities = new ArrayList<>();
-        this.authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
+        this.authorities.add(new SimpleGrantedAuthority(role));
     }
 
     // OAuth2 로그인용 생성자
     public UserDetailsDto(String username, String role, String name, Map<String, Object> attributes) {
         this.name = name;
         this.username = username;
-        this.authorities = new ArrayList<>();
-        this.authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
+        this.authorities.add(new SimpleGrantedAuthority(role));
         this.attributes = attributes;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return authorities != null ? authorities : new ArrayList<>();
     }
 
     @Override
