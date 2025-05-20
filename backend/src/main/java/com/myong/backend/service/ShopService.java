@@ -251,7 +251,7 @@ public class ShopService {
         Long remainReservation = getReservationsToday(); // 오늘 남은 예약 인원
         Long monthSales = getShopSales(Period.ONE_MONTH).getTotalAmount(); // 이번 달 매출
         DesignerSalesResponseDto bestSalesDesigner = getBestSalesDesigner(); // 이번 달 매출 우수 디자이너
-        DesignerLikeResponseDto bestLikeDesinger = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
+        DesignerLikeResponseDto bestLikeDesigner = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
         Shop shop = getShop(getAuthenticatedEmail()); // 로그인한 가게 조회
         Double rating = shop.getRating(); // 리뷰평점
         int reviewCount = shop.getReviews().size(); // 리뷰개수
@@ -260,14 +260,14 @@ public class ShopService {
         return ShopMainResponseDto.builder()
                 .remainReservation(remainReservation)
                 .monthSales(monthSales)
-                .bestSalesDesignerEmail(bestSalesDesigner.getDesignerEmail())
-                .bestSalesDesignerName(bestSalesDesigner.getDesignerName())
-                .bestSalesDesignerImage(bestSalesDesigner.getDesignerImage())
-                .sales(bestSalesDesigner.getDesignerSales())
-                .bestLikedesignerEmail(bestLikeDesinger.getDesignerEmail())
-                .bestLikedesignerName(bestLikeDesinger.getDesignerName())
-                .bestLikedesignerImage(bestLikeDesinger.getDesignerImage())
-                .IncreasedLikes(bestLikeDesinger.getIncreasedLikes())
+                .bestSalesDesignerEmail(bestSalesDesigner != null ? bestSalesDesigner.getDesignerEmail() : "")
+                .bestSalesDesignerName(bestSalesDesigner != null ? bestSalesDesigner.getDesignerName() : "")
+                .bestSalesDesignerImage(bestSalesDesigner != null ? bestSalesDesigner.getDesignerImage() : "")
+                .sales(bestSalesDesigner != null ? bestSalesDesigner.getDesignerSales() : 0L)
+                .bestLikedesignerEmail(bestLikeDesigner != null ? bestLikeDesigner.getDesignerEmail() : "")
+                .bestLikedesignerName(bestLikeDesigner != null ? bestLikeDesigner.getDesignerName() : "")
+                .bestLikedesignerImage(bestLikeDesigner != null ? bestLikeDesigner.getDesignerImage() : "")
+                .IncreasedLikes(bestLikeDesigner != null ? bestLikeDesigner.getIncreasedLikes() : 0L)
                 .shopName(shop.getName())
                 .rating(rating)
                 .reviewCount(reviewCount)

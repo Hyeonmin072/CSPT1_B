@@ -18,6 +18,7 @@ public class SelectMenuResponseDto {
     private List<MenuListData> clinicMenus; // 클리닉메뉴
     private List<MenuListData> stylingMenus; // 스타일링메뉴
 
+
     private String shopName;
     private String shopEmail;
 
