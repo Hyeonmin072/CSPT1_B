@@ -2,7 +2,6 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.entity.Notification;
 import com.myong.backend.repository.EmitterRepository;
-import com.myong.backend.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
-    private final EmitterRepository  emitterRepository;
-    private final NotificationRepository notificationRepository;
+    private final EmitterRepository emitterRepository;
 
 
     // 연결 지속 시간 -> 1시간  -> 1시간 동안 아무 이벤트도 보내지 않으면 타임아웃
