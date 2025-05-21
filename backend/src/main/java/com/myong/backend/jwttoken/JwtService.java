@@ -118,17 +118,22 @@ public class JwtService {
     }
     public boolean isValidToken(String token) {
         try {
-            // 서명만 검증하고 만료일은 무시
-            Jwts.parserBuilder()
-                    .setSigningKey(key)  // 서명 검증을 위한 키 설정
-                    .setAllowedClockSkewSeconds(0) // 만약 만료시간 차이를 허용하려면 설정
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(token);  // 서명만 검증하고 만료일 체크는 하지 않음
+                    .parseClaimsJws(token)
+                    .getBody();
 
-            return true;  // 서명이 유효하다면 true
+            // ✅ 만료 시간 검사 생략
+            return true;
+
+        } catch (ExpiredJwtException e) {
+            // 🔸 토큰이 만료된 경우에도 서명은 유효하므로 true로 판단할 수 있음
+            return true;
+
         } catch (JwtException e) {
-            // 서명 검증이 실패한 경우
-            return false;  // 서명이 유효하지 않으면 false
+            // 🔴 서명 불일치, 변조 등
+            return false;
         }
     }
 

@@ -133,13 +133,14 @@ public class ChattingService {
         if(requestRole.equals("USER")){
             System.out.println("유저임");
             // 메세지 저장
-            message = Message.saveMessage(request,requestEmail, SenderType.USER ,chatRoom);
+            message = Message.saveFileMessage(request,requestEmail, SenderType.USER ,chatRoom, request.messageType());
         }else if(requestRole.equals("DESIGNER")){
             System.out.println("디자이너임");
             // 메세지 저장
-            message = Message.saveMessage(request,requestEmail, SenderType.DESIGNER ,chatRoom);
+            message = Message.saveFileMessage(request,requestEmail, SenderType.DESIGNER ,chatRoom, request.messageType());
         }
 
+        message = messageRepository.save(message);
 
         // 파일 메세지들 저장
         final Message savedMessage = message;
@@ -157,7 +158,7 @@ public class ChattingService {
         }
 
         // 마지막 메세지 , 보낸 시각 업데이트
-        chatRoom.updateLastMessage(request.content()+"+파일",request.sendDate());
+        chatRoom.updateLastMessage(request.content()+"(+파일)",request.sendDate());
 
         return ChatMessageResponseDto.withFileUrls(message,request.fileUrls(),requestEmail);
     }
