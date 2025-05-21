@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ChatMessageResponseDto {
+    private String messageId;       // 메세지 아이디
     private String content;         // 메세지 내용
     private List<String> fileUrls;  // 파일 url
     private LocalDateTime sendDate; // 보낸 시간
@@ -24,6 +25,7 @@ public class ChatMessageResponseDto {
     public static ChatMessageResponseDto noFiles(Message message,String requestEmail){
         boolean isMine = message.getSenderEmail().equals(requestEmail);
         return ChatMessageResponseDto.builder()
+                .messageId(message.getId().toString())
                 .content(message.getContent())
                 .sendDate(message.getSendDate())
                 .sender(isMine ? "me" : "partner")
@@ -34,6 +36,7 @@ public class ChatMessageResponseDto {
     public static ChatMessageResponseDto withFileUrls(Message message, List<String> fileUrls, String requestEmail){
         boolean isMine = message.getSenderEmail().equals(requestEmail);
         return ChatMessageResponseDto.builder()
+                .messageId(message.getId().toString())
                 .content(message.getContent())
                 .sendDate(message.getSendDate())
                 .fileUrls(fileUrls)
