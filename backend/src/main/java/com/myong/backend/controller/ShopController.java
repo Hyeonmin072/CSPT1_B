@@ -104,7 +104,7 @@ public class ShopController {
     /**
      * 쿠폰 등록
      */
-    @PostMapping("/coupon")
+    @PostMapping("/coupons")
     public ResponseEntity<String> addCoupon(@Valid @RequestBody CouponRequestDto request) {
         return ResponseEntity.ok(shopService.addCoupon(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -120,7 +120,7 @@ public class ShopController {
     /**
      * 이벤트 등록
      */
-    @PostMapping("/event")
+    @PostMapping("/events")
     public ResponseEntity<String> addEvent(@Valid @RequestBody EventRequestDto request) {
         return ResponseEntity.ok(shopService.addEvent(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -162,7 +162,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 등록
      */
-    @PostMapping("/menu")
+    @PostMapping("/menus")
     public ResponseEntity<String> createMenu(@Valid @RequestBody MenuCreateRequestDto request) {
         return ResponseEntity.ok(shopService.createMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
@@ -203,7 +203,7 @@ public class ShopController {
     /**
      * 사업자 구인글 등록
      */
-    @PostMapping("/jobpost")
+    @PostMapping("/jobposts")
     public ResponseEntity<String> addJobPost(@Validated @RequestBody JobPostRequestDto request) {
         return ResponseEntity.ok(shopService.addJobPost(request));
     }
@@ -302,7 +302,7 @@ public class ShopController {
     /**
      * 사업자 블랙리스트 추가
      */
-    @PostMapping("/blacklist")
+    @PostMapping("/blacklists")
     public ResponseEntity<String> createBlackList(@Validated @RequestBody BlackListRequestDto request) {
         return ResponseEntity.ok(shopService.createBlackList(request));
     }
@@ -326,7 +326,7 @@ public class ShopController {
     /**
      * 사업자 블랙리스트 삭제
      */
-    @DeleteMapping("/blacklist")
+    @DeleteMapping("/blacklists/{blacklistId}")
     public ResponseEntity<String> deleteBlackList(@Validated @RequestBody List<String> userEmails) {
         return ResponseEntity.ok(shopService.deleteBlackList(userEmails));
     }
