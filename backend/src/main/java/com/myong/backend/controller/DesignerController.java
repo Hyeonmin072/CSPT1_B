@@ -230,16 +230,15 @@ public class DesignerController {
      *  채팅방 퇴장
      */
     @PostMapping("chatroom/exit/{chatRoomId}")
-    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user) {
-        designerService.exitChatRoom(chatRoomId, user);
+    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        designerService.exitChatRoom(chatRoomId,user);
         return ResponseEntity.ok().build();
     }
-
     /**
      * 디자이너 이메일로 디자이너 프로필 조회
      */
     @GetMapping("/profile/{designerEmail}")
-    public ResponseEntity<DesignerProfileResponseDto> getProfileByEmail(@PathVariable(name = "designerEmail") String designerEmail) {
+    public ResponseEntity<DesignerProfileResponseDto> getProfileByEmail(@PathVariable(name = "designerEmail") String designerEmail){
         return ResponseEntity.ok(designerService.getProfileByEmail(designerEmail)); // 성공적으로 로직이 수행될 경우 디자이너 프로필 정보 반환
 
     }
