@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BlackListRequestDto {
     @NotBlank
-    String userName; // 유저 이름
-
-    @NotBlank
     @Email
     String userEmail; // 유저 이메일
 

@@ -904,8 +904,8 @@ public class ShopService {
         User user = getUser(request.getUserEmail());
 
         // 이미 블랙리스트에 등록되었는지 검증
-        blackListRepository.findByShopAndUser(shop,user)
-                .orElseThrow(() -> new RuntimeException("이미 블랙리스트에 추가된 유저입니다."));
+        Optional<BlackList> findResult = blackListRepository.findByShopAndUser(shop, user);
+        if (findResult.isPresent()) throw new RuntimeException("이미 블랙리스트에 추가된 유저입니다.");
 
         // 등록되지 않았을 경우 -> 블랙리스트 개체 생성 후 저장
         BlackList blackList = BlackList.builder()
@@ -940,6 +940,7 @@ public class ShopService {
         List<BlackListResponseDto> dtos = new ArrayList<>();
         for (BlackList blackList : blackLists) {
             BlackListResponseDto dto = BlackListResponseDto.builder()
+                    .blackListId(blackList.getId())
                     .reason(blackList.getReason())
                     .userName(blackList.getUser().getName())
                     .userEmail(blackList.getUser().getEmail())
@@ -970,6 +971,7 @@ public class ShopService {
 
         // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
         return BlackListResponseDto.builder()
+                .blackListId(blackList.getId())
                 .reason(blackList.getReason())
                 .userName(blackList.getUser().getName())
                 .userEmail(blackList.getUser().getEmail())
@@ -981,11 +983,11 @@ public class ShopService {
      * 사업자 블랙리스트 삭제
      * 블랙리스트에서 특정 사용자 정보 삭제
      *
-     * @param requests 블랙리스트 삭제 요청 정보가 담긴 DTO 리스트
+     * @param userEmails 블랙리스트 삭제 요청 정보가 담긴 DTO 리스트
      * @return 블랙리스트 삭제 결과 메시지
      */
-    public String deleteBlackList(List<BlackListRequestDto> requests) {
-        for (BlackListRequestDto request : requests) {
+    public String deleteBlackList(List<String> userEmails) {
+        for (String userEmail : userEmails) {
             // 인증 정보에서 사업자 이메일 꺼내기
             String email = getAuthenticatedEmail();
 
@@ -993,7 +995,7 @@ public class ShopService {
             Shop shop = getShop(email);
 
             // 유저 조회
-            User user = getUser(request.getUserEmail());
+            User user = getUser(userEmail);
 
             // 찾은 가게와 유저를 통해 해당 블랙리스트 개체 찾기
             BlackList blackList = blackListRepository.findByShopAndUser(shop, user)
