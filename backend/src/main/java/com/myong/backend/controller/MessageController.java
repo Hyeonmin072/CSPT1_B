@@ -52,4 +52,12 @@ public class MessageController {
         return ResponseEntity.ok(chattingService.saveFiles(file,chatRoomId));
     }
 
+    /**
+     * 채팅방 입장
+     */
+    @MessageMapping("/chat/enter/{chatRoomId}")
+    public void handleEnter(@DestinationVariable UUID chatRoomId, SimpMessageHeaderAccessor accessor){
+        chattingService.handleEnter(chatRoomId, accessor);
+    }
+
 }
