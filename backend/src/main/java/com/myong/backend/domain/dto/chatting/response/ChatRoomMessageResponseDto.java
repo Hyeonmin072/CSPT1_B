@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ChatRoomMessageResponseDto {
+    private String messageId;       // 메세지 아이디
     private String content;         // 메세지 내용
     private List<String> fileUrls;  // 파일 url들
     private LocalDateTime sendDate; // 보낸 시간
@@ -25,6 +26,7 @@ public class ChatRoomMessageResponseDto {
 
     public static ChatRoomMessageResponseDto from(Message message,String sender ){
         return ChatRoomMessageResponseDto.builder()
+                .messageId(message.getId().toString())
                 .content(message.getContent())
                 .fileUrls(message.getFiles().stream().map(MessageFile::getFileUrl).toList())
                 .sendDate(message.getSendDate())

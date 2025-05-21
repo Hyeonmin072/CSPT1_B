@@ -1,5 +1,6 @@
 package com.myong.backend.repository;
 
+import com.myong.backend.domain.entity.chatting.ChatRoom;
 import com.myong.backend.domain.entity.chatting.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,10 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     List<Message> findRecentMessages(@Param("chatRoomId") UUID chatRoomId,
                                      @Param("week") LocalDateTime week);
 
+    @Query("select me " +
+            "from Message me " +
+            "where me.chatRoom = :chatRoom and me.read = false " +
+            "and me.senderEmail = :requestEmail")
+    List<Message> findUnreadMessageIds(@Param("chatRoom") ChatRoom chatRoom,
+                                      @Param("requestEmail") String requestEmail);
 }

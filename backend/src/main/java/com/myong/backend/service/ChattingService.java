@@ -16,6 +16,7 @@ import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +37,37 @@ public class ChattingService {
     private final MessageFileRepository messageFileRepository;
     private final DesignerRepository designerRepository;
     private final ChattingOnlineService chattingOnlineService;
+    private final SimpMessagingTemplate messagingTemplate;
+
+
+    /**
+     * 채팅방 입장 , 실시간 메세지 읽음처리
+     *
+     * @param chatRoomId
+     * @param accessor
+     */
+    @Transactional
+    public void handleEnter(UUID chatRoomId, SimpMessageHeaderAccessor accessor ){
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅방을 찾지 못했습니다."));
+        // 메세지 아이디 가져오기
+        String requestEmail = (String) accessor.getSessionAttributes().get("username");
+        List<Message> messages = messageRepository.findUnreadMessageIds(chatRoom, requestEmail);
+
+        for(Message message : messages){
+            message.markAsRead();
+        }
+
+        // UUID -> String 변환
+        List<String> messageIdStrings = messages.stream()
+                .map(message -> message.getId().toString())
+                        .collect(Collectors.toList());
+
+
+        messagingTemplate.convertAndSend(
+                "/subscribe/chat/enter/" + chatRoomId,
+                messageIdStrings);
+
+    }
 
 
     /**
