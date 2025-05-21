@@ -97,7 +97,7 @@ public class DesignerService {
     }
 
     //프로필 가져오기
-    public ProfileResponseDto getProfile(String email) {
+    public DesignerProfileResponseDto getProfile(String email) {
         Designer designer = designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
 
@@ -111,7 +111,7 @@ public class DesignerService {
         int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
         int age = currentYear - birth;
 
-        return ProfileResponseDto.builder()
+        return DesignerProfileResponseDto.builder()
                 .name(designer.getName())
                 .nickName(designer.getNickName())
                 .email(designer.getEmail())
@@ -474,4 +474,29 @@ public class DesignerService {
         }
     }
 
+    public DesignerProfileResponseDto getProfileByEmail(String designerEmail) {
+        Designer designer = designerRepository.findByEmail(designerEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾을 수 없습니다."));
+
+        List<ReviewData> reviews = reviewRepository.findAllByDesignerEmail(designer.getEmail());
+
+        int currentYear = java.time.LocalDate.now().getYear();
+        int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
+        int age = currentYear - birth;
+
+        return DesignerProfileResponseDto.builder()
+                .name(designer.getName())
+                .email(designer.getEmail())
+                .nickName(designer.getNickName())
+                .tel(designer.getTel())
+                .image(designer.getImage())
+                .backgroundImage(designer.getBackgroundImage())
+                .description(designer.getDesc())
+                .age(age)
+                .like(designer.getLike())
+                .shopName(designer.getShop().getName())
+                .gender(designer.getGender())
+                .reviews(reviews)
+                .build();
+    }
 }

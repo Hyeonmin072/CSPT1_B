@@ -15,6 +15,7 @@ import com.myong.backend.domain.entity.chatting.ChatRoom;
 import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.shop.ShopBanner;
 import com.myong.backend.domain.entity.user.*;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
@@ -288,17 +289,26 @@ public class UserService {
 
         List<Advertisement> adList = advertisementRepository.findAll();
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsDto principal = (UserDetailsDto) authentication.getPrincipal();
+        String userEmail = principal.getUsername();
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다. email = " + userEmail));
 
         // 샵리스트 변환
         List<ShopTop3ListData> shopTop3ListData =
-                top3Shops.stream().map(shop ->  ShopTop3ListData.builder()
+                top3Shops.stream()
+                        .map(shop ->  ShopTop3ListData.builder()
                         .shopEmail(shop.getEmail())
                         .shopName(shop.getName())
                         .shopDesc(shop.getDesc())
                         .shopRating(shop.getRating())
                         .shopReviewCount(shop.getReviewCount())
                         .shopThumbnail(shop.getThumbnail())
-                    .build()).collect(Collectors.toList());
+                        .shopBannerImages(shop.getBanners().stream().map(ShopBanner::getImage).toList())
+                        .build())
+                        .collect(Collectors.toList());
 
         return  UserHomePageResponseDto.builder()
                 .top4Designers(top4Designers)
