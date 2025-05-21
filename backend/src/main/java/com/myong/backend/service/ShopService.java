@@ -685,11 +685,12 @@ public class ShopService {
      * 사업자 구인글 수정
      * 기존 구인글 정보 수정
      *
+     * @param id 수정할 구인글의 고유 키
      * @param request 구인글 수정 요청 정보가 담긴 DTO
      * @return 구인글 수정 결과 메시지
      */
-    public String updateJobPost(JobPostRequestDto request) {// 가게 찾기
-        JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
+    public String updateJobPost(String id, JobPostRequestDto request) {// 가게 찾기
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPost.updateJobPost(request); // 구인글 수정 편의 메서드를 통해 수정
         return "성공적으로 구인글이 수정되었습니다."; // 성공 구문 반환
@@ -699,11 +700,11 @@ public class ShopService {
      * 사업자 구인글 삭제
      * 구인글 정보 삭제
      *
-     * @param request 구인글 삭제 요청 정보가 담긴 DTO
+     * @param id 삭제할 구인글의 고유 키
      * @return 구인글 삭제 결과 메시지
      */
-    public String deleteJobPost(JobPostRequestDto request) {
-        JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
+    public String deleteJobPost(String id) {
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPostRepository.delete(jobPost); // 구인글 삭제
         return "성공적으로 구인글이 마감되었습니다."; // 성공 구문 반환

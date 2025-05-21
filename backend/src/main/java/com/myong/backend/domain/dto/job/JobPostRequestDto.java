@@ -8,8 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class JobPostRequestDto {
-    String id;
-
     @NotBlank
     String title;
 

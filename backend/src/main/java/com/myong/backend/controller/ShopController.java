@@ -218,7 +218,7 @@ public class ShopController {
     /**
      * 사업자 구인글 단건 조회
      */
-    @GetMapping("/jobpost/{jobpostId}")
+    @GetMapping("/jobposts/{jobpostId}")
     public ResponseEntity<JobPostDetailResponseDto> getJobPost(@PathVariable("jobpostId") String id) {
         return ResponseEntity.ok(shopService.getJobPost(id));
     }
@@ -226,17 +226,18 @@ public class ShopController {
     /**
      * 사업자 구인글 수정
      */
-    @PatchMapping("/jobpost")
-    public ResponseEntity<String> updateJobPost(@Validated @RequestBody JobPostRequestDto request) {
-        return ResponseEntity.ok(shopService.updateJobPost(request));
+    @PatchMapping("/jobposts/{jobpostId}")
+    public ResponseEntity<String> updateJobPost(@PathVariable("jobpostId") String id,
+                                                @Validated @RequestBody JobPostRequestDto request) {
+        return ResponseEntity.ok(shopService.updateJobPost(id, request));
     }
 
     /**
      * 사업자 구인글 마감
      */
-    @DeleteMapping("/jobpost")
-    public ResponseEntity<String> deleteJobPost(@Validated @RequestBody JobPostRequestDto request) {
-        return ResponseEntity.ok(shopService.deleteJobPost(request));
+    @DeleteMapping("/jobposts/{jobpostId}")
+    public ResponseEntity<String> deleteJobPost(@PathVariable("jobpostId") String id) {
+        return ResponseEntity.ok(shopService.deleteJobPost(id));
     }
 
     /**
