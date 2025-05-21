@@ -230,9 +230,11 @@ public class DesignerController {
      *  채팅방 퇴장
      */
     @PostMapping("chatroom/exit/{chatRoomId}")
-    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
-        designerService.exitChatRoom(chatRoomId,user);
+    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user) {
+        designerService.exitChatRoom(chatRoomId, user);
         return ResponseEntity.ok().build();
+    }
+
     /**
      * 디자이너 이메일로 디자이너 프로필 조회
      */
