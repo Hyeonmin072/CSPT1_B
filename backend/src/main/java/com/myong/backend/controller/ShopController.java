@@ -326,9 +326,9 @@ public class ShopController {
     /**
      * 사업자 블랙리스트 삭제
      */
-    @DeleteMapping("/blacklists/{blacklistId}")
-    public ResponseEntity<String> deleteBlackList(@Validated @RequestBody List<String> userEmails) {
-        return ResponseEntity.ok(shopService.deleteBlackList(userEmails));
+    @DeleteMapping("/blacklists")
+    public ResponseEntity<String> deleteBlackList(@Validated @RequestBody List<BlackListRequestDto> requests) {
+        return ResponseEntity.ok(shopService.deleteBlackList(requests));
     }
 
     /**
