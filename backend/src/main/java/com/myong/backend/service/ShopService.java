@@ -748,9 +748,9 @@ public class ShopService {
     /**
      * 사업자 추가할 디자이너 정보 조회
      */
-    public ShopDesignerDetailResponseDto searchDesigner(ShopDesignerRequestDto request) {
+    public ShopDesignerDetailResponseDto searchDesigner(String designerEmail) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 디자이너 상세정보를 dto에 담아 반환
         return ShopDesignerDetailResponseDto.builder()
@@ -766,12 +766,13 @@ public class ShopService {
      * 사업자 소속 디자이너의 휴일 추가
      * 디자이너 휴일 정보 저장
      *
+     * @param designerEmail 휴일을 추가할 디자이너의 이메일
      * @param request 디자이너 휴일 추가 요청 정보가 담긴 DTO
      * @return 디자이너 휴일 추가 결과 메시지
      */
-    public String createDesignerHoliday(ShopDesignerHolidayRequestDto request) {
+    public String createDesignerHoliday(String designerEmail, ShopDesignerHolidayRequestDto request) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 디자이너 휴무일 생성 후 저장
         DesignerHoliday designerHoliday = DesignerHoliday.builder()
@@ -814,12 +815,12 @@ public class ShopService {
      * 사업자 소속 디자이너 상세 조회
      * 특정 디자이너의 상세 정보 반환
      *
-     * @param request 디자이너 상세 조회 요청 정보가 담긴 DTO
+     * @param designerEmail 조회할 디자이너의 이메일
      * @return 디자이너 상세 정보
      */
-    public ShopDesignerDetailResponseDto getDesignerDetail(ShopDesignerRequestDto request) {
+    public ShopDesignerDetailResponseDto getDesignerDetail(String designerEmail) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 디자이너 정기 휴무일 찾기
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
@@ -830,7 +831,7 @@ public class ShopService {
                 .name(designer.getName())
                 .gender(designer.getGender().toString())
                 .like(designer.getLike())
-                .email(request.getDesignerEmail())
+                .email(designerEmail)
                 .workTime(designer.getWorkTime())
                 .leaveTime(designer.getLeaveTime())
                 .regularHoliday(designerRegularHoliday.getDay())
@@ -841,12 +842,13 @@ public class ShopService {
      * 사업자 소속 디자이너 수정
      * 디자이너 정보 및 정기 휴무일 수정
      *
+     * @param designerEmail 수정할 디자이너의 이메일
      * @param request 디자이너 수정 요청 정보가 담긴 DTO
      * @return 디자이너 수정 결과 메시지
      */
-    public String updateDesigner(ShopDesignerUpdateRequestDto request) {
+    public String updateDesigner(String designerEmail, ShopDesignerUpdateRequestDto request) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
@@ -861,12 +863,12 @@ public class ShopService {
      * 사업자 소속 디자이너 해고
      * 디자이너 소속 해제 및 관련 정보 삭제
      *
-     * @param request 디자이너 삭제 요청 정보가 담긴 DTO
+     * @param designerEmail 삭제할 디자이너의 이메일
      * @return 디자이너 삭제 결과 메시지
      */
-    public String fireDesigner(ShopDesignerRequestDto request) {
+    public String fireDesigner(String designerEmail) {
         // 디자이너 조회
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();

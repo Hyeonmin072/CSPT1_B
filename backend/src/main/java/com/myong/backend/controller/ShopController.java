@@ -244,25 +244,26 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 추가
      */
-    @PostMapping("/designer")
+    @PostMapping("/designers")
     public ResponseEntity<String> joinDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
         return ResponseEntity.ok(shopService.joinDesigner(request));
     }
 
     /**
-     * 사업자 추가할 디자이너 정보 조회
+     * 사업자 소속 디자이너의 휴일 추가
      */
-    @PostMapping("/designer/search")
-    public ResponseEntity<ShopDesignerDetailResponseDto> searchDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(shopService.searchDesigner(request));
+    @PostMapping("/designers/{designerEmail}/holidays")
+    public ResponseEntity<String> postDesignerHoliday(@PathVariable("designerEmail") String designerEmail,
+                                                      @Validated @RequestBody ShopDesignerHolidayRequestDto request) {
+        return ResponseEntity.ok(shopService.createDesignerHoliday(designerEmail, request));
     }
 
     /**
-     * 사업자 소속 디자이너의 휴일 추가
+     * 사업자 추가할 디자이너 정보 조회
      */
-    @PostMapping("/designer/holiday")
-    public ResponseEntity<String> postDesignerHoliday(@Validated @RequestBody ShopDesignerHolidayRequestDto request) {
-        return ResponseEntity.ok(shopService.createDesignerHoliday(request));
+    @GetMapping("/designers/search")
+    public ResponseEntity<ShopDesignerDetailResponseDto> searchDesigner(@RequestParam("designerEmail") String designerEmail) {
+        return ResponseEntity.ok(shopService.searchDesigner(designerEmail));
     }
 
     /**
@@ -276,25 +277,26 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너 단건 조회
      */
-    @GetMapping("/designer")
-    public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(shopService.getDesignerDetail(request));
+    @GetMapping("/designers/{designerEmail}")
+    public ResponseEntity<ShopDesignerDetailResponseDto> getDesigner(@PathVariable("designerEmail") String designerEmail) {
+        return ResponseEntity.ok(shopService.getDesignerDetail(designerEmail));
     }
 
     /**
      * 사업자 소속 디자이너 수정(출퇴근, 정기휴무일)
      */
-    @PatchMapping("/designer")
-    public ResponseEntity<String> postDesignser(@Validated @RequestBody ShopDesignerUpdateRequestDto request) {
-        return ResponseEntity.ok(shopService.updateDesigner(request));
+    @PatchMapping("/designers/{designerEmail}")
+    public ResponseEntity<String> postDesignser(@PathVariable("designerEmail") String designerEmail,
+                                                @Validated @RequestBody ShopDesignerUpdateRequestDto request) {
+        return ResponseEntity.ok(shopService.updateDesigner(designerEmail, request));
     }
 
     /**
      * 사업자 소속 디자이너 삭제
      */
-    @DeleteMapping("/designer")
-    public ResponseEntity<String> fireDesigner(@Validated @RequestBody ShopDesignerRequestDto request) {
-        return ResponseEntity.ok(shopService.fireDesigner(request));
+    @DeleteMapping("/designers/{designerEmail}")
+    public ResponseEntity<String> fireDesigner(@PathVariable("designerEmail") String designerEmail) {
+        return ResponseEntity.ok(shopService.fireDesigner(designerEmail));
     }
 
     /**

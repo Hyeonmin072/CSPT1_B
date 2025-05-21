@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ShopDesignerRequestDto {
-
     @NotBlank
     @Email
     String designerEmail; // 디자이너 이메일
