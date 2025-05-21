@@ -8,10 +8,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ShopAttendanceRequestDto {
-
-    @NotBlank
-    private String shopEmail; // 가게 이메일
-
     @NotNull
     private Integer year; // 연
 

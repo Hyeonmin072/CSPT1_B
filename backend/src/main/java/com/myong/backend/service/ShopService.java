@@ -575,11 +575,12 @@ public class ShopService {
      * 사업자 메뉴 수정
      * 기존 메뉴 정보 수정
      *
+     * @param id 수정할 메뉴의 고유 키
      * @param request 메뉴 수정 요청 정보가 담긴 DTO
      * @return 메뉴 수정 결과 메시지
      */
-    public String updateMenu(MenuUpdateRequestDto request) {
-        Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
+    public String updateMenu(String id, MenuUpdateRequestDto request) {
+        Menu menu = menuRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정
         

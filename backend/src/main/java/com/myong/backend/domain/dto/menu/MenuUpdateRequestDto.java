@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MenuUpdateRequestDto {
     @NotBlank
-    String id;
-
-    @NotBlank
     String name;
 
     @NotBlank

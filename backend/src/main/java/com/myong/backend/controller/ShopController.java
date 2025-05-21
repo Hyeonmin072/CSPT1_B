@@ -170,7 +170,7 @@ public class ShopController {
     /**
      * 사업자 소속 디자이너의 메뉴 조회
      */
-    @GetMapping("/menu/{designerEmail}/menus")
+    @GetMapping("/{designerEmail}/menus")
     public ResponseEntity<List<MenuResponseDto>> getMenus(@PathVariable String designerEmail) {
         return ResponseEntity.ok(shopService.getMenus(designerEmail)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
@@ -178,7 +178,7 @@ public class ShopController {
     /**
      * 사업자 메뉴 단건 조회
      */
-    @GetMapping("/menu/{menuId}")
+    @GetMapping("/menus/{menuId}")
     public ResponseEntity<MenuDetailResponseDto> getMenu(@PathVariable("menuId") String id) {
         return ResponseEntity.ok(shopService.getMenu(id)); // 성공적으로 로직이 수행될 경우 메뉴 정보 반환
     }
@@ -186,15 +186,16 @@ public class ShopController {
     /**
      * 사업자 메뉴 수정
      */
-    @PatchMapping("/menu")
-    public ResponseEntity<String> updateMenu(@Validated @RequestBody MenuUpdateRequestDto request) {
-        return ResponseEntity.ok(shopService.updateMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    @PatchMapping("/menus/{menuId}")
+    public ResponseEntity<String> updateMenu(@PathVariable("menuId") String id,
+                                             @Validated @RequestBody MenuUpdateRequestDto request) {
+        return ResponseEntity.ok(shopService.updateMenu(id, request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
      * 사업자 메뉴 삭제
      */
-    @DeleteMapping("/menu/{menuId}")
+    @DeleteMapping("/menus/{menuId}")
     public ResponseEntity<String> deleteMenu(@PathVariable("menuId") String id) {
         return ResponseEntity.ok(shopService.deleteMenu(id)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
