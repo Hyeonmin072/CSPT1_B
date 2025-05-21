@@ -104,7 +104,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         response.addHeader("Set-Cookie", accessTokenCookie.toString());
                         filterChain.doFilter(request, response);
                     }
-                    filterChain.doFilter(request, response);
+                    System.out.println("리프레시 토큰도 없음");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("유효하지 않은 토큰입니다.");
                     return;
                 }
 

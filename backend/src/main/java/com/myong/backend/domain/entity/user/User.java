@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.user;
 
 import com.myong.backend.domain.entity.Gender;
+import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
@@ -24,7 +25,7 @@ public class User {
 
     @Id
     @Column(name = "u_id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id ; // 유저 고유 키
 
     @Column(name = "u_name",  nullable = false)
