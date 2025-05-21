@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.myong.backend.domain.dto.Alarm.MessageDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,6 +41,7 @@ public class RedisConfig {
         return template;
     }
 
+
     @Value("${spring.mail.redis.host}")
     private String host;
     @Value("${spring.mail.redis.port}")
@@ -53,6 +55,7 @@ public class RedisConfig {
     }
 
     @Bean
+    @Qualifier("redisTpl")
     public RedisTemplate<String, String> redisTpl() {
         RedisTemplate<String, String> redisTpl = new RedisTemplate<>();
         redisTpl.setKeySerializer(new StringRedisSerializer());

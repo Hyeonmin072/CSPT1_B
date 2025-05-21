@@ -1,11 +1,14 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ResumeService;
@@ -16,11 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -206,11 +211,35 @@ public class DesignerController {
     }
 
     /**
+     *  나의 채팅방 조회
+     */
+    @GetMapping("/chatroom")
+    public ResponseEntity<List<ChatRoomResponseDto>> loadChatRoom(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(designerService.loadChatRoom(user));
+    }
+
+    /**
+     *  채팅방 입장
+     */
+    @PostMapping("/chatroom/join/{chatRoomId}")
+    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(designerService.loadChatRoomMessages(chatRoomId,user));
+    }
+
+    /**
+     *  채팅방 퇴장
+     */
+    @PostMapping("chatroom/exit/{chatRoomId}")
+    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        designerService.exitChatRoom(chatRoomId,user);
+        return ResponseEntity.ok().build();
+    /**
      * 디자이너 이메일로 디자이너 프로필 조회
      */
     @GetMapping("/profile/{designerEmail}")
     public ResponseEntity<DesignerProfileResponseDto> getProfileByEmail(@PathVariable(name = "designerEmail") String designerEmail) {
         return ResponseEntity.ok(designerService.getProfileByEmail(designerEmail)); // 성공적으로 로직이 수행될 경우 디자이너 프로필 정보 반환
+
     }
 
     //디자이너 예약일 가져오기

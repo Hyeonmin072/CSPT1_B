@@ -1,15 +1,20 @@
 package com.myong.backend.service;
 
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
+import com.myong.backend.domain.entity.chatting.ChatRoom;
+import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.JobPost;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.exception.ResourceNotFoundException;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.ReviewRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -53,6 +58,9 @@ public class DesignerService {
     private final FileUploadService fileUploadService;
     private final SearchService searchService;
     private final JobPostRepository jobPostRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final MessageRepository messageRepository;
+    private final ChattingOnlineService chattingOnlineService;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -181,8 +189,9 @@ public class DesignerService {
         //이미지 변경
         if (updateImage != null) {
 
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getImage() != null){
                 fileUploadService.deleteFile(designer.getImage());
@@ -194,9 +203,9 @@ public class DesignerService {
         //백그라운드이미지 변경
         if (updateBackgroundImage != null) {
 
-
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateBackgroundImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateBackgroundImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getBackgroundImage() != null){
                 fileUploadService.deleteFile(designer.getBackgroundImage());
@@ -385,6 +394,59 @@ public class DesignerService {
                 .workTime(LocalTime.of(0,0))
                 .leaveTime(LocalTime.of(0,0))
                 .build();
+    }
+
+    /**
+     * 채팅방 로드
+     *
+     * @param requestUser;
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate
+     */
+    public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return chatRoomRepository.findAllByDesigner(designer);
+    }
+
+
+    /**
+     * 채팅방 입장
+     * 채팅방 입장시 메세지 로드
+     * 채팅방 입장시 레디스에 온라인 유저 저장
+     *
+     * @param chatRoomId;
+     * @return ChatRoomMessageResponseDto :: content, fileUrls, sendDate, sender
+     */
+    @Transactional
+    public List<ChatRoomMessageResponseDto> loadChatRoomMessages (UUID chatRoomId, UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅룸을 찾지 못했습니다."));
+
+        // 1주일 전 최근 메세지들 가져오기
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
+
+        // 메세지 읽음 처리 로직
+        for(Message message : messages){
+            if(!message.isRead() && !message.getSenderEmail().equals(designer.getEmail())){
+                message.markAsRead();
+            }
+        }
+
+        // 채팅방에 관하여 온라인 상태
+        chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail());
+
+        return messages.stream().map(message ->
+                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(designer.getEmail())) ? "me" : "partner" )).toList();
+    }
+
+    /**
+     * 채팅방 퇴장 레디스에서 온라인 삭제
+     * @param chatRoomId
+     * @param requestUser
+     */
+    public void exitChatRoom(UUID chatRoomId, UserDetailsDto requestUser){
+        chattingOnlineService.removeUserFromChatRoom(chatRoomId,requestUser.getUsername());
+
     }
 
     // 시간 구하기(ex:몇 분전, 몇 시간전, 몇 일전) 매서드

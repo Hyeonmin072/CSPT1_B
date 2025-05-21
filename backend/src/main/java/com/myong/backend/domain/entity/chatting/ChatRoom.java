@@ -1,8 +1,10 @@
-package com.myong.backend.domain.entity.usershop;
+package com.myong.backend.domain.entity.chatting;
 
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.user.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
@@ -18,10 +20,12 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@Builder
 public class ChatRoom {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "cr_id")
     private UUID id; // 채팅방 고유 키
 
@@ -29,8 +33,11 @@ public class ChatRoom {
     @Column(name = "cr_create_date", updatable = false)
     private LocalDateTime createDate; // 채팅방 생성일
 
-    @Column(name = "cr_last_message", nullable = false)
+    @Column(name = "cr_last_message")
     private String lastMessage = ""; // 채팅방 마지막 메시지
+
+    @Column(name = "cr_last_senddate")
+    private LocalDateTime lastSendDate;  // 채팅방 마지막 메세지 보낸 시간
 
     @ManyToOne
     @JoinColumn(name = "d_id", nullable = false)
@@ -47,6 +54,21 @@ public class ChatRoom {
     public ChatRoom(Designer designer, User user) {
         this.designer = designer;
         this.user = user;
+    }
+
+    public static ChatRoom save(User user,Designer designer){
+        return ChatRoom.builder()
+                .createDate(LocalDateTime.now())
+                .designer(designer)
+                .user(user)
+                .lastMessage("")
+                .build();
+    }
+
+    public void updateLastMessage(String message, LocalDateTime sendDate){
+        this.lastMessage = message;
+        this.lastSendDate = sendDate;
+
     }
 
     @Override

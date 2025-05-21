@@ -461,14 +461,16 @@ public class ShopService {
 
         // 썸네일 url S3저장 및 추출
         if(thumbnail != null){
-            thumbnailUrl = fileUploadService.uploadFile(thumbnail,"shop", email,"thumbnail");
+            String route = "shop" + "/" + email + "/" + "thumbnail" + "/";
+            thumbnailUrl = fileUploadService.uploadFile(thumbnail,route);
             fileUploadService.deleteFile(shop.getThumbnail());
         }
 
         // 배너 추가 저장
         if(banner != null){
             for(MultipartFile file : banner){
-                String bannerUrl = fileUploadService.uploadFile(file,"shop", email,"banner");
+                String route = "shop" + "/" + email + "/" + "banner" + "/";
+                String bannerUrl = fileUploadService.uploadFile(file,route);
                 shopBannerRepository.save(ShopBanner.save(bannerUrl,shop));
             }
         }

@@ -1,6 +1,10 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -289,6 +294,41 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserLocation());
     }
 
+    // 위치 끝 ===============================================================
 
+    //  유저 채팅방 시작 =====================================================
+
+    /**
+     *  채팅방 생성
+     */
+    @PostMapping("/chatroom/request")
+    public ResponseEntity<ChattingResponseDto> requestChatting(@RequestBody ChattingRequestDto request, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.requestChatting(request,user));
+    }
+
+    /**
+     *  나의 채팅방 조회
+     */
+    @GetMapping("/chatroom")
+    public ResponseEntity<List<ChatRoomResponseDto>> loadChatRoom(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadChatRoom(user));
+    }
+
+    /**
+     *  채팅방 입장
+     */
+    @PostMapping("/chatroom/join/{chatRoomId}")
+    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadChatRoomMessages(chatRoomId,user));
+    }
+
+    /**
+     *  채팅방 퇴장
+     */
+    @PostMapping("chatroom/exit/{chatRoomId}")
+    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        userService.exitChatRoom(chatRoomId,user);
+        return ResponseEntity.ok().build();
+    }
 
 }
