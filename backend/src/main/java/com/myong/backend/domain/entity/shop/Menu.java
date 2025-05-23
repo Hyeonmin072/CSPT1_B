@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.shop;
 
 import com.myong.backend.domain.dto.menu.MenuUpdateRequestDto;
+import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -8,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -54,6 +57,9 @@ public class Menu {
     @OneToOne
     @JoinColumn(name = "e_id", nullable = true)
     private Event event;
+
+    @OneToMany(cascade = CascadeType.REMOVE)
+    private List<Reservation> reservations = new ArrayList<>();
 
     @Builder
     public Menu(String name, String desc, Integer price, String estimatedTime, Shop shop, Designer designer, MenuCategory category) {

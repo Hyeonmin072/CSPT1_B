@@ -46,15 +46,15 @@ public class Reservation {
     private Coupon coupon; // 쿠폰 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "s_id",nullable = false)
+    @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "d_id",nullable = false)
+    @JoinColumn(name = "d_id", nullable = false)
     private Designer designer; // 디자이너 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "u_id",nullable = false)
+    @JoinColumn(name = "u_id", nullable = false)
     private User user; // 유저 고유 키
 
     public Reservation(LocalDateTime serviceDate, Integer price, Menu menu, Shop shop, Designer designer, User user, Coupon coupon) {

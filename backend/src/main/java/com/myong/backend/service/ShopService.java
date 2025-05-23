@@ -597,6 +597,14 @@ public class ShopService {
     public String deleteMenu(String menuId) {
         Menu menu = menuRepository.findById(UUID.fromString(menuId))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
+
+        // 현재 삭제할 메뉴로 예약중인 건이 있을 경우 삭제 방지
+        List<Reservation> remainReservations = menu.getReservations().stream()
+                .filter(r -> r.getServiceDate().isAfter(LocalDateTime.now()))
+                .toList();
+
+        if (!remainReservations.isEmpty()) throw new IllegalStateException("현재 해당 메뉴로 예약중인 고객님이 있습니다.");
+
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
