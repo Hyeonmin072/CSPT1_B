@@ -598,12 +598,12 @@ public class ShopService {
         Menu menu = menuRepository.findById(UUID.fromString(menuId))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
 
-        // 현재 삭제할 메뉴로 예약중인 건이 있을 경우 삭제 방지
+        // 현재 삭제할 메뉴로 시술 대기중인 건이 있을 경우 삭제 방지
         List<Reservation> remainReservations = menu.getReservations().stream()
                 .filter(r -> r.getServiceDate().isAfter(LocalDateTime.now()))
                 .toList();
 
-        if (!remainReservations.isEmpty()) throw new IllegalStateException("현재 해당 메뉴로 예약중인 고객님이 있습니다.");
+        if (!remainReservations.isEmpty()) throw new IllegalStateException("현재 해당 메뉴로 시술 대기중인 고객님이 있습니다.");
 
         // 예약들의 메뉴를 null로 변경
         menu.getReservations().stream()
