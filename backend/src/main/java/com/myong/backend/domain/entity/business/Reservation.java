@@ -38,7 +38,7 @@ public class Reservation {
     private Integer price; // 결제 금액
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "m_id", nullable = false)
+    @JoinColumn(name = "m_id")
     private Menu menu; // 메뉴 고유 키
 
     @ManyToOne(fetch = FetchType.LAZY)
