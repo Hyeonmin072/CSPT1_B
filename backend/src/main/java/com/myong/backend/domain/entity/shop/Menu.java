@@ -58,7 +58,7 @@ public class Menu {
     @JoinColumn(name = "e_id", nullable = true)
     private Event event;
 
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "menu")
     private List<Reservation> reservations = new ArrayList<>();
 
     @Builder

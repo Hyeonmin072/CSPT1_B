@@ -605,6 +605,10 @@ public class ShopService {
 
         if (!remainReservations.isEmpty()) throw new IllegalStateException("현재 해당 메뉴로 예약중인 고객님이 있습니다.");
 
+        // 예약들의 메뉴를 null로 변경
+        menu.getReservations().stream()
+                        .forEach(r -> r.deleteMenu());
+
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
