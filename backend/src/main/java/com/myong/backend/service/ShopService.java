@@ -40,6 +40,7 @@ import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.mybatis.AttendanceMapper;
 import com.myong.backend.repository.mybatis.ReservationMapper;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +99,7 @@ public class ShopService {
     private final NoticeRepository noticeRepository;
     private final SearchService searchService;
     private final FileUploadService fileUploadService;
+    private final EntityManager em;
 
 
     /**
@@ -606,8 +608,7 @@ public class ShopService {
         if (!remainReservations.isEmpty()) throw new IllegalStateException("현재 해당 메뉴로 시술 대기중인 고객님이 있습니다.");
 
         // 예약들의 메뉴를 null로 변경
-        menu.getReservations().stream()
-                        .forEach(r -> r.deleteMenu());
+        menu.getReservations().forEach(Reservation::deleteMenu);
 
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
@@ -898,6 +899,21 @@ public class ShopService {
 
         // 디자이너의 위치정보를 초기화
         designer.changeLocationByFire();
+
+        // 디자이너의 모든 메뉴를 조회
+        List<Menu> menus = menuRepository.findByDesigner(designer);
+
+        // 각 메뉴들을 참조중인 예약의 메뉴를 null로 설정
+        reservationRepository.nullifyMenuInReservations(menus);
+
+        // 벌크성 쿼리 -> 영속성 컨텍스트를 무시하고 바로 DB에 반영 -> 영속성 컨텍스트는 자신이 모르는 외부 SQL 변경 결과를 알 수 없음
+        // 위와 같은 이유로 아래 삭제 로직 시 영속성 컨텍스트 기준이므로 외래 키 제약 위반이 발생 가능 -> clear로 1차 캐시 정리한 후 다시 조회
+        em.clear();
+        menus = menuRepository.findByDesigner(designer);
+
+
+        // 디자이너의 모든 메뉴를 삭제(방금 null 처리된 예약 정보와 충돌 없이 삭제 가능)
+        menuRepository.deleteAll(menus);
 
         // 성공 구문 반환
         return "성공적으로 디자이너가 삭제되었습니다.";

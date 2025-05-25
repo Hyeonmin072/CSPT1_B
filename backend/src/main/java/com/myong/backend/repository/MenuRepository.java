@@ -18,4 +18,6 @@ public interface MenuRepository extends JpaRepository<Menu, UUID> {
     List<Menu> findByDesignerAndCategory(Designer designer, MenuCategory category);
 
     List<Menu> findByDesignerAndRecommend(Designer designer, boolean Recommend);
+
+    List<Menu> findByDesigner(Designer designer);
 }
