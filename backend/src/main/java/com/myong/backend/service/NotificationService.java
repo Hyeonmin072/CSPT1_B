@@ -102,7 +102,9 @@ public class NotificationService {
         try {
             // SseEmitter의 send() 메서드를 통해 클라이언트에 이벤트 전송, 이름은 "connect"로 지정
             // 이벤트 ID와 데이터를 함께 전송하여 클라이언트가 수신 이벤트를 추적할 수 있게 한다.
-            emitter.send(SseEmitter.event().name("connect").id(eventId).data(object));
+            // 맨 처음 테스트 더미 데이터의 경우 name = test로 보내어 클라이언트 측에서 별도로 처리할 수 있게한다.
+            if(object.toString().startsWith("알림 서버 연결 성공")) emitter.send(SseEmitter.event().name("test").id(eventId).data(object));
+            else emitter.send(SseEmitter.event().name("connect").id(eventId).data(object));
         } catch (IOException e) {
             emitterRepository.deleteById(eventId); // 예외 발생 시, 해당 emitter를 삭제하여 더 이상 이벤트를 보내지 않도록 한다
             throw new RuntimeException("알림 서버 연결 오류");

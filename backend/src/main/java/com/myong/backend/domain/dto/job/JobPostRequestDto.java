@@ -13,7 +13,6 @@ public class JobPostRequestDto {
 
     String salary;
 
-    @NotBlank
     String gender;
 
     @NotBlank
