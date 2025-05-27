@@ -22,8 +22,8 @@ public class ChatMessageResponseDto {
     private String sender;          // 보낸 사람 ex)내가보낸거면 me , 상대방이 보낸거면 partner
     private boolean isRead;         // 읽음 여부
 
-    public static ChatMessageResponseDto noFiles(Message message,String requestEmail){
-        boolean isMine = message.getSenderEmail().equals(requestEmail);
+    public static ChatMessageResponseDto noFiles(Message message,String requestEmail,String requestRole){
+        boolean isMine = message.getSenderEmail().equals(requestEmail) && message.getSenderType().toString().equals(requestRole);
         return ChatMessageResponseDto.builder()
                 .messageId(message.getId().toString())
                 .content(message.getContent())
@@ -33,8 +33,8 @@ public class ChatMessageResponseDto {
                 .build();
     }
 
-    public static ChatMessageResponseDto withFileUrls(Message message, List<String> fileUrls, String requestEmail){
-        boolean isMine = message.getSenderEmail().equals(requestEmail);
+    public static ChatMessageResponseDto withFileUrls(Message message, List<String> fileUrls, String requestEmail,String requestRole){
+        boolean isMine = message.getSenderEmail().equals(requestEmail) && message.getSenderType().toString().equals(requestRole);
         return ChatMessageResponseDto.builder()
                 .messageId(message.getId().toString())
                 .content(message.getContent())

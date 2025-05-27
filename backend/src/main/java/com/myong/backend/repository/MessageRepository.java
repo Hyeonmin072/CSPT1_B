@@ -2,6 +2,7 @@ package com.myong.backend.repository;
 
 import com.myong.backend.domain.entity.chatting.ChatRoom;
 import com.myong.backend.domain.entity.chatting.Message;
+import com.myong.backend.domain.entity.chatting.SenderType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,7 +23,8 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     @Query("select me " +
             "from Message me " +
             "where me.chatRoom = :chatRoom and me.read = false " +
-            "and me.senderEmail = :requestEmail")
+            "and ( me.senderEmail != :requestEmail or me.senderType != :requestRole )")
     List<Message> findUnreadMessageIds(@Param("chatRoom") ChatRoom chatRoom,
-                                      @Param("requestEmail") String requestEmail);
+                                      @Param("requestEmail") String requestEmail,
+                                       @Param("requestRole") SenderType requestRole);
 }

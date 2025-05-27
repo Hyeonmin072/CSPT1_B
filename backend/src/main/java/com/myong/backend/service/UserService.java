@@ -4,6 +4,7 @@ import com.myong.backend.api.KakaoMapApi;
 import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
@@ -13,6 +14,7 @@ import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
 import com.myong.backend.domain.entity.chatting.ChatRoom;
 import com.myong.backend.domain.entity.chatting.Message;
+import com.myong.backend.domain.entity.chatting.SenderType;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.shop.ShopBanner;
@@ -646,29 +648,20 @@ public class UserService {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
 
-        // 메세지 읽음 처리 로직
-        for(Message message : messages){
-            if(!message.isRead() && !message.getSenderEmail().equals(user.getEmail())){
-                message.markAsRead();
-            }
-        }
+//        // 메세지 읽음 처리 로직
+//        for(Message message : messages){
+//            if(!message.isRead() && ( !message.getSenderEmail().equals(user.getEmail()) || message.getSenderType() != SenderType.USER) ){
+//                message.markAsRead();
+//            }
+//        }
 
         // 채팅방에 관하여 온라인 상태
-        chattingOnlineService.addUserToChatRoom(chatRoomId,user.getEmail());
+        chattingOnlineService.addUserToChatRoom(chatRoomId,user.getEmail(),"_USER");
 
         return messages.stream().map(message ->
-                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(user.getEmail())) ? "me" : "partner" )).toList();
+                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(user.getEmail()) && message.getSenderType() == SenderType.USER) ? "me" : "partner" )).toList();
     }
 
-    /**
-     * 채팅방 퇴장 레디스에서 온라인 삭제
-     * @param chatRoomId
-     * @param requestUser
-     */
-    public void exitChatRoom(UUID chatRoomId, UserDetailsDto requestUser){
-        chattingOnlineService.removeUserFromChatRoom(chatRoomId,requestUser.getUsername());
-
-    }
 
     /**
      *  디자이너에게 채팅 요청
@@ -693,5 +686,14 @@ public class UserService {
         return new ChattingResponseDto(newChatRoom.getId().toString());
     }
 
+    /**
+     *  채팅방 유저정보 로딩
+     * @param requestUser;
+     * @return String email, String userType;
+     */
+    public ChatUserInfoResponseDto loadUserInfo(UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        return new ChatUserInfoResponseDto(user.getEmail(),"USER");
+    }
 
 }
