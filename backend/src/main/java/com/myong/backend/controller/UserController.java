@@ -220,7 +220,9 @@ public class UserController {
      * 결제 인증 성공 시 -> 예약 생성
      */
     @GetMapping("/payment/success")
-    public ResponseEntity<PaymentSuccessDto> tossPaymentSuccess(@RequestParam String paymentKey, @RequestParam("orderId") String paymentId, @RequestParam Long amount) {
+    public ResponseEntity<PaymentSuccessDto> tossPaymentSuccess(@RequestParam("paymentKey") String paymentKey,
+                                                                @RequestParam("orderId") String paymentId,
+                                                                @RequestParam("amount") Long amount) {
             return ResponseEntity.ok(reservationService.tossPaymentSuccess(paymentKey, paymentId, amount));
     }
 
