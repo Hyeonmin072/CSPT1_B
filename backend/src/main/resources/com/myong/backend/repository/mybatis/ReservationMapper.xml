@@ -51,19 +51,16 @@
         order by
             <choose>
                 <when test="request.order.name() == 'TIME'">
-                    r.r_service_date
+                    r.r_service_date desc
                 </when>
-                <when test="request.order.name() == 'DESIGNERNAME'">
+                <when test="request.order.name() == 'CUSTOMER_NAME'">
                     u.u_name
                 </when>
                 <when test="request.order.name() == 'DESIGNER_NAME'">
                     d.d_name
                 </when>
                 <when test="request.order.name() == 'PRICE'">
-                    m.m_price
-                </when>
-                <when test="request.order.name() == 'PAYMENT_STATUS'">
-                    r.r_status
+                    m.m_price desc
                 </when>
             </choose>
         </if>

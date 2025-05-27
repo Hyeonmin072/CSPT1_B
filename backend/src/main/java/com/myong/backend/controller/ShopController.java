@@ -333,6 +333,9 @@ public class ShopController {
         return ResponseEntity.ok(shopService.deleteBlackList(requests));
     }
 
+    /**
+     * 사업자 예약 조회
+     */
     @GetMapping("/reservations")
     public ResponseEntity<List<ShopReservationMyBatisResponseDto>> getReservations(
             @RequestParam LocalDate date,
