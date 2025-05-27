@@ -19,6 +19,7 @@ import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailRe
 import com.myong.backend.domain.dto.reservation.response.ShopReservationJPAResponseDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationMyBatisResponseDto;
 import com.myong.backend.domain.dto.shop.*;
+import com.myong.backend.domain.entity.OrderBy;
 import com.myong.backend.domain.entity.Period;
 import com.myong.backend.service.ReservationService;
 import com.myong.backend.service.ShopService;
@@ -32,6 +33,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -331,11 +333,19 @@ public class ShopController {
         return ResponseEntity.ok(shopService.deleteBlackList(requests));
     }
 
-    /**
-     * 사업자 예약 관리(조회)
-     */
     @GetMapping("/reservations")
-    public ResponseEntity<List<ShopReservationMyBatisResponseDto>> getReservations(@Validated @RequestBody ShopReservationRequestDto request) {
+    public ResponseEntity<List<ShopReservationMyBatisResponseDto>> getReservations(
+            @RequestParam LocalDate date,
+            @RequestParam(required = false) Period latest,
+            @RequestParam(required = false) OrderBy order,
+            @RequestParam(required = false) String search) {
+
+        ShopReservationRequestDto request = new ShopReservationRequestDto();
+        request.setDate(date);
+        request.setLatest(latest);
+        request.setOrder(order);
+        request.setSearch(search);
+
         return ResponseEntity.ok(shopService.getReservations(request));
     }
 
