@@ -16,6 +16,8 @@ public class ShopReservationJPAResponseDto {
 
     String userName; // 예약한 유저 이름
 
+    String userEmail; // 유저 아이디
+
     String designerName; // 예약받은 디자이너 이름
 
     String menuName; // 예약한 메뉴 이름
@@ -24,5 +26,4 @@ public class ShopReservationJPAResponseDto {
 
     UUID reservationId; // 예약 아이디
 
-    UUID userId; // 유저 아이디
 }
