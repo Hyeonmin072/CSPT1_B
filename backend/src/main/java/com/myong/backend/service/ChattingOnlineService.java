@@ -25,16 +25,16 @@ public class ChattingOnlineService {
     /**
      * 채팅방 유저 접속 추가
      */
-    public void addUserToChatRoom(UUID chatRoomId, String userEmail){
-        redisTemplate.opsForSet().add(getUserSetKey(chatRoomId), userEmail);
+    public void addUserToChatRoom(UUID chatRoomId, String userEmail, String userRole){
+        redisTemplate.opsForSet().add(getUserSetKey(chatRoomId), userEmail+userRole);
     }
 
 
     /**
      *  채팅방 유저 삭제
      */
-    public void removeUserFromChatRoom(UUID chatRoomId, String userEmail) {
-        redisTemplate.opsForSet().remove(getUserSetKey(chatRoomId), userEmail);
+    public void removeUserFromChatRoom(UUID chatRoomId, String userEmail, String userRole) {
+        redisTemplate.opsForSet().remove(getUserSetKey(chatRoomId), userEmail+userRole);
     }
 
     /**
@@ -47,10 +47,10 @@ public class ChattingOnlineService {
     /**
      *  상대방 접속 여부 체크
      */
-    public boolean isPartnerOnline(UUID chatRoomId, String curUserEmail){
+    public boolean isPartnerOnline(UUID chatRoomId, String curUserEmail,String curUserRole){
         Set<String> users = getUsersInChatRoom(chatRoomId);
         if(users == null) return false;
-        return users.stream().anyMatch(email -> !email.equals(curUserEmail));
+        return users.stream().anyMatch(email -> !email.equals(curUserEmail+curUserRole));
     }
 
 }

@@ -16,21 +16,25 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ChatRoomMessageResponseDto {
+    private String chatRoomId;      // 채팅방 아이디
     private String messageId;       // 메세지 아이디
     private String content;         // 메세지 내용
     private List<String> fileUrls;  // 파일 url들
     private LocalDateTime sendDate; // 보낸 시간
-    private String sender;          // 보낸 사람 ex)내가보낸거면 me , 상대방이 보낸거면 partner
+    private String sender;          // 보낸 사람 이메일
+    private String senderType;      // 보낸 사람 타입
     private boolean isRead;         // 읽음 여부
 
 
-    public static ChatRoomMessageResponseDto from(Message message,String sender ){
+    public static ChatRoomMessageResponseDto from(Message message){
         return ChatRoomMessageResponseDto.builder()
+                .chatRoomId(message.getChatRoom().getId().toString())
                 .messageId(message.getId().toString())
                 .content(message.getContent())
                 .fileUrls(message.getFiles().stream().map(MessageFile::getFileUrl).toList())
                 .sendDate(message.getSendDate())
-                .sender(sender)
+                .sender(message.getSenderEmail())
+                .senderType(message.getSenderType().toString())
                 .isRead(message.isRead())
                 .build();
 

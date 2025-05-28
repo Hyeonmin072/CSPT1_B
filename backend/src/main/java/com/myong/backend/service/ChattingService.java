@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,11 @@ public class ChattingService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅방을 찾지 못했습니다."));
         // 메세지 아이디 가져오기
         String requestEmail = (String) accessor.getSessionAttributes().get("username");
-        List<Message> messages = messageRepository.findUnreadMessageIds(chatRoom, requestEmail);
+        String requestRole = (String) accessor.getSessionAttributes().get("role");
+        // JPA 쿼리 검색을 위한 스트링 -> 이넘 변환
+        SenderType senderType = SenderType.valueOf(requestRole);
+
+        List<Message> messages = messageRepository.findUnreadMessageIds(chatRoom, requestEmail, senderType);
 
         for(Message message : messages){
             message.markAsRead();
@@ -65,10 +70,23 @@ public class ChattingService {
 
         messagingTemplate.convertAndSend(
                 "/subscribe/chat/enter/" + chatRoomId,
-                messageIdStrings);
-
+                Map.of(
+                        "enteredUserEmail", requestEmail,
+                        "enteredUserType", requestRole,
+                        "unreadMessageIds", messageIdStrings
+                ));
     }
 
+    /**
+     * 채팅방 퇴장
+     * @param chatRoomId,accessor;
+     */
+    public void handleLeave(UUID chatRoomId, SimpMessageHeaderAccessor accessor){
+        String userRole = (String)accessor.getSessionAttributes().get("role");
+        String userEmail = (String)accessor.getSessionAttributes().get("username");
+        System.out.println("채팅방을 퇴장합니다 : "+userEmail+"_"+userRole);
+        chattingOnlineService.removeUserFromChatRoom(chatRoomId,userEmail,"_"+userRole);
+    }
 
     /**
      *  TEXT 타입 메세지 저장 및 보내기
@@ -101,17 +119,18 @@ public class ChattingService {
 
         messageRepository.save(message);
         // 상대방 온라인 여부 체크
-        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestEmail);
+        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestEmail,"_"+requestRole);
 
         // 상대방 온라인이면 메세지 바로 읽음
         if(isOnlinePartner){
+            System.out.println("상대방이 온라인 상태입니다");
             message.markAsRead();
         }
 
         // 마지막 메세지 , 보낸시간 업데이트
         chatRoom.updateLastMessage(request.content(),request.sendDate());
 
-        return ChatMessageResponseDto.noFiles(message,requestEmail);
+        return ChatMessageResponseDto.noFiles(message,requestEmail,requestRole);
 
     }
 
@@ -182,16 +201,17 @@ public class ChattingService {
         messageFileRepository.saveAll(messageFiles);
 
         // 상대방 온라인 여부 체크
-        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestEmail);
+        boolean isOnlinePartner = chattingOnlineService.isPartnerOnline(chatRoomId,requestEmail,"_"+requestRole);
 
         // 상대방 온라인이면 메세지 바로 읽음
         if(isOnlinePartner){
+            System.out.println("상대방이 온라인 상태입니다");
             message.markAsRead();
         }
 
         // 마지막 메세지 , 보낸 시각 업데이트
         chatRoom.updateLastMessage(request.content()+"(+파일)",request.sendDate());
 
-        return ChatMessageResponseDto.withFileUrls(message,request.fileUrls(),requestEmail);
+        return ChatMessageResponseDto.withFileUrls(message,request.fileUrls(),requestEmail,requestRole);
     }
 }

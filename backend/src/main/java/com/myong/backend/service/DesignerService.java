@@ -2,6 +2,7 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
@@ -9,10 +10,12 @@ import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
 import com.myong.backend.domain.entity.chatting.ChatRoom;
 import com.myong.backend.domain.entity.chatting.Message;
+import com.myong.backend.domain.entity.chatting.SenderType;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.JobPost;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
@@ -400,11 +403,17 @@ public class DesignerService {
      * 채팅방 로드
      *
      * @param requestUser;
-     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate, unreadCount
      */
     public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
         Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
-        return chatRoomRepository.findAllByDesigner(designer);
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByDesigner(designer);
+
+        // 안읽은 메세지 갯수 포함
+        return chatRooms.stream().map(chatRoom -> {
+            int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,designer.getEmail(),SenderType.DESIGNER);
+            return ChatRoomResponseDto.from(chatRoom, unreadCount);
+        }).collect(Collectors.toList());
     }
 
 
@@ -425,28 +434,27 @@ public class DesignerService {
         LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
         List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
 
-        // 메세지 읽음 처리 로직
-        for(Message message : messages){
-            if(!message.isRead() && !message.getSenderEmail().equals(designer.getEmail())){
-                message.markAsRead();
-            }
-        }
+//        // 메세지 읽음 처리 로직
+//        for(Message message : messages){
+//            if(!message.isRead() && ( !message.getSenderEmail().equals(designer.getEmail()) || message.getSenderType() != SenderType.DESIGNER) ){
+//                message.markAsRead();
+//            }
+//        }
 
         // 채팅방에 관하여 온라인 상태
-        chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail());
+        chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail(),"_DESIGNER");
 
-        return messages.stream().map(message ->
-                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(designer.getEmail())) ? "me" : "partner" )).toList();
+        return messages.stream().map(ChatRoomMessageResponseDto::from).toList();
     }
 
     /**
-     * 채팅방 퇴장 레디스에서 온라인 삭제
-     * @param chatRoomId
-     * @param requestUser
+     *  채팅방 유저정보 로딩
+     * @param requestUser;
+     * @return String email, String userType;
      */
-    public void exitChatRoom(UUID chatRoomId, UserDetailsDto requestUser){
-        chattingOnlineService.removeUserFromChatRoom(chatRoomId,requestUser.getUsername());
-
+    public ChatUserInfoResponseDto loadUserInfo(UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return new ChatUserInfoResponseDto(designer.getEmail(),"DESIGNER");
     }
 
     // 시간 구하기(ex:몇 분전, 몇 시간전, 몇 일전) 매서드

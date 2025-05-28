@@ -4,6 +4,7 @@ package com.myong.backend.controller;
 import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
@@ -29,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -325,12 +327,12 @@ public class UserController {
     }
 
     /**
-     *  채팅방 퇴장
+     *  채팅방 입장시 유저 정보 로드
      */
-    @PostMapping("chatroom/exit/{chatRoomId}")
-    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
-        userService.exitChatRoom(chatRoomId,user);
-        return ResponseEntity.ok().build();
+    @PostMapping("/info")
+    public ResponseEntity<ChatUserInfoResponseDto> loadUserInfo(@AuthenticationPrincipal UserDetailsDto requestUser){
+        return ResponseEntity.ok(userService.loadUserInfo(requestUser));
     }
+
 
 }

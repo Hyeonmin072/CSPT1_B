@@ -56,8 +56,16 @@ public class MessageController {
      * 채팅방 입장
      */
     @MessageMapping("/chat/enter/{chatRoomId}")
-    public void handleEnter(@DestinationVariable UUID chatRoomId, SimpMessageHeaderAccessor accessor){
+    public void handleEnter(@DestinationVariable("chatRoomId") UUID chatRoomId, SimpMessageHeaderAccessor accessor){
         chattingService.handleEnter(chatRoomId, accessor);
+    }
+
+    /**
+     * 채팅방 퇴장
+     */
+    @MessageMapping("/chat/leave/{chatRoomId}")
+    public void handleLeave(@DestinationVariable("chatRoomId") UUID chatRoomId, SimpMessageHeaderAccessor accessor){
+        chattingService.handleLeave(chatRoomId,accessor);
     }
 
 }

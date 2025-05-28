@@ -3,6 +3,7 @@ package com.myong.backend.controller;
 
 import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
@@ -227,13 +228,13 @@ public class DesignerController {
     }
 
     /**
-     *  채팅방 퇴장
+     *  채팅방 입장시 디자이너 정보 로딩
      */
-    @PostMapping("chatroom/exit/{chatRoomId}")
-    public ResponseEntity<Void> exitChatRoom(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
-        designerService.exitChatRoom(chatRoomId,user);
-        return ResponseEntity.ok().build();
+    @PostMapping("/info")
+    public ResponseEntity<ChatUserInfoResponseDto> loadUserInfo(@AuthenticationPrincipal UserDetailsDto requestUser){
+        return ResponseEntity.ok(designerService.loadUserInfo(requestUser));
     }
+
     /**
      * 디자이너 이메일로 디자이너 프로필 조회
      */
