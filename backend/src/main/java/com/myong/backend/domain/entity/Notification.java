@@ -34,5 +34,4 @@ public class Notification {
         this.notificationType = notificationType;
         this.receiverEmail = receiverEmail;
     }
-
 }

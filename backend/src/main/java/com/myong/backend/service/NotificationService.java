@@ -71,11 +71,10 @@ public class NotificationService {
      * @param notification 알람 객체(이 객체를 DB에 저장한 후 넘어올 것으로 기대)
      */
     public void send(Notification notification) {
-
         String eventId = notification.getReceiverEmail() + "_" + System.currentTimeMillis();
 
         // 한 사용자가 여러 클라이언트(브라우저 탭, 모바일 앱 등)에서 접속할 수 있으므로, 사용자의 모든 SSE 연결(emitter)을 가져온다.
-        Map<String, Object> sseEmiters = emitterRepository.findAllEventCacheStartWithEmail(notification.getReceiverEmail());
+        Map<String, SseEmitter> sseEmiters = emitterRepository.findAllEmitterStartWithEmail(notification.getReceiverEmail());
         sseEmiters.forEach(
                 (key, emitter) -> {
                     try {
