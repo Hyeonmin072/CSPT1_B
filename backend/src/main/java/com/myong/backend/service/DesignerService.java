@@ -403,11 +403,17 @@ public class DesignerService {
      * 채팅방 로드
      *
      * @param requestUser;
-     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate, unreadCount
      */
     public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
         Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
-        return chatRoomRepository.findAllByDesigner(designer);
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByDesigner(designer);
+
+        // 안읽은 메세지 갯수 포함
+        return chatRooms.stream().map(chatRoom -> {
+            int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,designer.getEmail(),SenderType.DESIGNER);
+            return ChatRoomResponseDto.from(chatRoom, unreadCount);
+        }).collect(Collectors.toList());
     }
 
 
@@ -438,8 +444,7 @@ public class DesignerService {
         // 채팅방에 관하여 온라인 상태
         chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail(),"_DESIGNER");
 
-        return messages.stream().map(message ->
-                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(designer.getEmail()) && message.getSenderType() == SenderType.DESIGNER) ? "me" : "partner" )).toList();
+        return messages.stream().map(ChatRoomMessageResponseDto::from).toList();
     }
 
     /**

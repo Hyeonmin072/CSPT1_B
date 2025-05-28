@@ -15,32 +15,36 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ChatMessageResponseDto {
+    private String chatRoomId;      // 채팅방 아이디
     private String messageId;       // 메세지 아이디
     private String content;         // 메세지 내용
     private List<String> fileUrls;  // 파일 url
     private LocalDateTime sendDate; // 보낸 시간
-    private String sender;          // 보낸 사람 ex)내가보낸거면 me , 상대방이 보낸거면 partner
+    private String sender;          // 보낸 사람 이메일
+    private String senderType;      // 보낸 사람 타입
     private boolean isRead;         // 읽음 여부
 
     public static ChatMessageResponseDto noFiles(Message message,String requestEmail,String requestRole){
-        boolean isMine = message.getSenderEmail().equals(requestEmail) && message.getSenderType().toString().equals(requestRole);
         return ChatMessageResponseDto.builder()
+                .chatRoomId(message.getChatRoom().getId().toString())
                 .messageId(message.getId().toString())
                 .content(message.getContent())
                 .sendDate(message.getSendDate())
-                .sender(isMine ? "me" : "partner")
+                .sender(requestEmail)
+                .senderType(requestRole)
                 .isRead(message.isRead())
                 .build();
     }
 
     public static ChatMessageResponseDto withFileUrls(Message message, List<String> fileUrls, String requestEmail,String requestRole){
-        boolean isMine = message.getSenderEmail().equals(requestEmail) && message.getSenderType().toString().equals(requestRole);
         return ChatMessageResponseDto.builder()
+                .chatRoomId(message.getChatRoom().getId().toString())
                 .messageId(message.getId().toString())
                 .content(message.getContent())
                 .sendDate(message.getSendDate())
                 .fileUrls(fileUrls)
-                .sender(isMine ? "me" : "partner")
+                .sender(requestEmail)
+                .senderType(requestRole)
                 .isRead(message.isRead())
                 .build();
     }

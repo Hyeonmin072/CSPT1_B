@@ -627,7 +627,14 @@ public class UserService {
      */
     public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
         User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
-        return chatRoomRepository.findAllByUser(user);
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUser(user);
+
+        // 안읽은 메세지 갯수 포함
+        return chatRooms.stream().map(chatRoom -> {
+            int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,user.getEmail(),SenderType.USER);
+            return ChatRoomResponseDto.from(chatRoom,unreadCount);
+        }).collect(Collectors.toList());
+
     }
 
 
@@ -658,8 +665,7 @@ public class UserService {
         // 채팅방에 관하여 온라인 상태
         chattingOnlineService.addUserToChatRoom(chatRoomId,user.getEmail(),"_USER");
 
-        return messages.stream().map(message ->
-                ChatRoomMessageResponseDto.from(message,(message.getSenderEmail().equals(user.getEmail()) && message.getSenderType() == SenderType.USER) ? "me" : "partner" )).toList();
+        return messages.stream().map(ChatRoomMessageResponseDto::from).toList();
     }
 
 
