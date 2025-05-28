@@ -43,6 +43,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -234,7 +235,10 @@ public class ReservationService {
         requestTossPaymentApproval(paymentKey, paymentId, amount);
 
         // 사업자에게 제공할 예약 알람 생성 및 저장
-        String notificationContent =  user.getName() + " 고객님이 디자이너 " + designer.getName() + " 님에게 " + menu.getName() +" 을 예약했어요. [ 시술일자 : " + reservation.getServiceDate() + " ]";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일 HH시 mm분");
+        String formattedDate = reservation.getServiceDate().format(formatter);
+
+        String notificationContent = "[예약 알림] " + user.getName() + " 고객님이 디자이너 " + designer.getName() + " 님에게 " + menu.getName() +" 을 예약했어요. [ 시술일자 : " + formattedDate + " ]";
         Notification notification = Notification.builder()
                 .content(notificationContent)
                 .notificationType(NotificationType.SHOP)
