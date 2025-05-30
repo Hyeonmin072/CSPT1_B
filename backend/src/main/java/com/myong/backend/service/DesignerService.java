@@ -64,6 +64,8 @@ public class DesignerService {
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
     private final ChattingOnlineService chattingOnlineService;
+    private final UserDesignerLikeRepository userDesignerLikeRepository;
+    private final UserRepository userRepository;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -482,11 +484,13 @@ public class DesignerService {
         }
     }
 
-    public DesignerProfileResponseDto getProfileByEmail(String designerEmail) {
+    public DesignerProfileResponseDto getProfileByEmail(String designerEmail,UserDetailsDto requestUser) {
         Designer designer = designerRepository.findByEmail(designerEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         List<ReviewData> reviews = reviewRepository.findAllByDesignerEmail(designer.getEmail());
+        boolean isLike = userDesignerLikeRepository.existsByDesignerAndUser(designer,user);
 
         int currentYear = java.time.LocalDate.now().getYear();
         int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
@@ -502,6 +506,7 @@ public class DesignerService {
                 .description(designer.getDesc())
                 .age(age)
                 .like(designer.getLike())
+                .isLike(isLike)
                 .shopName(designer.getShop().getName())
                 .gender(designer.getGender())
                 .reviews(reviews)

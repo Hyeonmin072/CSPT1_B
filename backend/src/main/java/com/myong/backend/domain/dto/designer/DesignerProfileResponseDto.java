@@ -34,6 +34,8 @@ public class DesignerProfileResponseDto {
 
     int like;
 
+    boolean isLike;
+
     String shopName;
 
     Gender gender;
