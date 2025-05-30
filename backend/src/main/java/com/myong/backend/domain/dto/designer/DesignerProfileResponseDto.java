@@ -32,7 +32,7 @@ public class DesignerProfileResponseDto {
 
     int age;
 
-    int like;
+    int likeCnt;
 
     boolean isLike;
 
