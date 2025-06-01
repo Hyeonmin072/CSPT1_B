@@ -12,4 +12,5 @@ public class DesignerSalesDetailResponseDto {
     private String menuName;
     private Long sales;
     private String userName;
+    private String shopName;
 }

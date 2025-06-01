@@ -1410,6 +1410,7 @@ public class ShopService {
                         .menuName(p.getReservMenuName())
                         .sales(p.getPrice())
                         .userName(p.getUser().getName())
+                        .shopName(p.getShop().getName())
                         .build())
                 .toList();
     }
