@@ -4,12 +4,12 @@ import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.shop.Work;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
 
 import java.time.LocalTime;
 import java.util.UUID;
 
-@Value
+@Getter
 @Builder
 public class JobPostDetailResponseDto {
     @NotBlank

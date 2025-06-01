@@ -1,6 +1,7 @@
 package com.myong.backend.domain.entity.shop;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @Document(indexName = "shop")
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ShopDocument {
 
     @Id
-    private UUID id;
+    private String id;
 
     private String name;
 
@@ -36,9 +38,9 @@ public class ShopDocument {
 
     private Integer reviewCount;  // 가게 리뷰갯수
 
-    private LocalTime openTime;   // 가게 오픈시간
+    private String openTime;   // 가게 오픈시간
 
-    private LocalTime closeTime;  // 가게 마감시간
+    private String closeTime;  // 가게 마감시간
 
     private String address;       // 가게 주소
 
@@ -47,7 +49,7 @@ public class ShopDocument {
 
     public static ShopDocument from (Shop shop){
         return ShopDocument.builder()
-                .id(shop.getId())
+                .id(shop.getId().toString())
                 .name(shop.getName())
                 .email(shop.getEmail())
                 .desc(shop.getDesc())
@@ -55,8 +57,8 @@ public class ShopDocument {
                 .thumbnail(shop.getThumbnail())
                 .rating(shop.getRating())
                 .reviewCount(shop.getReviewCount())
-                .openTime(shop.getOpenTime())
-                .closeTime(shop.getCloseTime())
+                .openTime(shop.getOpenTime().toString())
+                .closeTime(shop.getCloseTime().toString())
                 .address(shop.getAddress())
                 .post(shop.getPost())
                 .build();

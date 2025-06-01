@@ -2,11 +2,13 @@ package com.myong.backend.domain.dto.event;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@Value
+@Getter
+@NoArgsConstructor
 public class EventRequestDto implements Serializable {
 
     @NotBlank

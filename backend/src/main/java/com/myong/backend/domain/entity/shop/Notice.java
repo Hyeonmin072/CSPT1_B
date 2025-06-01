@@ -77,5 +77,8 @@ public class Notice {
         if(!this.getContent().equals(request.getContent())) { // 현재 공지사항의 내용과 DTO의 내용이 동일하지 않은 경우
             this.content = request.getContent();
         }
+        if(!this.getImportance().equals(request.getImportance())) {// 현재 공지사항의 중요도와 DTO의 중요도가 동일하지 않은 경우
+            this.importance = request.getImportance();
+        }
     }
 }

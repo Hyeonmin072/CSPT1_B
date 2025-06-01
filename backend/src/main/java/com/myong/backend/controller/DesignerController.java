@@ -1,11 +1,15 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
 import com.myong.backend.service.ResumeService;
@@ -16,12 +20,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -95,14 +104,14 @@ public class DesignerController {
 
     //디자이너 프로필 불러오기
     @GetMapping("/profile")
-    public ResponseEntity<ProfileResponseDto> profile(){
+    public ResponseEntity<DesignerProfileResponseDto> profile(){
 
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
 
         String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
 
-        ProfileResponseDto responseDto = designerService.getProfile(designerEmail);
+        DesignerProfileResponseDto responseDto = designerService.getProfile(designerEmail);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -135,8 +144,8 @@ public class DesignerController {
     @PostMapping("/profile/update")
     public ResponseEntity<Designer> updateProfile(
             @Valid @RequestPart(name = "request") UpdateProfileRequestDto request,
-            @RequestParam(name = "updateImage") MultipartFile updateImage,
-            @RequestParam(name = "updateBackgroundImage") MultipartFile updateBackgroundImage
+            @RequestParam(name = "updateImage",required = false) MultipartFile updateImage,
+            @RequestParam(name = "updateBackgroundImage",required = false) MultipartFile updateBackgroundImage
             ){
             log.info("update profile: {}", request);
 
@@ -182,6 +191,59 @@ public class DesignerController {
 
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    //구인포스트 가져오기
+    @GetMapping("/job/posts")
+    public ResponseEntity<JobPostListResponseDto> getJobPostList(
+            @RequestParam(defaultValue = "0") int page
+    ){
+        JobPostListResponseDto response = designerService.getJopPostList(page);
+
+        return ResponseEntity.ok(response);
+    }
+
+    //구인 포스터 상세페이지
+    @GetMapping("/job/post")
+    public ResponseEntity<ResponseJobPostDetailDto> getJobPost(
+            @RequestParam UUID id
+    ){
+        ResponseJobPostDetailDto response = designerService.getJobDetail(id);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     *  나의 채팅방 조회
+     */
+    @GetMapping("/chatroom")
+    public ResponseEntity<List<ChatRoomResponseDto>> loadChatRoom(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(designerService.loadChatRoom(user));
+    }
+
+    /**
+     *  채팅방 입장
+     */
+    @PostMapping("/chatroom/join/{chatRoomId}")
+    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(designerService.loadChatRoomMessages(chatRoomId,user));
+    }
+
+    /**
+     *  채팅방 입장시 디자이너 정보 로딩
+     */
+    @PostMapping("/info")
+    public ResponseEntity<ChatUserInfoResponseDto> loadUserInfo(@AuthenticationPrincipal UserDetailsDto requestUser){
+        return ResponseEntity.ok(designerService.loadUserInfo(requestUser));
+    }
+
+    /**
+     * 디자이너 이메일로 디자이너 프로필 조회
+     */
+    @GetMapping("/profile/{designerEmail}")
+    public ResponseEntity<DesignerProfileResponseDto> getProfileByEmail(@PathVariable(name = "designerEmail") String designerEmail, @AuthenticationPrincipal UserDetailsDto requestUser){
+        return ResponseEntity.ok(designerService.getProfileByEmail(designerEmail,requestUser)); // 성공적으로 로직이 수행될 경우 디자이너 프로필 정보 반환
+
     }
 
     //디자이너 예약일 가져오기

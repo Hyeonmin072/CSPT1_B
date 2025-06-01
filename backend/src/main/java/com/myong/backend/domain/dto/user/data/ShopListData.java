@@ -22,8 +22,8 @@ public class ShopListData {
     private String shopDesc; // 가게 소개
     private Double shopRating; // 가게 평점
     private Integer shopReviewCount; // 가게 리뷰 갯수
-    private LocalTime shopOpenTime; // 오픈시간
-    private LocalTime shopCloseTime; // 마감시간
+    private String shopOpenTime; // 오픈시간
+    private String shopCloseTime; // 마감시간
     private String shopAddress; // 가게주소
     private Integer shopPost; //가게 우편번호
 
@@ -36,8 +36,8 @@ public class ShopListData {
                 .shopDesc(shop.getDesc())
                 .shopRating(shop.getRating())
                 .shopReviewCount(shop.getReviewCount())
-                .shopOpenTime(shop.getOpenTime())
-                .shopCloseTime(shop.getCloseTime())
+                .shopOpenTime(shop.getOpenTime().toString())
+                .shopCloseTime(shop.getCloseTime().toString())
                 .shopAddress(shop.getAddress())
                 .shopPost(shop.getPost())
                 .build();

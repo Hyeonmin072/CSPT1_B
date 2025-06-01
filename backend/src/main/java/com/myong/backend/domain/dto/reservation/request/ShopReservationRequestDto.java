@@ -3,13 +3,15 @@ package com.myong.backend.domain.dto.reservation.request;
 import com.myong.backend.domain.entity.OrderBy;
 import com.myong.backend.domain.entity.Period;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
-@Builder
+@Setter
+@NoArgsConstructor
 public class ShopReservationRequestDto {
     @NotNull
     private LocalDate date; // 날짜

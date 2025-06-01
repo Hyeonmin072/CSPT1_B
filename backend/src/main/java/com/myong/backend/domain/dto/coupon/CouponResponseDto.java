@@ -3,11 +3,12 @@ package com.myong.backend.domain.dto.coupon;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Value;
 
 import java.time.LocalDate;
 
-@Value
+@Getter
 @Builder
 public class CouponResponseDto {
 

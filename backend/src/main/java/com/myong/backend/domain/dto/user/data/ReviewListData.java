@@ -8,7 +8,7 @@ import lombok.Data;
 public class ReviewListData {
 
     private String menu;
-    private String designerName;
+    private String designerNickName;
     private String userName;
     private String content;
     private Double rating;

@@ -11,9 +11,6 @@ import java.time.LocalDateTime;
  * 아래 필드들을 클라이언트 측에서 입력받는다
  */
 @Getter
-@Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class PaymentRequestDto {
     @NotNull

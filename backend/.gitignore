@@ -18,7 +18,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -26,7 +26,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 application.yml
-
+application-deploy.yml
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

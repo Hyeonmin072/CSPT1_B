@@ -17,6 +17,7 @@ import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerDocument;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.shop.ShopDocument;
+import com.myong.backend.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -36,6 +37,7 @@ public class SearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final ElasticsearchClient elasticsearchClient;
+    private final ShopRepository shopRepository;
 
 
     /**
@@ -117,6 +119,19 @@ public class SearchService {
     }
 
     /**
+     *  마이그레이션용
+     */
+    public void migrateAllShopsToElasticsearch() {
+
+        List<Shop> shopList = shopRepository.findAll();
+
+        for (Shop shop : shopList) {
+            ShopDocument doc = ShopDocument.from(shop);
+            elasticsearchOperations.save(doc);
+        }
+    }
+
+    /**
      * 가게 도큐멘트 삭제
      */
     public void ShopDelete(UUID shopId) throws IOException, ElasticsearchException {
@@ -157,6 +172,9 @@ public class SearchService {
                     ))
                     .build();
             SearchResponse<ShopDocument> searchResponse = elasticsearchClient.search(searchRequest, ShopDocument.class);
+
+            System.out.println("총 hit 개수: " + searchResponse.hits().total().value());
+            System.out.println("hit list size: " + searchResponse.hits().hits().size());
 
             // 검색된 결과 리스트 반환
             //source == ShopDocument

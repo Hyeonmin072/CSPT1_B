@@ -1,10 +1,12 @@
 package com.myong.backend.domain.dto.shop;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
-@Value
+@Getter
+@NoArgsConstructor
 public class ShopBizRequestDto {
 
     @NotBlank

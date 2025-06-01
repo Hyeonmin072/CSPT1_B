@@ -1,23 +1,32 @@
 package com.myong.backend.service;
 
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.designer.data.ReviewData;
-import com.myong.backend.domain.dto.user.response.UserHeaderResponseDto;
+import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
+import com.myong.backend.domain.entity.chatting.ChatRoom;
+import com.myong.backend.domain.entity.chatting.Message;
+import com.myong.backend.domain.entity.chatting.SenderType;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
+import com.myong.backend.domain.entity.shop.JobPost;
 import com.myong.backend.domain.entity.shop.Shop;
-import com.myong.backend.domain.entity.usershop.Review;
-import com.myong.backend.repository.DesignerRepository;
+import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.exception.ResourceNotFoundException;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
+import com.myong.backend.repository.*;
 import com.myong.backend.repository.ReviewRepository;
-import com.myong.backend.repository.ReviewRepository;
-import com.myong.backend.repository.ShopRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +37,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -49,6 +60,12 @@ public class DesignerService {
     private final ReviewRepository reviewRepository;
     private final FileUploadService fileUploadService;
     private final SearchService searchService;
+    private final JobPostRepository jobPostRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final MessageRepository messageRepository;
+    private final ChattingOnlineService chattingOnlineService;
+    private final UserDesignerLikeRepository userDesignerLikeRepository;
+    private final UserRepository userRepository;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -85,7 +102,7 @@ public class DesignerService {
     }
 
     //프로필 가져오기
-    public ProfileResponseDto getProfile(String email) {
+    public DesignerProfileResponseDto getProfile(String email) {
         Designer designer = designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
 
@@ -99,7 +116,7 @@ public class DesignerService {
         int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
         int age = currentYear - birth;
 
-        return ProfileResponseDto.builder()
+        return DesignerProfileResponseDto.builder()
                 .name(designer.getName())
                 .nickName(designer.getNickName())
                 .email(designer.getEmail())
@@ -108,7 +125,7 @@ public class DesignerService {
                 .gender(designer.getGender())
                 .reviews(reviews)
                 .shopName(shopName)
-                .like(designer.getLike())
+                .likeCnt(designer.getLike())
                 .description(designer.getDesc())
                 .image(designer.getImage())
                 .backgroundImage(designer.getBackgroundImage())
@@ -177,8 +194,9 @@ public class DesignerService {
         //이미지 변경
         if (updateImage != null) {
 
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getImage() != null){
                 fileUploadService.deleteFile(designer.getImage());
@@ -190,9 +208,9 @@ public class DesignerService {
         //백그라운드이미지 변경
         if (updateBackgroundImage != null) {
 
-
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateBackgroundImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateBackgroundImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getBackgroundImage() != null){
                 fileUploadService.deleteFile(designer.getBackgroundImage());
@@ -235,7 +253,6 @@ public class DesignerService {
 //    }
 
     //디자이너 헤더 로딩
-
     public DesignerLoadHeaderResponseDto loadHeader(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String designerEmail = authentication.getName();
@@ -244,6 +261,60 @@ public class DesignerService {
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너를 찾지 못했습니다."));
 
         return new DesignerLoadHeaderResponseDto(designer.getName());
+    }
+
+
+    /***
+    구인페이지 서비스
+    ***/
+    @Transactional
+    public JobPostListResponseDto getJopPostList(int page) {
+        int size = 10; // 페이지당 불러오는 리스트의 수 10개 고정
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<JobPost> jobPosts = jobPostRepository.findAll(pageRequest);
+
+        List<ResponseJobPostDetailDto> postsResponse = jobPosts.getContent().stream()
+                .map(jobPost -> ResponseJobPostDetailDto.builder()
+                        .postId(jobPost.getId()) // 구인 게시물 아이디
+                        .title(jobPost.getTitle()) // 구인 게시물 제목
+                        .content(jobPost.getContent()) // 구인 게시물 내용
+                        .work(jobPost.getWork()) // 구인 종류(파트타임/ 풀타임)
+                        .salary(jobPost.getSalary()) // 구인 임금
+                        .shopName(jobPost.getShop().getName()) // 가게이름
+                        .address(jobPost.getShop().getAddress()) // 가게주소
+                        .postedAgo(getTimeAgo(jobPost.getCreateDate())) // 몇 분 전 작성 정보
+                        .imageUrl(jobPost.getShop().getThumbnail()) // 가게 썸네일 이미지 주소
+                        .build())
+                .collect(Collectors.toList());
+
+        return JobPostListResponseDto.builder()
+                .jobPosts(postsResponse)
+                .total((int) jobPosts.getTotalElements())
+                .page(page)
+                .pageSize(size)
+                .build();
+    }
+    /***
+     구인 게시판 상세페이지
+    ***/
+
+    public ResponseJobPostDetailDto getJobDetail(UUID id) {
+        JobPost jobPost = jobPostRepository.findById(id)
+                .orElseThrow(()->new IllegalArgumentException("해당 공고가 존재하지 않습니다."));
+
+        return ResponseJobPostDetailDto.builder()
+                .shopName(jobPost.getShop().getName())
+                .title(jobPost.getTitle())
+                .content(jobPost.getContent())
+                .salary(jobPost.getSalary())
+                .work(jobPost.getWork())
+                .gender(jobPost.getGender())
+                .workTime(jobPost.getWorkTime())
+                .leaveTime(jobPost.getLeaveTime())
+                .file(jobPost.getFile())
+                .address(jobPost.getShop().getAddress())
+                .build();
     }
 
     //디자이너 로그아웃
@@ -285,6 +356,16 @@ public class DesignerService {
 
     }
 
+    /**
+     * 디자이너 리뷰 이미지 불러오기
+     *
+     * @param
+     * @return 이미지 리스트
+     */
+    public List<DesignerReviewImageResponseDto> getDesignerReviewImage(String email){
+        Designer designer = designerRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return reviewRepository.findReviewImages(designer,PageRequest.of(0,10));
+    }
 
 
     //이메일 중복검사 매서드
@@ -320,4 +401,115 @@ public class DesignerService {
                 .build();
     }
 
+    /**
+     * 채팅방 로드
+     *
+     * @param requestUser;
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate, unreadCount
+     */
+    public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByDesigner(designer);
+
+        // 안읽은 메세지 갯수 포함
+        return chatRooms.stream().map(chatRoom -> {
+            int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,designer.getEmail(),SenderType.DESIGNER);
+            return ChatRoomResponseDto.from(chatRoom, unreadCount);
+        }).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 채팅방 입장
+     * 채팅방 입장시 메세지 로드
+     * 채팅방 입장시 레디스에 온라인 유저 저장
+     *
+     * @param chatRoomId;
+     * @return ChatRoomMessageResponseDto :: content, fileUrls, sendDate, sender
+     */
+    @Transactional
+    public List<ChatRoomMessageResponseDto> loadChatRoomMessages (UUID chatRoomId, UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅룸을 찾지 못했습니다."));
+
+        // 1주일 전 최근 메세지들 가져오기
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
+
+//        // 메세지 읽음 처리 로직
+//        for(Message message : messages){
+//            if(!message.isRead() && ( !message.getSenderEmail().equals(designer.getEmail()) || message.getSenderType() != SenderType.DESIGNER) ){
+//                message.markAsRead();
+//            }
+//        }
+
+        // 채팅방에 관하여 온라인 상태
+        chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail(),"_DESIGNER");
+
+        return messages.stream().map(ChatRoomMessageResponseDto::from).toList();
+    }
+
+    /**
+     *  채팅방 유저정보 로딩
+     * @param requestUser;
+     * @return String email, String userType;
+     */
+    public ChatUserInfoResponseDto loadUserInfo(UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return new ChatUserInfoResponseDto(designer.getEmail(),"DESIGNER");
+    }
+
+    // 시간 구하기(ex:몇 분전, 몇 시간전, 몇 일전) 매서드
+    public static String getTimeAgo(LocalDateTime time){
+        LocalDateTime now = LocalDateTime.now();
+        log.info("now : {}" , now);
+        log.info("time : {}" , time);
+        //ChronoUnit은 두 시간 사의 값을 가져옴
+        long minutes = ChronoUnit.MINUTES.between(time, now);
+
+        log.info("minutes : {}" , minutes);
+        long hours = ChronoUnit.HOURS.between(time, now);
+        long days = ChronoUnit.DAYS.between(time, now);
+
+        if(minutes < 1){
+            return "방금 전"; // 1분 미만일 때 방금 전으로 전달
+        } else if (hours < 1) {
+            return minutes + "분 전"; // 1시간 미만일 때 몇 분 전으로 전달
+        } else if (days < 1) {
+            return hours + "시간 전"; // 1일 미만일 때 몇 시간 전으로 전달
+        } else if (days <= 15) {
+            return days + "일 전";  //15일 미만일 때 몇 일 전으로 전달
+        }else {
+            return time.toLocalDate().toString(); // 15일이 지나면 날짜형식으로 전달(YYYY-MM-DD)
+        }
+    }
+
+    public DesignerProfileResponseDto getProfileByEmail(String designerEmail,UserDetailsDto requestUser) {
+        Designer designer = designerRepository.findByEmail(designerEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
+
+        List<ReviewData> reviews = reviewRepository.findAllByDesignerEmail(designer.getEmail());
+        boolean isLike = userDesignerLikeRepository.existsByDesignerAndUser(designer,user);
+
+        int currentYear = java.time.LocalDate.now().getYear();
+        int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
+        int age = currentYear - birth;
+
+        return DesignerProfileResponseDto.builder()
+                .name(designer.getName())
+                .email(designer.getEmail())
+                .nickName(designer.getNickName())
+                .tel(designer.getTel())
+                .image(designer.getImage())
+                .backgroundImage(designer.getBackgroundImage())
+                .description(designer.getDesc())
+                .age(age)
+                .likeCnt(designer.getLike())
+                .isLike(isLike)
+                .shopName(designer.getShop().getName())
+                .gender(designer.getGender())
+                .reviews(reviews)
+                .build();
+    }
 }

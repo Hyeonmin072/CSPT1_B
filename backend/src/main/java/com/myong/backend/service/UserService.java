@@ -1,14 +1,23 @@
 package com.myong.backend.service;
 
 import com.myong.backend.api.KakaoMapApi;
+import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
-import com.myong.backend.domain.dto.user.request.ShopDetailsResponseDto;
+import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.entity.Advertisement;
+import com.myong.backend.domain.entity.chatting.ChatRoom;
+import com.myong.backend.domain.entity.chatting.Message;
+import com.myong.backend.domain.entity.chatting.SenderType;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.shop.ShopBanner;
 import com.myong.backend.domain.entity.user.*;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.Review;
@@ -17,34 +26,26 @@ import com.myong.backend.exception.ResourceNotFoundException;
 import com.myong.backend.jwttoken.JwtService;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -60,6 +61,9 @@ public class UserService {
     private final MemberShipRepository memberShipRepository;
     private final UserCouponRepository userCouponRepository;
     private final ReviewRepository reviewRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final MessageRepository messageRepository;
+    private final ChattingOnlineService chattingOnlineService;
 
 
     /**
@@ -283,33 +287,33 @@ public class UserService {
 
         List<Shop> top3Shops = shopRepository.findTopShops(PageRequest.of(0,3));
 
-        List<Designer> top4Designers = designerRepository.findTopDesigners(PageRequest.of(0,4));
+        List<DesignerListData> top4Designers = designerRepository.findTopDesigners(PageRequest.of(0,4));
 
         List<Advertisement> adList = advertisementRepository.findAll();
 
-        // 디자이너 리스트 반환
-        List<DesignerTop4ListData> designerTop4ListData =
-                top4Designers.stream().map(designer -> DesignerTop4ListData.builder()
-                        .designerEmail(designer.getEmail())
-                        .designerName(designer.getName())
-                        .designerDesc(designer.getDesc())
-                        .designerImage(designer.getImage())
-                        .designerRating(designer.getRating())
-                        .build()).collect(Collectors.toList());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsDto principal = (UserDetailsDto) authentication.getPrincipal();
+        String userEmail = principal.getUsername();
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다. email = " + userEmail));
 
         // 샵리스트 변환
         List<ShopTop3ListData> shopTop3ListData =
-                top3Shops.stream().map(shop ->  ShopTop3ListData.builder()
+                top3Shops.stream()
+                        .map(shop ->  ShopTop3ListData.builder()
                         .shopEmail(shop.getEmail())
                         .shopName(shop.getName())
                         .shopDesc(shop.getDesc())
                         .shopRating(shop.getRating())
                         .shopReviewCount(shop.getReviewCount())
                         .shopThumbnail(shop.getThumbnail())
-                    .build()).collect(Collectors.toList());
+                        .shopBannerImages(shop.getBanners().stream().map(ShopBanner::getImage).toList())
+                        .build())
+                        .collect(Collectors.toList());
 
         return  UserHomePageResponseDto.builder()
-                .top4Designers(designerTop4ListData)
+                .top4Designers(top4Designers)
                 .top3Shops(shopTop3ListData)
                 .advertisements(adList)
                 .build();
@@ -345,10 +349,12 @@ public class UserService {
         List<Designer> designers = shop.getDesigners();
         List<DesignerListData> designerListDtos =
                 designers.stream().map(designer -> new DesignerListData(
-                    designer.getName(),
+                    designer.getEmail(),
+                    designer.getNickName(),
                     designer.getDesc(),
                     designer.getLike(),
-                    designer.getRating()
+                    designer.getRating(),
+                    designer.getImage()
                 )).collect(Collectors.toList());
 
 
@@ -357,7 +363,7 @@ public class UserService {
         List<ReviewListData> reviewListDtos =
                 reviews.stream().map(review -> new ReviewListData(
                         review.getReservation().getMenu().getName(),
-                        review.getDesigner().getName(),
+                        review.getDesigner().getNickName(),
                         review.getUser().getName(),
                         review.getContent(),
                         review.getRating()
@@ -394,25 +400,90 @@ public class UserService {
      *
      * @return 디자이너 이름,설명,가게명,이미지
      */
-    public List<DesignerPageResponseDto> loadDesignerPage() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("현재 authentication : "+authentication);
-        String userEmail = authentication.getName();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
-
-        List<UserDesignerLike> designers = user.getUserDesignerLikes();
-
-        List<DesignerPageResponseDto> responseDtos = designers.stream().map(
-                UserDesignerLike -> new DesignerPageResponseDto(
-                        UserDesignerLike.getDesigner().getName(),
-                        UserDesignerLike.getDesigner().getDesc(),
-                        UserDesignerLike.getDesigner().getShop().getName(),
-                        UserDesignerLike.getDesigner().getImage()
-                )).collect(Collectors.toList());
-
-        return responseDtos;
+    public List<LikeDesignerPageResponseDto> loadLikeDesignerPage() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+        return userDesignerLikeRepository.findLikedDesignersByEmail(email);
     }
 
+
+    /**
+     * 디자이너 페이지 로드
+     *
+     * @return 로그인시 -> 탑디자이너, 핫디자이너, 유저기반디자이너 리스트 제공
+     *         비로그인시  -> 탑디자이너, 핫디자이너 리스트만 제공
+     */
+    public DesignerPageResponseDto loadDesignerPage(UserDetailsDto requestUser){
+
+        // 가장 점수가 높은 디자이너들
+        List<DesignerListData> topDesigners = designerRepository.findTopDesigners(PageRequest.of(0,3));
+
+
+        // 저번달 기준 핫 한 디자이너들(리뷰 갯수)
+        LocalDateTime startDate = LocalDateTime.now().minusMonths(1).withDayOfMonth(1);
+        LocalDateTime endDate = startDate.plusMonths(1).minusSeconds(1);
+        List<Object[]> result = reviewRepository.findDesignerWithReviewCountBetweenDates(startDate, endDate,PageRequest.of(0,3));
+
+        List<DesignerListData> hotDesigners = result.stream()
+                .map(obj -> DesignerListData.fromDesigner((Designer) obj[0]))
+                .toList();
+
+        // 비로그인 시, 유저 기반 추천 디자이너는 제외
+        if(requestUser == null || "anonymousUser".equals(requestUser.getName())){
+            return DesignerPageResponseDto.builder()
+                    .topDesigners(topDesigners)
+                    .hotDesigners(hotDesigners)
+                    .build();
+        }
+
+        String email = requestUser.getUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+
+
+        // 유저 기반 추천 디자이너(위치 + 점수)
+        List<Designer> result2 = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,6));
+        List<DesignerListData> designersForUser =  result2.stream()
+                .map(DesignerListData::fromDesigner)
+                .toList();
+
+        return DesignerPageResponseDto.builder()
+                .topDesigners(topDesigners)
+                .hotDesigners(hotDesigners)
+                .designersForUser(designersForUser)
+                .build();
+
+    }
+
+    /**
+     * 나만의 디자이너 찾기 페이지
+     *
+     *
+     * @return 디자이너 정보, 디자이너 리뷰 이미지 List<UserOwnDesignerPageResponseDto>
+     */
+    public List<UserOwnDesignerPageResponseDto> loadOwnDesignerPage (UserDetailsDto requestUser) {
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다"));
+
+        List<Designer> designers = designerRepository.findDesignersForUser(user.getLongitude(),user.getLatitude(),PageRequest.of(0,7));
+        // 디자이너별로 리뷰 이미지 5개를 랜덤으로 가져오기
+        List<UserOwnDesignerPageResponseDto> responseDtos = new ArrayList<>();
+        for (Designer designer : designers) {
+            //  해당 디자이너의 성별에 맞는 리뷰 이미지 URL을 가져오기
+            List<String> reviewImages = reviewRepository.findRandomReviewImagesForDesigner(designer.getId(), user.getGender().toString());
+
+            // DTO 객체 생성
+            UserOwnDesignerPageResponseDto dto = UserOwnDesignerPageResponseDto.builder()
+                    .designerNickname(designer.getNickName())
+                    .designerEmail(designer.getEmail())
+                    .designerImage(designer.getImage()) // 디자이너 프로필 이미지
+                    .reviewImage(reviewImages) // 리뷰 이미지 목록
+                    .build();
+
+            responseDtos.add(dto);
+        }
+
+        //  결과 반환
+        return responseDtos;
+    }
     /**
      * 디자이너 좋아요 토글처리
      *
@@ -475,7 +546,7 @@ public class UserService {
      * 유저 쿠폰함 조회
      *
      * @return 쿠폰 데이터
-     * @throws NotFoundException
+     * @throws NotFoundException;
      */
     public List<UserGetAllCouponsResponseDto> getAllCoupons() throws NotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -509,7 +580,7 @@ public class UserService {
     /**
      * 유저 위치 업데이트
      *
-     * @param requestDto
+     * @param requestDto;
      * @return 메세지
      */
     public String updateLocation (UserUpdateLocationRequestDto requestDto){
@@ -548,5 +619,87 @@ public class UserService {
                 .build();
     }
 
+    /**
+     * 유저 채팅방 로드
+     *
+     * @param requestUser;
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate
+     */
+    public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUser(user);
+
+        // 안읽은 메세지 갯수 포함
+        return chatRooms.stream().map(chatRoom -> {
+            int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,user.getEmail(),SenderType.USER);
+            return ChatRoomResponseDto.from(chatRoom,unreadCount);
+        }).collect(Collectors.toList());
+
+    }
+
+
+    /**
+     * 채팅방 입장
+     * 채팅방 입장시 메세지 로드
+     * 채팅방 입장시 레디스에 온라인 유저 저장
+     *
+     * @param chatRoomId;
+     * @return ChatRoomMessageResponseDto :: content, fileUrls, sendDate, sender
+     */
+    @Transactional
+    public List<ChatRoomMessageResponseDto> loadChatRoomMessages (UUID chatRoomId, UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅룸을 찾지 못했습니다."));
+
+        // 1주일 전 최근 메세지들 가져오기
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
+
+//        // 메세지 읽음 처리 로직
+//        for(Message message : messages){
+//            if(!message.isRead() && ( !message.getSenderEmail().equals(user.getEmail()) || message.getSenderType() != SenderType.USER) ){
+//                message.markAsRead();
+//            }
+//        }
+
+        // 채팅방에 관하여 온라인 상태
+        chattingOnlineService.addUserToChatRoom(chatRoomId,user.getEmail(),"_USER");
+
+        return messages.stream().map(ChatRoomMessageResponseDto::from).toList();
+    }
+
+
+    /**
+     *  디자이너에게 채팅 요청
+     *  채팅방이 존재시 기존 채팅방 리턴
+     *  채팅방이 존재하지 않을시 새로운 채팅방 리턴
+     *
+     * @param request
+     * @param requestUser
+     * @return UUID chatRoomId
+     */
+    public ChattingResponseDto requestChatting(ChattingRequestDto request, UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        Designer designer = designerRepository.findByEmail(request.designerEmail()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findByUserAndDesigner(user,designer).orElse(null);
+        // 기존 채팅방이 있을시
+        if(chatRoom != null){
+            return new ChattingResponseDto(chatRoom.getId().toString());
+        }
+        // 새로운 채팅방 생성
+        ChatRoom newChatRoom = ChatRoom.save(user,designer);
+        chatRoomRepository.save(newChatRoom);
+        return new ChattingResponseDto(newChatRoom.getId().toString());
+    }
+
+    /**
+     *  채팅방 유저정보 로딩
+     * @param requestUser;
+     * @return String email, String userType;
+     */
+    public ChatUserInfoResponseDto loadUserInfo(UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
+        return new ChatUserInfoResponseDto(user.getEmail(),"USER");
+    }
 
 }

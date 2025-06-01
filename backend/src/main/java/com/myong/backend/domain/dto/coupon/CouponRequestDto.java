@@ -2,11 +2,13 @@ package com.myong.backend.domain.dto.coupon;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Value;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Value
+@Getter
+@NoArgsConstructor
 public class CouponRequestDto {
 
     @NotBlank

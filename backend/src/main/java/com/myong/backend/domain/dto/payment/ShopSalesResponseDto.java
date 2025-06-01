@@ -8,7 +8,6 @@ import java.util.Map;
 
 @Getter
 @Builder
-@AllArgsConstructor
 public class ShopSalesResponseDto {
     private Long totalAmount;
     private Long todayTotalAmount;
