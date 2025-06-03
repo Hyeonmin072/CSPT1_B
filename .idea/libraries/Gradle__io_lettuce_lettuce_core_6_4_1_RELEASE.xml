@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.lettuce/lettuce-core/6.4.1.RELEASE/5e4483ac2281c76bd89754ce0192b3663b5cf68/lettuce-core-6.4.1.RELEASE.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.lettuce/lettuce-core/6.4.1.RELEASE/434a6d01ab70b260af01cc7105e1d47329b1525f/lettuce-core-6.4.1.RELEASE-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

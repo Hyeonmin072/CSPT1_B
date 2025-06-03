@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-redis/3.4.1/43500de2974e20b1932255a9c2ab27172a579fe6/spring-data-redis-3.4.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-redis/3.4.1/ef677718f95300d4f62ec913d32ec35366b7fda6/spring-data-redis-3.4.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

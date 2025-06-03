@@ -1,6 +1,6 @@
 package com.myong.backend.domain.dto.designer;
 
-import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
+import com.myong.backend.domain.dto.designer.ResponseJobPostDetailDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

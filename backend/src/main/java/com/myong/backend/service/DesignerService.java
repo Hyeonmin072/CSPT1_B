@@ -268,11 +268,12 @@ public class DesignerService {
     구인페이지 서비스
     ***/
     @Transactional
-    public JobPostListResponseDto getJopPostList(int page) {
+    public JobPostListResponseDto getJobPostList(int page) {
         int size = 10; // 페이지당 불러오는 리스트의 수 10개 고정
 
         PageRequest pageRequest = PageRequest.of(page, size);
         Page<JobPost> jobPosts = jobPostRepository.findAll(pageRequest);
+        System.out.println("jobPosts 조회 결과: " + jobPosts.getContent().size()); // 리스트 크기 출력
 
         List<ResponseJobPostDetailDto> postsResponse = jobPosts.getContent().stream()
                 .map(jobPost -> ResponseJobPostDetailDto.builder()

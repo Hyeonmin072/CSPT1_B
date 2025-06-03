@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 
 @Getter
 @NoArgsConstructor
@@ -18,8 +20,8 @@ public class JobPostRequestDto {
     @NotBlank
     String work;
 
-    String workTime;
-    String leaveTime;
+    LocalTime workTime;
+    LocalTime leaveTime;
 
     @NotBlank
     String content;

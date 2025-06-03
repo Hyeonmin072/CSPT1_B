@@ -144,8 +144,8 @@ public class DesignerController {
     @PostMapping("/profile/update")
     public ResponseEntity<Designer> updateProfile(
             @Valid @RequestPart(name = "request") UpdateProfileRequestDto request,
-            @RequestParam(name = "updateImage",required = false) MultipartFile updateImage,
-            @RequestParam(name = "updateBackgroundImage",required = false) MultipartFile updateBackgroundImage
+            @RequestParam(name = "updateImage") MultipartFile updateImage,
+            @RequestParam(name = "updateBackgroundImage") MultipartFile updateBackgroundImage
             ){
             log.info("update profile: {}", request);
 
@@ -198,18 +198,15 @@ public class DesignerController {
     public ResponseEntity<JobPostListResponseDto> getJobPostList(
             @RequestParam(defaultValue = "0") int page
     ){
-        JobPostListResponseDto response = designerService.getJopPostList(page);
+        JobPostListResponseDto response = designerService.getJobPostList(page);
 
         return ResponseEntity.ok(response);
     }
 
     //구인 포스터 상세페이지
-    @GetMapping("/job/post")
-    public ResponseEntity<ResponseJobPostDetailDto> getJobPost(
-            @RequestParam UUID id
-    ){
-        ResponseJobPostDetailDto response = designerService.getJobDetail(id);
-
+    @GetMapping("/job/post/{postId}")
+    public ResponseEntity<ResponseJobPostDetailDto> getJobPost(@PathVariable UUID postId) {
+        ResponseJobPostDetailDto response = designerService.getJobDetail(postId);
         return ResponseEntity.ok(response);
     }
 
@@ -245,6 +242,7 @@ public class DesignerController {
         return ResponseEntity.ok(designerService.getProfileByEmail(designerEmail,requestUser)); // 성공적으로 로직이 수행될 경우 디자이너 프로필 정보 반환
 
     }
+
 
     //디자이너 예약일 가져오기
 //    @GetMapping("/reservation")

@@ -108,26 +108,37 @@ public class JobPost {
     }
 
     public void updateJobPost(JobPostRequestDto request) {
-        if (!request.getTitle().equals(this.title)) {
-            this.title = request.getTitle();  // title이 다르면 업데이트
+        if (request.getTitle() != null && !request.getTitle().isBlank()) {
+            this.title = request.getTitle();
         }
-        if (!request.getSalary().equals(this.salary) && !request.getSalary().isBlank()) {
-            this.salary = request.getSalary();  // salary가 다르면 업데이트
+        if (request.getSalary() != null && !request.getSalary().isBlank()) {
+            this.salary = request.getSalary();
         }
-        if (!request.getGender().equals(this.gender.toString())) {
-            this.gender = Gender.valueOf(request.getGender());  // gender가 다르면 업데이트
+        if (request.getGender() != null) {
+            try {
+                this.gender = Gender.valueOf(request.getGender()); // Enum 변환 시 예외 처리
+            } catch (IllegalArgumentException e) {
+                System.err.println("잘못된 Gender 값: " + request.getGender());
+            }
         }
-        if (!request.getWork().equals(this.work.toString())) {
-            this.work = Work.valueOf(request.getWork());  // work가 다르면 업데이트
+        if (request.getWork() != null) {
+            try {
+                this.work = Work.valueOf(request.getWork());
+            } catch (IllegalArgumentException e) {
+                System.err.println("잘못된 Work 값: " + request.getWork());
+            }
         }
-        if (!request.getWorkTime().equals(this.workTime.toString()) && !request.getWork().isBlank()) {
-            this.workTime = LocalTime.parse(request.getWorkTime(), DateTimeFormatter.ofPattern("HH:mm"));  // workTime이 다르면 업데이트
+        if (request.getWorkTime() != null) {
+            this.workTime = LocalTime.parse(request.getWorkTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getLeaveTime().equals(this.leaveTime.toString()) && !request.getLeaveTime().isBlank()) {
-            this.leaveTime = LocalTime.parse(request.getLeaveTime(), DateTimeFormatter.ofPattern("HH:mm"));  // leaveTime이 다르면 업데이트
+        if (request.getLeaveTime() != null) {
+            this.leaveTime = LocalTime.parse(request.getLeaveTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));
         }
-        if (!request.getContent().equals(this.content)) {
-            this.content = request.getContent();  // content가 다르면 업데이트
+
+        if (request.getContent() != null && !request.getContent().isBlank()) {
+            this.content = request.getContent();
         }
     }
+
+
 }

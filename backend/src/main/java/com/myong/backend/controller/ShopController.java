@@ -112,6 +112,16 @@ public class ShopController {
     }
 
     /**
+     * 쿠폰 삭제
+     */
+    @DeleteMapping("/coupon/delete")
+    public ResponseEntity<List<CouponResponseDto>> deleteCoupon() {
+        List<CouponResponseDto> deletedCoupons = shopService.deleteCoupon();
+        return ResponseEntity.ok(deletedCoupons); // 삭제된 쿠폰 목록 반환
+    }
+
+
+    /**
      * 등록한 쿠폰목록 조회
      */
     @GetMapping("/coupons")
@@ -438,7 +448,7 @@ public class ShopController {
      * 사업자 가게 매출 조회
      */
     @GetMapping("/sales")
-    public ResponseEntity<ShopSalesResponseDto> getShopSales(@RequestParam(name = "period") Period period) {
+    public ResponseEntity<ShopSalesResponseDto> getShopSales(@RequestParam Period period) {
         return ResponseEntity.ok(shopService.getShopSales(period));
     }
 
