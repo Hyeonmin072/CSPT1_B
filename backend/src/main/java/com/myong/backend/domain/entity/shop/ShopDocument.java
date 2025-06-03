@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 
@@ -47,6 +48,8 @@ public class ShopDocument {
     private Integer post;
 
 
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     public static ShopDocument from (Shop shop){
         return ShopDocument.builder()
                 .id(shop.getId().toString())
@@ -57,8 +60,8 @@ public class ShopDocument {
                 .thumbnail(shop.getThumbnail())
                 .rating(shop.getRating())
                 .reviewCount(shop.getReviewCount())
-                .openTime(shop.getOpenTime().toString())
-                .closeTime(shop.getCloseTime().toString())
+                .openTime(shop.getOpenTime() != null ?  shop.getOpenTime().format(TIME_FORMATTER) : null)
+                .closeTime(shop.getCloseTime() != null ? shop.getCloseTime().format(TIME_FORMATTER) : null)
                 .address(shop.getAddress())
                 .post(shop.getPost())
                 .build();
