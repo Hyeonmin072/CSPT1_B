@@ -490,6 +490,7 @@ public class UserService {
      * @param designerEmail
      * @return true , false
      */
+    @Transactional
     public boolean requestLikeForDesigner(String designerEmail){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -515,9 +516,11 @@ public class UserService {
                     .user(user)
             .build();
             userDesignerLikeRepository.save(userDesignerLike);
+            designer.updateLike(designer.getLike()+1);
             return true;
         }
         userDesignerLikeRepository.delete(findUserDesignerLike);
+        designer.updateLike(designer.getLike()-1);
         return false;
     }
 

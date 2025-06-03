@@ -148,6 +148,8 @@ public class Designer {
         this.score=score;
     }
 
+    public void updateLike(Integer like){this.like=like;}
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
