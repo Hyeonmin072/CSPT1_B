@@ -175,8 +175,9 @@ public class ShopController {
      * 사업자 메뉴 등록
      */
     @PostMapping("/menus")
-    public ResponseEntity<String> createMenu(@Valid @RequestBody MenuCreateRequestDto request) {
-        return ResponseEntity.ok(shopService.createMenu(request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+    public ResponseEntity<String> createMenu(@Validated @RequestPart(name = "request") MenuCreateRequestDto request,
+                                             @RequestPart(name = "image", required = false) MultipartFile image) {
+        return ResponseEntity.ok(shopService.createMenu(request, image)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**
@@ -200,8 +201,9 @@ public class ShopController {
      */
     @PatchMapping("/menus/{menuId}")
     public ResponseEntity<String> updateMenu(@PathVariable("menuId") String id,
-                                             @Validated @RequestBody MenuUpdateRequestDto request) {
-        return ResponseEntity.ok(shopService.updateMenu(id, request)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
+                                             @Validated @RequestPart(name = "request") MenuUpdateRequestDto request,
+                                             @RequestPart(name = "image", required = false) MultipartFile image) {
+        return ResponseEntity.ok(shopService.updateMenu(id, request, image)); // 성공적으로 로직이 수행될 경우 성공을 알리는 구문 반환
     }
 
     /**

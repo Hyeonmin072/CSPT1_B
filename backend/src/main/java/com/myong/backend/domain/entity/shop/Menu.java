@@ -62,7 +62,7 @@ public class Menu {
     private List<Reservation> reservations = new ArrayList<>();
 
     @Builder
-    public Menu(String name, String desc, Integer price, String estimatedTime, Shop shop, Designer designer, MenuCategory category) {
+    public Menu(String name, String desc, Integer price, String estimatedTime, Shop shop, Designer designer, MenuCategory category, String image) {
         this.name = name;
         this.desc = desc;
         this.price = price;
@@ -70,6 +70,7 @@ public class Menu {
         this.shop = shop;
         this.designer = designer;
         this.category = category;
+        this.image = image;
     }
 
 
@@ -90,7 +91,7 @@ public class Menu {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void edit(MenuUpdateRequestDto request) {
+    public void edit(MenuUpdateRequestDto request, String imageUrl) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }
@@ -105,6 +106,12 @@ public class Menu {
         }
         if (request.getCategory() != null && !request.getCategory().equals(this.category)) { // 카테고리
             this.category = request.getCategory();
+        }
+        if (!imageUrl.isEmpty() && !imageUrl.equals(this.image)) { // 이미지
+            this.image = imageUrl;
+        }
+        if (imageUrl.isEmpty()) { // 사용자가 메뉴 이미지를 삭제했을 경우
+            this.image = "";
         }
     }
 }
