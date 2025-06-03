@@ -147,6 +147,7 @@ public class DesignerController {
 
             String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
 
+
             Designer updatedesigner = designerService.updateProfile(designerEmail, request, updateImage, updateBackgroundImage);
             return ResponseEntity.ok(updatedesigner);
     }
@@ -191,20 +192,18 @@ public class DesignerController {
     public ResponseEntity<JobPostListResponseDto> getJobPostList(
             @RequestParam(defaultValue = "0") int page
     ){
-        JobPostListResponseDto response = designerService.getJopPostList(page);
+        JobPostListResponseDto response = designerService.getJobPostList(page);
 
         return ResponseEntity.ok(response);
     }
 
     //구인 포스터 상세페이지
-    @GetMapping("/job/post")
-    public ResponseEntity<ResponseJobPostDetailDto> getJobPost(
-            @RequestParam UUID id
-    ){
-        ResponseJobPostDetailDto response = designerService.getJobDetail(id);
-
+    @GetMapping("/job/post/{postId}")
+    public ResponseEntity<ResponseJobPostDetailDto> getJobPost(@PathVariable UUID postId) {
+        ResponseJobPostDetailDto response = designerService.getJobDetail(postId);
         return ResponseEntity.ok(response);
     }
+
 
     //디자이너 예약일 가져오기
 //    @GetMapping("/reservation")

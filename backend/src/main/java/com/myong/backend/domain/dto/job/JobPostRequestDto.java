@@ -2,6 +2,10 @@ package com.myong.backend.domain.dto.job;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * DTO for {@link com.myong.backend.domain.entity.shop.JobPost}
@@ -21,8 +25,8 @@ public class JobPostRequestDto {
     @NotBlank
     String work;
 
-    String workTime;
-    String leaveTime;
+    LocalTime workTime;
+    LocalTime leaveTime;
 
     @NotBlank
     String content;

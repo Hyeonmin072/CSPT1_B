@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-messaging/6.2.1/35335abbdd4b1a781e6ad47d6aaa2c294d62809f/spring-messaging-6.2.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-messaging/6.2.1/47407ec2251e769715ba334665c4a3e0352f1ba0/spring-messaging-6.2.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-websocket/6.2.1/bb261d54a16ee6ee29013b28f557bc1c83050656/spring-websocket-6.2.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework/spring-websocket/6.2.1/c27b73f238809b2f96256228b3155fda8f249d1d/spring-websocket-6.2.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

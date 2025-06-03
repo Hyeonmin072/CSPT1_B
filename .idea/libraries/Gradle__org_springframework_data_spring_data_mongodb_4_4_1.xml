@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-mongodb/4.4.1/2cd1faa1142449e1b0341f78428814a5012f2830/spring-data-mongodb-4.4.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-mongodb/4.4.1/4d473c13a2074d1ea236a5cd5e657dbd22307a8c/spring-data-mongodb-4.4.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

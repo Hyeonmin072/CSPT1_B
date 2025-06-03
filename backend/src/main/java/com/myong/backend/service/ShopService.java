@@ -50,6 +50,7 @@ import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -71,6 +72,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@EnableScheduling
 @RequiredArgsConstructor
 @Slf4j
 public class ShopService {
@@ -334,10 +336,25 @@ public class ShopService {
      * 사업자 쿠폰 마감 처리
      * 만료된 쿠폰 삭제
      */
-    @Scheduled(cron = "0 0 0 * * *")
-    public void deleteCoupon() {
-        couponRepository.deleteByExpireDateBefore(LocalDate.now()); // 쿠폰들 삭제
-        log.info("날짜가 지난 쿠폰 마감됨");// 로직 수행결과 반환
+    public List<CouponResponseDto> deleteCoupon() {
+        // 삭제하기 전에 만료된 쿠폰 목록 조회
+        List<Coupon> expiredCoupons = couponRepository.findByExpireDateBefore(LocalDate.now());
+
+        // 쿠폰 삭제 진행
+        couponRepository.deleteByExpireDateBefore(LocalDate.now());
+
+        // 삭제된 쿠폰을 DTO로 변환 후 반환
+        return expiredCoupons.stream()
+                .map(coupon -> new CouponResponseDto(
+                        coupon.getId().toString(), // UUID → String 변환
+                        coupon.getName(),
+                        coupon.getType().name(), // Enum(DiscountType) → String 변환
+                        coupon.getPrice(),
+                        coupon.getGetDate(),
+                        coupon.getUseDate()
+                ))
+                .collect(Collectors.toList());
+
     }
 
     /**
@@ -354,15 +371,17 @@ public class ShopService {
         // 가게 조회
         Shop shop = getShop(email);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
-        Event event = new Event( // 이벤트 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        Event event = new Event(
                 request.getName(),
                 request.getPrice(),
                 DiscountType.valueOf(request.getType()),
-                LocalDate.parse(request.getStartDate(), formatter), // YYYY-MM-DD 형식으로 저장
-                LocalDate.parse(request.getEndDate(), formatter), // YYYY-MM-DD 형식으로 저장
+                LocalDate.parse(request.getStartDate().toString(), formatter),
+                LocalDate.parse(request.getEndDate().toString(), formatter),
                 shop
         );
+
         eventRepository.save(event); // 이벤트 저장
 
         return "성공적으로 이벤트가 등록되었습니다."; // 로직 수행결과 반환
@@ -388,8 +407,8 @@ public class ShopService {
                     name(event.getName()).
                     price(event.getPrice()).
                     type(event.getType().toString()).
-                    startDate(event.getStartDate().toString()).
-                    endDate(event.getEndDate().toString()).
+                    startDate(LocalDate.parse(event.getStartDate().toString())).
+                    endDate(LocalDate.parse(event.getEndDate().toString())).
                     build();
             response.add(eventResponseDto);
         }
@@ -400,9 +419,10 @@ public class ShopService {
      * 사업자 이벤트 종료
      * 만료된 이벤트 삭제
      */
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void deleteEvent() {
-        eventRepository.deleteByEndDateBefore(LocalDate.now()); // 현재날짜보다 이전인 이벤트들 삭제
+        eventRepository.deleteByEndDateBefore(LocalDate.from(LocalDate.now().atStartOfDay())); // 현재날짜보다 이전인 이벤트들 삭제
         log.info("날짜가 지난 이벤트 종료됨");// 로직 수행결과 반환
     }
 
@@ -612,8 +632,8 @@ public class ShopService {
                 .title(request.getTitle())
                 .gender(Gender.valueOf(request.getGender()))
                 .work(Work.valueOf(request.getWork()))
-                .workTime(LocalTime.parse(request.getWorkTime(), formatter))
-                .leaveTime(LocalTime.parse(request.getWorkTime(), formatter))
+                .workTime(LocalTime.parse(request.getWorkTime().toString(), formatter))
+                .leaveTime(LocalTime.parse(request.getWorkTime().toString(), formatter))
                 .content(request.getContent())
                 .salary(request.getSalary())
                 .build();
@@ -646,8 +666,8 @@ public class ShopService {
                     salary(jobPost.getSalary()).
                     gender(jobPost.getGender().toString()).
                     work(jobPost.getWork().toString()).
-                    workTime(jobPost.getWorkTime().toString()).
-                    leaveTime(jobPost.getLeaveTime().toString())
+                    workTime(LocalTime.parse(jobPost.getWorkTime().toString())).
+                    leaveTime(LocalTime.parse(jobPost.getLeaveTime().toString()))
                     .build();
             response.add(jobPostResponseDto); // 구인글 목록 dto 반환
         }

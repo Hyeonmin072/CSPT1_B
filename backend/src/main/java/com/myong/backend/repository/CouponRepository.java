@@ -17,5 +17,7 @@ public interface CouponRepository extends JpaRepository<Coupon, UUID> {
 
     Optional<Coupon> findById(UUID uuid);
 
+
+    List<Coupon> findByExpireDateBefore(LocalDate expireDateBefore);
     void deleteByExpireDateBefore(LocalDate expireDateBefore);
 }

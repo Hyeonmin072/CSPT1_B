@@ -121,10 +121,10 @@ public class JobPost {
             this.work = Work.valueOf(request.getWork());  // work가 다르면 업데이트
         }
         if (!request.getWorkTime().equals(this.workTime.toString()) && !request.getWork().isBlank()) {
-            this.workTime = LocalTime.parse(request.getWorkTime(), DateTimeFormatter.ofPattern("HH:mm"));  // workTime이 다르면 업데이트
+            this.workTime = LocalTime.parse(request.getWorkTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));  // workTime이 다르면 업데이트
         }
-        if (!request.getLeaveTime().equals(this.leaveTime.toString()) && !request.getLeaveTime().isBlank()) {
-            this.leaveTime = LocalTime.parse(request.getLeaveTime(), DateTimeFormatter.ofPattern("HH:mm"));  // leaveTime이 다르면 업데이트
+        if (!request.getLeaveTime().equals(this.leaveTime.toString()) && !request.getLeaveTime().toString().isBlank()) {
+            this.leaveTime = LocalTime.parse(request.getLeaveTime().toString(), DateTimeFormatter.ofPattern("HH:mm"));  // leaveTime이 다르면 업데이트
         }
         if (!request.getContent().equals(this.content)) {
             this.content = request.getContent();  // content가 다르면 업데이트

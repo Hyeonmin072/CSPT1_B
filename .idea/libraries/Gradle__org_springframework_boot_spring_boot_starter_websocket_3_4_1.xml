@@ -5,6 +5,8 @@
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-websocket/3.4.1/88c26a89cce79ed23c782620238f6f222ebf4848/spring-boot-starter-websocket-3.4.1.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-starter-websocket/3.4.1/88c26a89cce79ed23c782620238f6f222ebf4848/spring-boot-starter-websocket-3.4.1-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

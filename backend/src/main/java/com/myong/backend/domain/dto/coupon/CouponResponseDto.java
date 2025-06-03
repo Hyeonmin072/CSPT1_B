@@ -2,30 +2,32 @@ package com.myong.backend.domain.dto.coupon;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.Builder;
-import lombok.Value;
 
 import java.time.LocalDate;
 
-@Value
+@Getter
 @Builder
+@AllArgsConstructor // ← 생성자 추가!
 public class CouponResponseDto {
 
     @NotBlank
-    String id;
+    private String id;
 
     @NotBlank
-    String name;
+    private String name;
 
     @NotBlank
-    String type;
+    private String type;
 
     @NotNull
-    Integer price;
+    private Integer price;
 
     @NotNull
-    LocalDate getDate; // 유저가 수령 가능한 날짜
+    private LocalDate getDate; // 유저가 수령 가능한 날짜
 
     @NotNull
-    Integer useDate; // 유저가 수령 후 사용 가능한 기간
+    private Integer useDate; // 유저가 수령 후 사용 가능한 기간
 }

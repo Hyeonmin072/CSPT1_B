@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Value;
 
+import java.time.LocalTime;
+
 @Value
 @Builder
 public class JobPostResponseDto {
@@ -24,6 +26,6 @@ public class JobPostResponseDto {
     @NotBlank
     String work; // 구인게시물 근무기간
 
-    String workTime; // 구인게시물 출근시간
-    String leaveTime; // 구인게시물 퇴근시간
+    LocalTime workTime; // 구인게시물 출근시간
+    LocalTime leaveTime; // 구인게시물 퇴근시간
 }
