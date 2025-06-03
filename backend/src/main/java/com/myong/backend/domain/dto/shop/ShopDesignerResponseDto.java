@@ -4,9 +4,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import lombok.Value;
+import lombok.Getter;
 
-@Value
+@Getter
 @Builder
 public class ShopDesignerResponseDto {
 
@@ -22,4 +22,6 @@ public class ShopDesignerResponseDto {
     
     @NotNull
     Integer like; // 디자이너 좋아요 개수
+
+    String image;
 }

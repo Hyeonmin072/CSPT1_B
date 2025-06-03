@@ -1,25 +1,15 @@
 package com.myong.backend.domain.dto.shop;
 
 import com.myong.backend.domain.entity.designer.RegularHoliday;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
 @Getter
+@NoArgsConstructor
 public class ShopDesignerUpdateRequestDto {
-
-    @NotBlank
-    @Email
-    String shopEmail; // 사업자 이메일
-
-    @NotBlank
-    @Email
-    String designerEmail; // 디자이너 이메일
-
-
     @NotNull
     LocalTime workTime; // 디자이너 정시 출근 시간
 

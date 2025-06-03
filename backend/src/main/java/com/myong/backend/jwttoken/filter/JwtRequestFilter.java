@@ -41,7 +41,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         System.out.println("요청 들어온 uri : "+uri);
         List<String> mustBeAuthenticatedEndpoints = Arrays.asList("/user/loadheader","/user/profile","/user/like-designerpage"
                 ,"/user/designerlike","/user/reservation","/user/location","/user/allcoupons","/user/review","/user/payment"
-                ,"/designer","/shop");
+                ,"/designer","/shop","/user/own-designerpage");
 
         List<String> allowEndpoints = Arrays.asList("/designer/signup","/designer/checkemail/","/designer/nickname",
                                                     "/email","/api/oauth2",
@@ -104,7 +104,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         response.addHeader("Set-Cookie", accessTokenCookie.toString());
                         filterChain.doFilter(request, response);
                     }
-                    filterChain.doFilter(request, response);
+                    System.out.println("리프레시 토큰도 없음");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("유효하지 않은 토큰입니다.");
                     return;
                 }
 

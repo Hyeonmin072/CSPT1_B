@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,5 +19,5 @@ public class ShopTop3ListData {
     private Integer shopReviewCount;
     private Double shopRating;
     private String shopThumbnail;
-
+    private List<String> shopBannerImages;
 }

@@ -8,16 +8,18 @@ import com.myong.backend.domain.dto.event.EventResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
+import com.myong.backend.domain.dto.menu.MenuCreateRequestDto;
 import com.myong.backend.domain.dto.menu.MenuDetailResponseDto;
-import com.myong.backend.domain.dto.menu.MenuRequestDto;
 import com.myong.backend.domain.dto.menu.MenuResponseDto;
+import com.myong.backend.domain.dto.menu.MenuUpdateRequestDto;
 import com.myong.backend.domain.dto.payment.DesignerLikeResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesDetailResponseDto;
 import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.payment.ShopSalesResponseDto;
 import com.myong.backend.domain.dto.reservation.request.ShopReservationRequestDto;
 import com.myong.backend.domain.dto.reservation.response.ShopReservationDetailResponseDto;
-import com.myong.backend.domain.dto.reservation.response.ShopReservationResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationJPAResponseDto;
+import com.myong.backend.domain.dto.reservation.response.ShopReservationMyBatisResponseDto;
 import com.myong.backend.domain.dto.shop.*;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.Period;
@@ -30,7 +32,6 @@ import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
 import com.myong.backend.domain.entity.user.User;
-import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.BlackList;
 import com.myong.backend.exception.ExistSameEmailException;
 import com.myong.backend.exception.NotEqualVerifyCodeException;
@@ -39,6 +40,7 @@ import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.mybatis.AttendanceMapper;
 import com.myong.backend.repository.mybatis.ReservationMapper;
+import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +89,6 @@ public class ShopService {
     private final DesignerRepository designerRepository;
     private final UserRepository userRepository;
     private final ReservationRepository reservationRepository;
-    private final ReviewRepository reviewRepository;
     private final KakaoMapApi kakaoMapApi;
     private final JobPostRepository jobPostRepository;
     private final BlackListRepository blackListRepository;
@@ -100,6 +101,7 @@ public class ShopService {
     private final NoticeRepository noticeRepository;
     private final SearchService searchService;
     private final FileUploadService fileUploadService;
+    private final EntityManager em;
 
 
     /**
@@ -203,7 +205,7 @@ public class ShopService {
                 Double.parseDouble(longitude),
                 Double.parseDouble(latitude)
         );
-        Shop signedShop = shopRepository.save(shop);
+        shopRepository.save(shop);
 
         // 엘라스틱 써치 도큐멘트 저장
         searchService.shopSave(shop);
@@ -253,7 +255,7 @@ public class ShopService {
         Long remainReservation = getReservationsToday(); // 오늘 남은 예약 인원
         Long monthSales = getShopSales(Period.ONE_MONTH).getTotalAmount(); // 이번 달 매출
         DesignerSalesResponseDto bestSalesDesigner = getBestSalesDesigner(); // 이번 달 매출 우수 디자이너
-        DesignerLikeResponseDto bestLikeDesinger = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
+        DesignerLikeResponseDto bestLikeDesigner = getBestLikeDesinger(); // 이번 달 좋아요 우수 디자이너
         Shop shop = getShop(getAuthenticatedEmail()); // 로그인한 가게 조회
         Double rating = shop.getRating(); // 리뷰평점
         int reviewCount = shop.getReviews().size(); // 리뷰개수
@@ -262,12 +264,15 @@ public class ShopService {
         return ShopMainResponseDto.builder()
                 .remainReservation(remainReservation)
                 .monthSales(monthSales)
-                .bestSalesdesignerEmail(bestSalesDesigner.getDesignerEmail())
-                .bestSalesdesignerName(bestSalesDesigner.getDesignerName())
-                .sales(bestSalesDesigner.getDesignerSales())
-                .bestLikedesignerEmail(bestLikeDesinger.getDesignerEmail())
-                .bestLikedesignerName(bestLikeDesinger.getDesignerName())
-                .IncreasedLikes(bestLikeDesinger.getIncreasedLikes())
+                .bestSalesDesignerEmail(bestSalesDesigner != null ? bestSalesDesigner.getDesignerEmail() : "")
+                .bestSalesDesignerName(bestSalesDesigner != null ? bestSalesDesigner.getDesignerName() : "")
+                .bestSalesDesignerImage(bestSalesDesigner != null ? bestSalesDesigner.getDesignerImage() : "")
+                .sales(bestSalesDesigner != null ? bestSalesDesigner.getDesignerSales() : 0L)
+                .bestLikedesignerEmail(bestLikeDesigner != null ? bestLikeDesigner.getDesignerEmail() : "")
+                .bestLikedesignerName(bestLikeDesigner != null ? bestLikeDesigner.getDesignerName() : "")
+                .bestLikedesignerImage(bestLikeDesigner != null ? bestLikeDesigner.getDesignerImage() : "")
+                .IncreasedLikes(bestLikeDesigner != null ? bestLikeDesigner.getIncreasedLikes() : 0L)
+                .shopName(shop.getName())
                 .rating(rating)
                 .reviewCount(reviewCount)
                 .build();
@@ -346,9 +351,9 @@ public class ShopService {
         // 삭제된 쿠폰을 DTO로 변환 후 반환
         return expiredCoupons.stream()
                 .map(coupon -> new CouponResponseDto(
-                        coupon.getId().toString(), // UUID → String 변환
+                        coupon.getId().toString(),
                         coupon.getName(),
-                        coupon.getType().name(), // Enum(DiscountType) → String 변환
+                        coupon.getType().name(),
                         coupon.getPrice(),
                         coupon.getGetDate(),
                         coupon.getUseDate()
@@ -437,21 +442,29 @@ public class ShopService {
         String email = getAuthenticatedEmail();
 
         Shop shop = getShop(email);
-        return ShopProfileResponseDto.builder().
-                name(shop.getName()).
-                address(shop.getAddress()).
-                post(shop.getPost()).
-                tel(shop.getTel()).
-                pwd(shop.getPwd()).
-                desc(shop.getDesc()).
-                open(shop.getOpenTime().toString()).
-                close(shop.getCloseTime().toString()).
-                regularHoliday(shop.getRegularHoliday()).
-                reservationNumber(shop.getUsers().size()).
-                reviewNumber(shop.getReviewCount()).
-                joinDate(shop.getCreateDate()).
-                rating(shop.getRating()).
-                build();
+
+        // 가게 배너 이미지들 조회
+        List<String> shopBannerImages = shop.getBanners().stream()
+                .map(ShopBanner::getImage)
+                .toList();
+
+        return ShopProfileResponseDto.builder()
+                .name(shop.getName())
+                .address(shop.getAddress())
+                .post(shop.getPost())
+                .tel(shop.getTel())
+                .pwd(shop.getPwd())
+                .desc(shop.getDesc())
+                .open(shop.getOpenTime().toString())
+                .close(shop.getCloseTime().toString())
+                .regularHoliday(shop.getRegularHoliday())
+                .reservationNumber(shop.getUsers().size())
+                .reviewNumber(shop.getReviewCount())
+                .joinDate(shop.getCreateDate())
+                .rating(shop.getRating())
+                .thumbnail(shop.getThumbnail())
+                .bannerImages(shopBannerImages)
+                .build();
     }
 
     /**
@@ -470,14 +483,16 @@ public class ShopService {
 
         // 썸네일 url S3저장 및 추출
         if(thumbnail != null){
-            thumbnailUrl = fileUploadService.uploadFile(thumbnail,"shop",email,"thumbnail");
+            String route = "shop" + "/" + email + "/" + "thumbnail" + "/";
+            thumbnailUrl = fileUploadService.uploadFile(thumbnail,route);
             fileUploadService.deleteFile(shop.getThumbnail());
         }
 
         // 배너 추가 저장
         if(banner != null){
             for(MultipartFile file : banner){
-                String bannerUrl = fileUploadService.uploadFile(file,"shop",email,"banner");
+                String route = "shop" + "/" + email + "/" + "banner" + "/";
+                String bannerUrl = fileUploadService.uploadFile(file,route);
                 shopBannerRepository.save(ShopBanner.save(bannerUrl,shop));
             }
         }
@@ -508,58 +523,51 @@ public class ShopService {
      * @param request 메뉴 등록 요청 정보가 담긴 DTO
      * @return 메뉴 등록 결과 메시지
      */
-    public String addMenu(@Valid MenuRequestDto request) {
-        // 인증정보에서 사업자 이메일 꺼내기
+    public String createMenu(@Valid MenuCreateRequestDto request) {
+        // 인증정보에서 사업자 이메일 꺼내고, 가게 조회
         String email = getAuthenticatedEmail();
-
+        
         Shop shop = getShop(email);
 
-        // 디자이너 이메일로 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        // 디자이너 당 메뉴 엔티티 개체 생성 후 저장
+        for (String designerEmail : request.getDesignerEmails()) {
+            Designer designer = getDesigner(designerEmail);
 
-        // 메뉴 엔티티 개체 생성 후 저장
-        Menu menu = Menu.builder()
-                .name(request.getName())
-                .desc(request.getDesc())
-                .price(request.getPrice())
-                .estimatedTime(request.getEstimatedTime())
-                .common(request.getCommon())
-                .shop(shop)
-                .designer(designer)
-                .category(request.getCategory())
-                .build();
+            Menu menu = Menu.builder()
+                    .name(request.getName())
+                    .desc(request.getDesc())
+                    .price(request.getPrice())
+                    .estimatedTime(request.getEstimatedTime())
+                    .shop(shop)
+                    .designer(designer)
+                    .category(request.getCategory())
+                    .build();
 
-        menuRepository.save(menu);
+            menuRepository.save(menu);
+        }
+
         return "성공적으로 메뉴가 등록되었습니다.";
     }
 
     /**
-     * 사업자 메뉴 목록 조회
-     * 로그인 인증 정보를 통해 등록된 메뉴 목록 반환
+     * 사업자 소속 디자이너의 메뉴 목록 조회
+     * 가게에 소속된 디자이너이 등록된 메뉴 목록을 반환
      *
      * @return 메뉴 목록
      */
-    public List<MenuResponseDto> getMenus() {
-        // 로그인 인증 정보에서 이메일 가져오기
-        String email = getAuthenticatedEmail();
-
-        Shop shop = shopRepository.findByEmail(email)
-                .orElseThrow(() ->  new NoSuchElementException("가게를 찾을 수 없습니다.")); // 가게 이메일로 가게 찾기
-
-
-        List<Menu> menus = menuRepository.findByShop(shop);// 가게의 메뉴 찾기
-        List<MenuResponseDto> response = new ArrayList<>(); // 메뉴 목록 리스트 생성
-        for (Menu menu : menus) { // 메뉴 목록에 메뉴 담기
-            MenuResponseDto menuResponseDto = MenuResponseDto.builder().
-                    id(menu.getId().toString()).
-                    name(menu.getName()).
-                    designerName(menu.getDesigner().getName()).
-                    price(menu.getPrice()).
-                    category(menu.getCategory())
-                    .build();
-            response.add(menuResponseDto);
-        }
-        return response; // 메뉴 목록 반환
+    public List<MenuResponseDto> getMenus(String designerEmail) {
+        Designer designer = getDesigner(designerEmail);
+        return designer.getMenus().stream()
+//                .map(m -> new MenuResponseDto(m.getId(), m.getName(), designer.getName(), m.getPrice(), m.getCategory()))
+                .map(m -> MenuResponseDto.builder()
+                        .id(m.getId())
+                        .name(m.getName())
+                        .designerName(designer.getName())
+                        .price(m.getPrice())
+                        .category(m.getCategory())
+                        .image(m.getImage())
+                        .build())
+                .toList();
     }
 
     /**
@@ -581,6 +589,7 @@ public class ShopService {
                 .desc(menu.getDesc())
                 .image(menu.getImage())
                 .category(menu.getCategory())
+                .estimateTime(menu.getEstimatedTime())
                 .build();
     }
 
@@ -588,14 +597,15 @@ public class ShopService {
      * 사업자 메뉴 수정
      * 기존 메뉴 정보 수정
      *
+     * @param id 수정할 메뉴의 고유 키
      * @param request 메뉴 수정 요청 정보가 담긴 DTO
      * @return 메뉴 수정 결과 메시지
      */
-    public String updateMenu(@Valid MenuRequestDto request) {
-        Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
+    public String updateMenu(String id, MenuUpdateRequestDto request) {
+        Menu menu = menuRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
         menu.edit(request); // 편의 메서드로 메뉴 정보 수정
-
+        
         return "성공적으로 메뉴가 수정되었습니다."; // 성공 구문 반환
     }
 
@@ -603,12 +613,23 @@ public class ShopService {
      * 사업자 메뉴 삭제
      * 메뉴 정보 삭제
      *
-     * @param request 메뉴 삭제 요청 정보가 담긴 DTO
+     * @param menuId 메뉴 삭제 요청 정보가 담긴 DTO
      * @return 메뉴 삭제 결과 메시지
      */
-    public String deleteMenu(@Valid MenuRequestDto request) {
-        Menu menu = menuRepository.findById(UUID.fromString(request.getId()))
+    public String deleteMenu(String menuId) {
+        Menu menu = menuRepository.findById(UUID.fromString(menuId))
                 .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
+
+        // 현재 삭제할 메뉴로 시술 대기중인 건이 있을 경우 삭제 방지
+        List<Reservation> remainReservations = menu.getReservations().stream()
+                .filter(r -> r.getServiceDate().isAfter(LocalDateTime.now()))
+                .toList();
+
+        if (!remainReservations.isEmpty()) throw new IllegalStateException("현재 해당 메뉴로 시술 대기중인 고객님이 있습니다.");
+
+        // 예약들의 메뉴를 null로 변경
+        menu.getReservations().forEach(Reservation::deleteMenu);
+
         menuRepository.delete(menu); // 메뉴 삭제
         return "성공적으로 메뉴가 삭제되었습니다."; // 성공 구문 반환
     }
@@ -657,7 +678,6 @@ public class ShopService {
         List<JobPost> jobPosts = jobPostRepository.findByShop(shop.getId());// 가게의 고유 키를 통해 가져온 구인글 목록 반환
 
         List<JobPostResponseDto> response = new ArrayList<>(); // 구인글 목록 리스트 생성
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMdd"); // 날짜 포매터 만들기
         for (JobPost jobPost : jobPosts) { // 구인글 목록에 구인글 목록 담기
             JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder().
                     shopName(jobPost.getShop().getName()).
@@ -701,11 +721,12 @@ public class ShopService {
      * 사업자 구인글 수정
      * 기존 구인글 정보 수정
      *
+     * @param id 수정할 구인글의 고유 키
      * @param request 구인글 수정 요청 정보가 담긴 DTO
      * @return 구인글 수정 결과 메시지
      */
-    public String updateJobPost(JobPostRequestDto request) {// 가게 찾기
-        JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
+    public String updateJobPost(String id, JobPostRequestDto request) {// 가게 찾기
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPost.updateJobPost(request); // 구인글 수정 편의 메서드를 통해 수정
         return "성공적으로 구인글이 수정되었습니다."; // 성공 구문 반환
@@ -715,11 +736,11 @@ public class ShopService {
      * 사업자 구인글 삭제
      * 구인글 정보 삭제
      *
-     * @param request 구인글 삭제 요청 정보가 담긴 DTO
+     * @param id 삭제할 구인글의 고유 키
      * @return 구인글 삭제 결과 메시지
      */
-    public String deleteJobPost(JobPostRequestDto request) {
-        JobPost jobPost = jobPostRepository.findById(UUID.fromString(request.getId()))
+    public String deleteJobPost(String id) {
+        JobPost jobPost = jobPostRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new NoSuchElementException("해당 구인글을 찾을 수 없습니다.")); // 구인글 아이디로 구인글 찾기
         jobPostRepository.delete(jobPost); // 구인글 삭제
         return "성공적으로 구인글이 마감되었습니다."; // 성공 구문 반환
@@ -751,19 +772,18 @@ public class ShopService {
                 .build();
         designerRegularHolidayRepository.save(designerRegularHoliday);
 
-        // 디자이너의 location, longitude, latitude를 가입된 가게의 것으로 변경
-        designer.changeLocationInfo();
-
+        // 디자이너의 위치정보를 가입된 가게의 것으로 변경
+        designer.changeLocationByJoin(shop.getAddress(), shop.getLongitude(), shop.getLatitude());
 
         return "성공적으로 디자이너가 추가되었습니다.";
     }
 
     /**
-     * 사업자 추가할 디자이너 정보조회
+     * 사업자 추가할 디자이너 정보 조회
      */
-    public ShopDesignerDetailResponseDto searchDesigner(ShopDesignerRequestDto request) {
+    public ShopDesignerDetailResponseDto searchDesigner(String designerEmail) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 디자이너 상세정보를 dto에 담아 반환
         return ShopDesignerDetailResponseDto.builder()
@@ -779,12 +799,13 @@ public class ShopService {
      * 사업자 소속 디자이너의 휴일 추가
      * 디자이너 휴일 정보 저장
      *
+     * @param designerEmail 휴일을 추가할 디자이너의 이메일
      * @param request 디자이너 휴일 추가 요청 정보가 담긴 DTO
      * @return 디자이너 휴일 추가 결과 메시지
      */
-    public String createDesignerHoliday(ShopDesignerHolidayRequestDto request) {
+    public String createDesignerHoliday(String designerEmail, ShopDesignerHolidayRequestDto request) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 디자이너 휴무일 생성 후 저장
         DesignerHoliday designerHoliday = DesignerHoliday.builder()
@@ -816,6 +837,7 @@ public class ShopService {
                     .name(designer.getName())
                     .like(designer.getLike())
                     .gender(designer.getGender().toString())
+                    .image(designer.getImage())
                     .build();
             dtos.add(dto);
         }
@@ -826,12 +848,12 @@ public class ShopService {
      * 사업자 소속 디자이너 상세 조회
      * 특정 디자이너의 상세 정보 반환
      *
-     * @param request 디자이너 상세 조회 요청 정보가 담긴 DTO
+     * @param designerEmail 조회할 디자이너의 이메일
      * @return 디자이너 상세 정보
      */
-    public ShopDesignerDetailResponseDto getDesignerDetail(ShopDesignerRequestDto request) {
+    public ShopDesignerDetailResponseDto getDesignerDetail(String designerEmail) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 디자이너 정기 휴무일 찾기
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
@@ -842,7 +864,7 @@ public class ShopService {
                 .name(designer.getName())
                 .gender(designer.getGender().toString())
                 .like(designer.getLike())
-                .email(request.getDesignerEmail())
+                .email(designerEmail)
                 .workTime(designer.getWorkTime())
                 .leaveTime(designer.getLeaveTime())
                 .regularHoliday(designerRegularHoliday.getDay())
@@ -853,12 +875,13 @@ public class ShopService {
      * 사업자 소속 디자이너 수정
      * 디자이너 정보 및 정기 휴무일 수정
      *
+     * @param designerEmail 수정할 디자이너의 이메일
      * @param request 디자이너 수정 요청 정보가 담긴 DTO
      * @return 디자이너 수정 결과 메시지
      */
-    public String updateDesigner(ShopDesignerUpdateRequestDto request) {
+    public String updateDesigner(String designerEmail, ShopDesignerUpdateRequestDto request) {
         // 디자이너 찾기
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         DesignerRegularHoliday designerRegularHoliday = designerRegularHolidayRepository.findByDesigner(designer)
                 .orElseThrow(() -> new NoSuchElementException("해당 디자이너의 정기 휴무일 정보를 찾을 수 없습니다."));// 디자이너 정기 휴무일 찾기
@@ -873,12 +896,12 @@ public class ShopService {
      * 사업자 소속 디자이너 해고
      * 디자이너 소속 해제 및 관련 정보 삭제
      *
-     * @param request 디자이너 삭제 요청 정보가 담긴 DTO
+     * @param designerEmail 삭제할 디자이너의 이메일
      * @return 디자이너 삭제 결과 메시지
      */
-    public String deleteDesigner(ShopDesignerRequestDto request) {
+    public String fireDesigner(String designerEmail) {
         // 디자이너 조회
-        Designer designer = getDesigner(request.getDesignerEmail());
+        Designer designer = getDesigner(designerEmail);
 
         // 인증정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
@@ -893,6 +916,24 @@ public class ShopService {
         designerRegularHolidayRepository.deleteByDesigner(designer);
         designerHolidayRepository.deleteByDesigner(designer);
         attendanceRepository.deleteByDesigner(designer);
+
+        // 디자이너의 위치정보를 초기화
+        designer.changeLocationByFire();
+
+        // 디자이너의 모든 메뉴를 조회
+        List<Menu> menus = menuRepository.findByDesigner(designer);
+
+        // 각 메뉴들을 참조중인 예약의 메뉴를 null로 설정
+        reservationRepository.nullifyMenuInReservations(menus);
+
+        // 벌크성 쿼리 -> 영속성 컨텍스트를 무시하고 바로 DB에 반영 -> 영속성 컨텍스트는 자신이 모르는 외부 SQL 변경 결과를 알 수 없음
+        // 위와 같은 이유로 아래 삭제 로직 시 영속성 컨텍스트 기준이므로 외래 키 제약 위반이 발생 가능 -> clear로 1차 캐시 정리한 후 다시 조회
+        em.clear();
+        menus = menuRepository.findByDesigner(designer);
+
+
+        // 디자이너의 모든 메뉴를 삭제(방금 null 처리된 예약 정보와 충돌 없이 삭제 가능)
+        menuRepository.deleteAll(menus);
 
         // 성공 구문 반환
         return "성공적으로 디자이너가 삭제되었습니다.";
@@ -916,8 +957,8 @@ public class ShopService {
         User user = getUser(request.getUserEmail());
 
         // 이미 블랙리스트에 등록되었는지 검증
-        blackListRepository.findByShopAndUser(shop,user)
-                .orElseThrow(() -> new RuntimeException("이미 블랙리스트에 추가된 유저입니다."));
+        Optional<BlackList> findResult = blackListRepository.findByShopAndUser(shop, user);
+        if (findResult.isPresent()) throw new RuntimeException("이미 블랙리스트에 추가된 유저입니다.");
 
         // 등록되지 않았을 경우 -> 블랙리스트 개체 생성 후 저장
         BlackList blackList = BlackList.builder()
@@ -952,6 +993,7 @@ public class ShopService {
         List<BlackListResponseDto> dtos = new ArrayList<>();
         for (BlackList blackList : blackLists) {
             BlackListResponseDto dto = BlackListResponseDto.builder()
+                    .blackListId(blackList.getId())
                     .reason(blackList.getReason())
                     .userName(blackList.getUser().getName())
                     .userEmail(blackList.getUser().getEmail())
@@ -982,6 +1024,7 @@ public class ShopService {
 
         // 가져온 블랙리스트들을 각각 담은 뒤 DTO 리스트로 반환
         return BlackListResponseDto.builder()
+                .blackListId(blackList.getId())
                 .reason(blackList.getReason())
                 .userName(blackList.getUser().getName())
                 .userEmail(blackList.getUser().getEmail())
@@ -993,11 +1036,11 @@ public class ShopService {
      * 사업자 블랙리스트 삭제
      * 블랙리스트에서 특정 사용자 정보 삭제
      *
-     * @param requests 블랙리스트 삭제 요청 정보가 담긴 DTO 리스트
+     * @param userEmails 블랙리스트 삭제 요청 정보가 담긴 이메일 리스트
      * @return 블랙리스트 삭제 결과 메시지
      */
-    public String deleteBlackList(List<BlackListRequestDto> requests) {
-        for (BlackListRequestDto request : requests) {
+    public String deleteBlackList(List<String> userEmails) {
+        for (String userEmail : userEmails) {
             // 인증 정보에서 사업자 이메일 꺼내기
             String email = getAuthenticatedEmail();
 
@@ -1005,7 +1048,7 @@ public class ShopService {
             Shop shop = getShop(email);
 
             // 유저 조회
-            User user = getUser(request.getUserEmail());
+            User user = getUser(userEmail);
 
             // 찾은 가게와 유저를 통해 해당 블랙리스트 개체 찾기
             BlackList blackList = blackListRepository.findByShopAndUser(shop, user)
@@ -1026,7 +1069,7 @@ public class ShopService {
      * @param request 예약 조회 요청 정보가 담긴 DTO
      * @return 예약 목록
      */
-    public List<ShopReservationResponseDto> getReservations(ShopReservationRequestDto request) {
+    public List<ShopReservationMyBatisResponseDto> getReservations(ShopReservationRequestDto request) {
         // 인증 정보에서 사업자 이메일 꺼내기
         String email = getAuthenticatedEmail();
 
@@ -1047,6 +1090,21 @@ public class ShopService {
         // 예약 상세 조회 결과 반환
         return reservationRepository.findDetailById(reservationId)
                 .orElseThrow(() -> new NoSuchElementException("해당 예약을 찾을 수 없습니다."));
+    }
+
+    /**
+     * 지난 7일 간의 예약 조회 (블랙리스트 추가를 위한 조회 시 사용)
+     * @return 최근 7일 간의 예약 목록
+     */
+    public List<ShopReservationJPAResponseDto> getLastSevenDaysReservation() {
+        // 인증 정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        // 가게 찾기
+        Shop shop = getShop(email);
+
+        LocalDateTime startDate = LocalDateTime.now().minusDays(7);
+        return reservationRepository.findLastSevenDays(startDate, shop);
     }
 
     /**
@@ -1309,7 +1367,13 @@ public class ShopService {
 
         // DTO 반환
         return groupingSales.entrySet().stream()
-                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue()))
+//                .map(e -> new DesignerSalesResponseDto(e.getKey().getName(), e.getKey().getEmail(), e.getValue(), e.getKey().getImage()))
+                .map(e -> DesignerSalesResponseDto.builder()
+                        .designerName(e.getKey().getName())
+                        .designerEmail(e.getKey().getEmail())
+                        .designerSales(e.getValue())
+                        .designerImage(e.getKey().getImage())
+                        .build())
                 .toList();
     }
 
@@ -1361,7 +1425,13 @@ public class ShopService {
 
         return filteredPayments.stream()
                 .filter(p -> p.getCreateDate().toLocalDate().equals(LocalDate.of(year, month, day)))
-                .map(p -> new DesignerSalesDetailResponseDto(p.getCreateDate(), p.getReservMenuName(), p.getPrice(), p.getUser().getName()))
+                .map( p -> DesignerSalesDetailResponseDto.builder()
+                        .paymentTime(p.getCreateDate())
+                        .menuName(p.getReservMenuName())
+                        .sales(p.getPrice())
+                        .userName(p.getUser().getName())
+                        .shopName(p.getShop().getName())
+                        .build())
                 .toList();
     }
 
@@ -1392,8 +1462,18 @@ public class ShopService {
                 .collect(Collectors.groupingBy(Payment::getDesigner, Collectors.summingLong(Payment::getPrice)))
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
-                .map(entry -> new DesignerSalesResponseDto(entry.getKey().getName(), entry.getKey().getEmail(), entry.getValue()))
-                .orElse(new DesignerSalesResponseDto("","", 0L));
+                .map(entry -> DesignerSalesResponseDto.builder()
+                        .designerName(entry.getKey().getName())
+                        .designerEmail(entry.getKey().getEmail())
+                        .designerSales(entry.getValue())
+                        .designerImage(entry.getKey().getImage())
+                        .build())
+                .orElse(DesignerSalesResponseDto.builder()
+                        .designerName("")
+                        .designerEmail("")
+                        .designerSales(0L)
+                        .designerImage("")
+                        .build());
     }
 
     /**
@@ -1403,7 +1483,6 @@ public class ShopService {
     public DesignerLikeResponseDto getBestLikeDesinger() {
         Shop shop = getShop(getAuthenticatedEmail());
         List<Designer> designers = shop.getDesigners();
-        List<UserDesignerLike> designerLikes = new ArrayList<>();
 
         LocalDate startOfMonth = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
 
@@ -1412,7 +1491,7 @@ public class ShopService {
                     long likeCountThisMonth = designer.getUserDesignerLikes().stream() // 디자이너 별 좋아요로 스트림
                             .filter(like -> like.getCreatedDate().isAfter(startOfMonth.minusDays(1))) // 이번 달의 좋아요한 날짜를 필터링
                             .count(); // 필터링한 좋아요 개수 계산
-                    return new DesignerLikeResponseDto(designer.getName(), designer.getEmail(), likeCountThisMonth); // -> DTO
+                    return new DesignerLikeResponseDto(designer.getName(), designer.getEmail(), likeCountThisMonth, designer.getImage()); // -> DTO
                 })
                 .max(Comparator.comparingLong(DesignerLikeResponseDto::getIncreasedLikes)) // 가장 많이 증가한 디자이너 찾기
                 .orElse(null);

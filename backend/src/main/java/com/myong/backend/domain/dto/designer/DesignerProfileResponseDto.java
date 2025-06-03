@@ -4,7 +4,6 @@ package com.myong.backend.domain.dto.designer;
 
 import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.entity.Gender;
-import com.myong.backend.domain.entity.usershop.Review;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProfileResponseDto {
+public class DesignerProfileResponseDto {
     String name;
 
     String email;
@@ -33,7 +32,9 @@ public class ProfileResponseDto {
 
     int age;
 
-    int like;
+    int likeCnt;
+
+    boolean isLike;
 
     String shopName;
 

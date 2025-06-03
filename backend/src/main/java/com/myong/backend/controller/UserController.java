@@ -1,6 +1,11 @@
 package com.myong.backend.controller;
 
 
+import com.myong.backend.domain.dto.chatting.request.ChattingRequestDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.payment.PaymentFailDto;
 import com.myong.backend.domain.dto.payment.PaymentHistoryDto;
 import com.myong.backend.domain.dto.payment.PaymentSuccessDto;
@@ -16,10 +21,7 @@ import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
-import com.myong.backend.service.ReservationService;
-import com.myong.backend.service.ReviewService;
-import com.myong.backend.service.SearchService;
-import com.myong.backend.service.UserService;
+import com.myong.backend.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -28,11 +30,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -45,6 +49,7 @@ public class UserController {
     private final ReservationService reservationService;
     private final ReviewService reviewService;
     private final SearchService searchService;
+    private final DesignerService designerService;
 
     // 회원가입
     @PostMapping("/signup")
@@ -129,6 +134,13 @@ public class UserController {
     // 디자이너 카테고리 시작 =============================================================
 
     /**
+     *  나만의 디자이너 찾기
+     */
+    @GetMapping("/own-designerpage")
+    public ResponseEntity<List<UserOwnDesignerPageResponseDto>> loadOwnDesignerPage(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadOwnDesignerPage(user));
+    }
+    /**
      *  좋아요 누른 디자이너 페이지
      */
     @GetMapping("/like-designerpage")
@@ -142,6 +154,14 @@ public class UserController {
     @GetMapping("/designerpage")
     public ResponseEntity<DesignerPageResponseDto> loadDesignerPage(@AuthenticationPrincipal UserDetailsDto user){
         return ResponseEntity.ok(userService.loadDesignerPage(user));
+    }
+
+    /**
+     *   디자이너 리뷰 이미지 요청
+     */
+    @GetMapping("/{designeremail}/review-images")
+    public ResponseEntity<List<DesignerReviewImageResponseDto>> getDesignerReviewImage(@PathVariable(name = "designeremail")String email){
+        return ResponseEntity.ok(designerService.getDesignerReviewImage(email));
     }
 
     /**
@@ -202,7 +222,9 @@ public class UserController {
      * 결제 인증 성공 시 -> 예약 생성
      */
     @GetMapping("/payment/success")
-    public ResponseEntity<PaymentSuccessDto> tossPaymentSuccess(@RequestParam String paymentKey, @RequestParam("orderId") String paymentId, @RequestParam Long amount) {
+    public ResponseEntity<PaymentSuccessDto> tossPaymentSuccess(@RequestParam("paymentKey") String paymentKey,
+                                                                @RequestParam("orderId") String paymentId,
+                                                                @RequestParam("amount") Long amount) {
             return ResponseEntity.ok(reservationService.tossPaymentSuccess(paymentKey, paymentId, amount));
     }
 
@@ -276,6 +298,41 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserLocation());
     }
 
+    // 위치 끝 ===============================================================
+
+    //  유저 채팅방 시작 =====================================================
+
+    /**
+     *  채팅방 생성
+     */
+    @PostMapping("/chatroom/request")
+    public ResponseEntity<ChattingResponseDto> requestChatting(@RequestBody ChattingRequestDto request, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.requestChatting(request,user));
+    }
+
+    /**
+     *  나의 채팅방 조회
+     */
+    @GetMapping("/chatroom")
+    public ResponseEntity<List<ChatRoomResponseDto>> loadChatRoom(@AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadChatRoom(user));
+    }
+
+    /**
+     *  채팅방 입장
+     */
+    @PostMapping("/chatroom/join/{chatRoomId}")
+    public ResponseEntity<List<ChatRoomMessageResponseDto>> loadChatRoomMessages(@PathVariable(name = "chatRoomId")UUID chatRoomId, @AuthenticationPrincipal UserDetailsDto user){
+        return ResponseEntity.ok(userService.loadChatRoomMessages(chatRoomId,user));
+    }
+
+    /**
+     *  채팅방 입장시 유저 정보 로드
+     */
+    @PostMapping("/info")
+    public ResponseEntity<ChatUserInfoResponseDto> loadUserInfo(@AuthenticationPrincipal UserDetailsDto requestUser){
+        return ResponseEntity.ok(userService.loadUserInfo(requestUser));
+    }
 
 
 }

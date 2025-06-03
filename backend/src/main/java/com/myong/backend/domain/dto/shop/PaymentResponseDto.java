@@ -11,10 +11,7 @@ import java.util.UUID;
  * 하기 위해 필요한 값들을 포함해 PaymentResponseDto로 반환
  */
 @Getter
-@Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 public class PaymentResponseDto {
 
     private Long price; // 가격

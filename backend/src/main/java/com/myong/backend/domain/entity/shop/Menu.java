@@ -1,14 +1,16 @@
 package com.myong.backend.domain.entity.shop;
 
-import com.myong.backend.domain.dto.menu.MenuRequestDto;
+import com.myong.backend.domain.dto.menu.MenuUpdateRequestDto;
+import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -37,9 +39,6 @@ public class Menu {
     @Column(name = "m_estimated_time")
     private String estimatedTime = ""; // 소요시간
 
-    @Column(name = "m_common", nullable = false)
-    private String common; // 공통여부
-
     @Column(name = "m_category", nullable = false)
     @Enumerated(EnumType.STRING)
     private MenuCategory category = MenuCategory.NONE; // 메뉴 카테고리
@@ -59,13 +58,15 @@ public class Menu {
     @JoinColumn(name = "e_id", nullable = true)
     private Event event;
 
+    @OneToMany(mappedBy = "menu")
+    private List<Reservation> reservations = new ArrayList<>();
+
     @Builder
-    public Menu(String name, String desc, Integer price, String estimatedTime, String common, Shop shop, Designer designer, MenuCategory category) {
+    public Menu(String name, String desc, Integer price, String estimatedTime, Shop shop, Designer designer, MenuCategory category) {
         this.name = name;
         this.desc = desc;
         this.price = price;
         this.estimatedTime = estimatedTime;
-        this.common = common;
         this.shop = shop;
         this.designer = designer;
         this.category = category;
@@ -89,23 +90,20 @@ public class Menu {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
-    public void edit(@Valid MenuRequestDto request) {
+    public void edit(MenuUpdateRequestDto request) {
         if (!request.getName().equals(this.name)) { // 이름
             this.name = request.getName();
         }
         if (!request.getDesc().equals(this.desc)) { // 설명
             this.desc = request.getDesc();
         }
-        if (!request.getCommon().equals(this.common)) { // 공통여부
-            this.common = request.getCommon();
-        }
         if (!request.getPrice().equals(this.price) && request.getPrice() > 0) { // 금액
             this.price = request.getPrice();
         }
-        if (!request.getEstimatedTime().equals(this.estimatedTime) && !request.getEstimatedTime().isBlank()) { // 소요시간
+        if (request.getEstimatedTime() != null && !request.getEstimatedTime().equals(this.estimatedTime)) { // 소요시간
             this.estimatedTime = request.getEstimatedTime();
         }
-        if (!request.getCategory().equals(this.category) && request.getCategory() != null) { // 소요시간
+        if (request.getCategory() != null && !request.getCategory().equals(this.category)) { // 카테고리
             this.category = request.getCategory();
         }
     }

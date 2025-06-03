@@ -40,9 +40,6 @@ public class Event {
     @JoinColumn(name = "s_id", nullable = false)
     private Shop shop; // 가게 고유 키
 
-    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL)
-    private Menu menu;
-
     @Builder
     public Event(String name, Integer price, DiscountType type, LocalDate startDate, LocalDate endDate, Shop shop) {
         this.name = name;

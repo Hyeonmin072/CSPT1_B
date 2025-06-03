@@ -1,13 +1,23 @@
 package com.myong.backend.service;
 
+import com.myong.backend.domain.dto.chatting.response.ChatRoomMessageResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
+import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.designer.data.ReviewData;
+import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
+import com.myong.backend.domain.entity.chatting.ChatRoom;
+import com.myong.backend.domain.entity.chatting.Message;
+import com.myong.backend.domain.entity.chatting.SenderType;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.JobPost;
 import com.myong.backend.domain.entity.shop.Shop;
+import com.myong.backend.domain.entity.user.User;
+import com.myong.backend.exception.ResourceNotFoundException;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import com.myong.backend.repository.ReviewRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,6 +61,11 @@ public class DesignerService {
     private final FileUploadService fileUploadService;
     private final SearchService searchService;
     private final JobPostRepository jobPostRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final MessageRepository messageRepository;
+    private final ChattingOnlineService chattingOnlineService;
+    private final UserDesignerLikeRepository userDesignerLikeRepository;
+    private final UserRepository userRepository;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -87,7 +102,7 @@ public class DesignerService {
     }
 
     //프로필 가져오기
-    public ProfileResponseDto getProfile(String email) {
+    public DesignerProfileResponseDto getProfile(String email) {
         Designer designer = designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다"));
 
@@ -101,7 +116,7 @@ public class DesignerService {
         int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
         int age = currentYear - birth;
 
-        return ProfileResponseDto.builder()
+        return DesignerProfileResponseDto.builder()
                 .name(designer.getName())
                 .nickName(designer.getNickName())
                 .email(designer.getEmail())
@@ -110,7 +125,7 @@ public class DesignerService {
                 .gender(designer.getGender())
                 .reviews(reviews)
                 .shopName(shopName)
-                .like(designer.getLike())
+                .likeCnt(designer.getLike())
                 .description(designer.getDesc())
                 .image(designer.getImage())
                 .backgroundImage(designer.getBackgroundImage())
@@ -179,8 +194,9 @@ public class DesignerService {
         //이미지 변경
         if (updateImage != null) {
 
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getImage() != null){
                 fileUploadService.deleteFile(designer.getImage());
@@ -192,9 +208,9 @@ public class DesignerService {
         //백그라운드이미지 변경
         if (updateBackgroundImage != null) {
 
-
+            String route = "designer" + "/" + designer.getEmail() + "/" +"profile" + "/";
             // S3에 저장하고 저장된 url 반환
-            String url = fileUploadService.uploadFile(updateBackgroundImage,"designer",designer.getEmail(),"profile");
+            String url = fileUploadService.uploadFile(updateBackgroundImage,route);
             // 기존 이미지가 있다면 삭제
             if(designer.getBackgroundImage() != null){
                 fileUploadService.deleteFile(designer.getBackgroundImage());
@@ -341,6 +357,16 @@ public class DesignerService {
 
     }
 
+    /**
+     * 디자이너 리뷰 이미지 불러오기
+     *
+     * @param
+     * @return 이미지 리스트
+     */
+    public List<DesignerReviewImageResponseDto> getDesignerReviewImage(String email){
+        Designer designer = designerRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return reviewRepository.findReviewImages(designer,PageRequest.of(0,10));
+    }
 
 
     //이메일 중복검사 매서드
@@ -376,6 +402,64 @@ public class DesignerService {
                 .build();
     }
 
+    /**
+     * 채팅방 로드
+     *
+     * @param requestUser;
+     * @return ChatRoomResponseDto :: chatRoomId, lastMessage, sendDate, unreadCount
+     */
+    public List<ChatRoomResponseDto> loadChatRoom(UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        List<ChatRoom> chatRooms = chatRoomRepository.findAllByDesigner(designer);
+
+        // 안읽은 메세지 갯수 포함
+        return chatRooms.stream().map(chatRoom -> {
+            int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,designer.getEmail(),SenderType.DESIGNER);
+            return ChatRoomResponseDto.from(chatRoom, unreadCount);
+        }).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 채팅방 입장
+     * 채팅방 입장시 메세지 로드
+     * 채팅방 입장시 레디스에 온라인 유저 저장
+     *
+     * @param chatRoomId;
+     * @return ChatRoomMessageResponseDto :: content, fileUrls, sendDate, sender
+     */
+    @Transactional
+    public List<ChatRoomMessageResponseDto> loadChatRoomMessages (UUID chatRoomId, UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("해당 채팅룸을 찾지 못했습니다."));
+
+        // 1주일 전 최근 메세지들 가져오기
+        LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+        List<Message> messages = messageRepository.findRecentMessages(chatRoomId,oneWeekAgo);
+
+//        // 메세지 읽음 처리 로직
+//        for(Message message : messages){
+//            if(!message.isRead() && ( !message.getSenderEmail().equals(designer.getEmail()) || message.getSenderType() != SenderType.DESIGNER) ){
+//                message.markAsRead();
+//            }
+//        }
+
+        // 채팅방에 관하여 온라인 상태
+        chattingOnlineService.addUserToChatRoom(chatRoomId,designer.getEmail(),"_DESIGNER");
+
+        return messages.stream().map(ChatRoomMessageResponseDto::from).toList();
+    }
+
+    /**
+     *  채팅방 유저정보 로딩
+     * @param requestUser;
+     * @return String email, String userType;
+     */
+    public ChatUserInfoResponseDto loadUserInfo(UserDetailsDto requestUser){
+        Designer designer = designerRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
+        return new ChatUserInfoResponseDto(designer.getEmail(),"DESIGNER");
+    }
+
     // 시간 구하기(ex:몇 분전, 몇 시간전, 몇 일전) 매서드
     public static String getTimeAgo(LocalDateTime time){
         LocalDateTime now = LocalDateTime.now();
@@ -401,4 +485,32 @@ public class DesignerService {
         }
     }
 
+    public DesignerProfileResponseDto getProfileByEmail(String designerEmail,UserDetailsDto requestUser) {
+        Designer designer = designerRepository.findByEmail(designerEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾을 수 없습니다."));
+
+        List<ReviewData> reviews = reviewRepository.findAllByDesignerEmail(designer.getEmail());
+        boolean isLike = userDesignerLikeRepository.existsByDesignerAndUser(designer,user);
+
+        int currentYear = java.time.LocalDate.now().getYear();
+        int birth = Integer.parseInt(designer.getBirth().toString().substring(0, 4));
+        int age = currentYear - birth;
+
+        return DesignerProfileResponseDto.builder()
+                .name(designer.getName())
+                .email(designer.getEmail())
+                .nickName(designer.getNickName())
+                .tel(designer.getTel())
+                .image(designer.getImage())
+                .backgroundImage(designer.getBackgroundImage())
+                .description(designer.getDesc())
+                .age(age)
+                .likeCnt(designer.getLike())
+                .isLike(isLike)
+                .shopName(designer.getShop().getName())
+                .gender(designer.getGender())
+                .reviews(reviews)
+                .build();
+    }
 }

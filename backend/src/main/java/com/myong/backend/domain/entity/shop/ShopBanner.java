@@ -21,7 +21,7 @@ public class ShopBanner {
     private UUID id;
 
     @Column(name = "sb_image")
-    private String image;    // 이미지 url
+    private String image = "";    // 이미지 url
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "s_id", nullable = false)
