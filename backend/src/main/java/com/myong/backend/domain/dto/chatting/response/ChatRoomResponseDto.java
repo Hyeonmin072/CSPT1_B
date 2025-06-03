@@ -20,6 +20,7 @@ public class ChatRoomResponseDto {
 
     private UUID chatRoomId;   // 채팅방 아이디
     private String partnerName; // 상대방 아이디
+    private String partnerImage; // 상대방 사진
     private String lastMessage;  // 채팅방 마지막 메세지
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
     private ZonedDateTime sendDate;  // 메세지 보낸 시간
@@ -29,8 +30,13 @@ public class ChatRoomResponseDto {
         return ChatRoomResponseDto.builder()
                 .chatRoomId(chatRoom.getId())
                 .partnerName(chatRoom.getDesigner().getNickName())
+                .partnerImage(chatRoom.getDesigner().getImage())
                 .lastMessage(chatRoom.getLastMessage())
-                .sendDate(chatRoom.getLastSendDate().atZone(ZoneId.of("UTC")))
+                .sendDate(
+                        chatRoom.getLastSendDate() != null
+                                ? chatRoom.getLastSendDate().atZone(ZoneId.of("UTC"))
+                                : null
+                )
                 .unreadCount(unreadCount)
                 .build();
     }
