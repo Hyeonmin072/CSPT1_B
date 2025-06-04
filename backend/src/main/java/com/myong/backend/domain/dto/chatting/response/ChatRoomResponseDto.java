@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -26,10 +25,24 @@ public class ChatRoomResponseDto {
     private ZonedDateTime sendDate;  // 메세지 보낸 시간
     private int unreadCount;    // 안읽은 메세지 갯수
 
-    public static ChatRoomResponseDto from(ChatRoom chatRoom, int unreadCount){
+    public static ChatRoomResponseDto fromUser(ChatRoom chatRoom, int unreadCount){
         return ChatRoomResponseDto.builder()
                 .chatRoomId(chatRoom.getId())
                 .partnerName(chatRoom.getDesigner().getNickName())
+                .partnerImage(chatRoom.getDesigner().getImage())
+                .lastMessage(chatRoom.getLastMessage())
+                .sendDate(
+                        chatRoom.getLastSendDate() != null
+                                ? chatRoom.getLastSendDate().atZone(ZoneId.of("UTC"))
+                                : null
+                )
+                .unreadCount(unreadCount)
+                .build();
+    }
+    public static ChatRoomResponseDto fromDesigner(ChatRoom chatRoom, int unreadCount){
+        return ChatRoomResponseDto.builder()
+                .chatRoomId(chatRoom.getId())
+                .partnerName(chatRoom.getUser().getName())
                 .partnerImage(chatRoom.getDesigner().getImage())
                 .lastMessage(chatRoom.getLastMessage())
                 .sendDate(

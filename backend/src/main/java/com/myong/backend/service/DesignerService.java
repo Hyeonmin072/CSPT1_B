@@ -415,7 +415,7 @@ public class DesignerService {
         // 안읽은 메세지 갯수 포함
         return chatRooms.stream().map(chatRoom -> {
             int unreadCount = messageRepository.countUnreadExcludingSender(chatRoom,designer.getEmail(),SenderType.DESIGNER);
-            return ChatRoomResponseDto.from(chatRoom, unreadCount);
+            return ChatRoomResponseDto.fromDesigner(chatRoom, unreadCount);
         }).collect(Collectors.toList());
     }
 
