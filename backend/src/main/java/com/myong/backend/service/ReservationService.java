@@ -532,6 +532,8 @@ public class ReservationService {
          ).get("unavailable");
 
          return new AvailableTimeResponseDto(
+                 openTime.toString(),
+                 closeTime.toString(),
                  availableTimes,
                  unavailableTimes
          );
