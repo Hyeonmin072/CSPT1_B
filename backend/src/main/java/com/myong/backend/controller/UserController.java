@@ -189,8 +189,8 @@ public class UserController {
      * 예약 페이지 2번(시간 선택)
      */
     @GetMapping("/reservation/selecttime/{designeremail}")
-    public ResponseEntity<ReservationPage2ResponseDto> loadSelectTimePage(@PathVariable(name = "designeremail")String designeremail){
-        return ResponseEntity.ok(reservationService.loadSelectTimePage(designeremail));
+    public ResponseEntity<ReservationPage2ResponseDto> loadSelectDayPage(@PathVariable(name = "designeremail")String designeremail){
+        return ResponseEntity.ok(reservationService.loadSelectDayPage(designeremail));
     }
 
     /**

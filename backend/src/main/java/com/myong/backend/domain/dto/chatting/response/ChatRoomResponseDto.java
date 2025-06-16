@@ -39,6 +39,7 @@ public class ChatRoomResponseDto {
                 .unreadCount(unreadCount)
                 .build();
     }
+
     public static ChatRoomResponseDto fromDesigner(ChatRoom chatRoom, int unreadCount){
         return ChatRoomResponseDto.builder()
                 .chatRoomId(chatRoom.getId())

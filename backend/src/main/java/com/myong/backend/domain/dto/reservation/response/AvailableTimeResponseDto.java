@@ -11,6 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 public class AvailableTimeResponseDto {
 
+    private String opentime;
+    private String closetime;
     private List<LocalTime> availableTimes;
     private List<LocalTime> unavailableTimes;
 }
