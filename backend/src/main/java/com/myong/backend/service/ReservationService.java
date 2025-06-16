@@ -485,7 +485,7 @@ public class ReservationService {
 
     // 예약페이지 2번 (디자이너 시간선택)
 
-    public ReservationPage2ResponseDto loadSelectTimePage(String email){
+    public ReservationPage2ResponseDto loadSelectDayPage(String email){
 
         Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
 
@@ -506,26 +506,12 @@ public class ReservationService {
             designerHolidays.add(holiyday.getDate());
         }
 
-        // 예약 가능한 및 불가능한 시간 찾기
-        List<LocalTime> availableTimes ;  // 가능한 시간
-        List<LocalTime> unavailableTimes; // 불가능한 시간
-        LocalTime openTime = designer.getShop().getOpenTime();
-        LocalTime closeTime = designer.getShop().getCloseTime();
-        availableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(LocalDate.now(),designer,openTime,closeTime)
-                .get("available");
-        unavailableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(LocalDate.now(),designer,openTime,closeTime)
-                .get("unavailable");
-        System.out.println(availableTimes);
-        System.out.println(unavailableTimes);
-
         return new ReservationPage2ResponseDto(
                 designer.getName(),
                 designer.getDesc(),
                 designer.getImage(),
                 holidays,
-                designerHolidays,
-                availableTimes,
-                unavailableTimes
+                designerHolidays
         );
     }
 

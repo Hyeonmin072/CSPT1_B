@@ -37,6 +37,6 @@ public class ChatRoomMessageResponseDto {
                 .senderType(message.getSenderType().toString())
                 .isRead(message.isRead())
                 .build();
-
     }
+
 }

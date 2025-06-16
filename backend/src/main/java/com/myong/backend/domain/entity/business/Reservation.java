@@ -37,6 +37,10 @@ public class Reservation {
     @Column(name = "r_price")
     private Integer price; // 결제 금액
 
+    @Column(name = "r_status")
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status = ReservationStatus.INCOMPLETE;   // 서비스 완료, 미완료 상태
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "m_id")
     private Menu menu; // 메뉴 고유 키
