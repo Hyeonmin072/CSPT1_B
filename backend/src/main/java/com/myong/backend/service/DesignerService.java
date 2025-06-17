@@ -14,6 +14,7 @@ import com.myong.backend.domain.entity.chatting.SenderType;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.JobPost;
+import com.myong.backend.domain.entity.shop.Notice;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.exception.ResourceNotFoundException;
@@ -66,6 +67,7 @@ public class DesignerService {
     private final ChattingOnlineService chattingOnlineService;
     private final UserDesignerLikeRepository userDesignerLikeRepository;
     private final UserRepository userRepository;
+    private final NoticeRepository noticeRepository;
 
 
     public void signUp(SignUpRequestDto request) {
@@ -513,4 +515,20 @@ public class DesignerService {
                 .reviews(reviews)
                 .build();
     }
+
+    /** 게시글 전체 조회 **/
+    public List<NoticeResponseDto> getAllNotices() {
+        List<Notice> notices = noticeRepository.findAll();
+        return notices.stream()
+                .map(NoticeResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    /** 게시글 단건 조회 **/
+    public NoticeDetailResponseDto getNoticeDetail(UUID noticeId) {
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new NoSuchElementException("해당 게시글을 찾을 수 없습니다."));
+        return new NoticeDetailResponseDto(notice);
+    }
+
 }

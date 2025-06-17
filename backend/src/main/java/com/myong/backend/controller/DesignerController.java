@@ -243,6 +243,18 @@ public class DesignerController {
 
     }
 
+    /** 게시글 전체 조회 **/
+    @GetMapping("/notices")
+    public ResponseEntity<List<NoticeResponseDto>> getAllNotices() {
+        return ResponseEntity.ok(designerService.getAllNotices());
+    }
+
+    /** 게시글 단건 조회 **/
+    @GetMapping("/notice/{noticeId}")
+    public ResponseEntity<NoticeDetailResponseDto> getNoticeDetail(@PathVariable UUID noticeId) {
+        return ResponseEntity.ok(designerService.getNoticeDetail(noticeId));
+    }
+
 
     //디자이너 예약일 가져오기
 //    @GetMapping("/reservation")
