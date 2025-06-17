@@ -78,6 +78,7 @@ public class ReservationService {
         // 인증정보에서 유저 이메일 꺼내기
         String userEmail = getAuthenticatedEmail();
 
+
         // 유저 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 유저가 없습니다."));
@@ -93,6 +94,13 @@ public class ReservationService {
         // 사업자 조회
         Shop shop = shopRepository.findByEmail(request.getShopEmail())
                 .orElseThrow(() -> new RuntimeException("해당 가게를 찾을 수 없습니다"));
+
+        // 예약 중복 검사(중복일 경우 예외 던짐)
+        List<Reservation> duplicateResult = reservationRepository.findByShopAndServiceDate(shop, request.getServiceDate());
+
+        if (!duplicateResult.isEmpty()) {
+            throw new IllegalStateException("해당 시간에 이미 예약이 존재합니다.");
+        }
 
         // 쿠폰 조회, 쿠폰이 요청에 존재하는 경우 할인타입에 따라 금액에 로직 적용하고, 없으면 금액에 로직 적용 X
         Long price = null;
@@ -485,7 +493,7 @@ public class ReservationService {
 
     // 예약페이지 2번 (디자이너 시간선택)
 
-    public ReservationPage2ResponseDto loadSelectTimePage(String email){
+    public ReservationPage2ResponseDto loadSelectDayPage(String email){
 
         Designer designer = designerRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다."));
 
@@ -506,26 +514,12 @@ public class ReservationService {
             designerHolidays.add(holiyday.getDate());
         }
 
-        // 예약 가능한 및 불가능한 시간 찾기
-        List<LocalTime> availableTimes ;  // 가능한 시간
-        List<LocalTime> unavailableTimes; // 불가능한 시간
-        LocalTime openTime = designer.getShop().getOpenTime();
-        LocalTime closeTime = designer.getShop().getCloseTime();
-        availableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(LocalDate.now(),designer,openTime,closeTime)
-                .get("available");
-        unavailableTimes = getAvailableTimesAndUnavailableTimes_ByDesigner(LocalDate.now(),designer,openTime,closeTime)
-                .get("unavailable");
-        System.out.println(availableTimes);
-        System.out.println(unavailableTimes);
-
         return new ReservationPage2ResponseDto(
                 designer.getName(),
                 designer.getDesc(),
                 designer.getImage(),
                 holidays,
-                designerHolidays,
-                availableTimes,
-                unavailableTimes
+                designerHolidays
         );
     }
 
@@ -546,6 +540,8 @@ public class ReservationService {
          ).get("unavailable");
 
          return new AvailableTimeResponseDto(
+                 openTime.toString(),
+                 closeTime.toString(),
                  availableTimes,
                  unavailableTimes
          );

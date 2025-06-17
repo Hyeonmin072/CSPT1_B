@@ -42,7 +42,6 @@ import com.myong.backend.repository.mybatis.AttendanceMapper;
 import com.myong.backend.repository.mybatis.ReservationMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
@@ -523,11 +522,20 @@ public class ShopService {
      * @param request 메뉴 등록 요청 정보가 담긴 DTO
      * @return 메뉴 등록 결과 메시지
      */
-    public String createMenu(@Valid MenuCreateRequestDto request) {
+    public String createMenu(MenuCreateRequestDto request,
+                             MultipartFile image) {
         // 인증정보에서 사업자 이메일 꺼내고, 가게 조회
         String email = getAuthenticatedEmail();
-        
         Shop shop = getShop(email);
+
+        // 이미지 URL 기본값
+        String imageUrl = "";
+
+        // 새로운 이미지로 수정했을 경우, 새로운 메뉴 이미지를 S3에 넣고 URL 최신화
+        if(image != null){
+            String route = "shop" + "/" + email + "/" + "menuImage" + "/";
+            imageUrl = fileUploadService.uploadFile(image, route);
+        }
 
         // 디자이너 당 메뉴 엔티티 개체 생성 후 저장
         for (String designerEmail : request.getDesignerEmails()) {
@@ -541,6 +549,7 @@ public class ShopService {
                     .shop(shop)
                     .designer(designer)
                     .category(request.getCategory())
+                    .image(imageUrl)
                     .build();
 
             menuRepository.save(menu);
@@ -601,10 +610,24 @@ public class ShopService {
      * @param request 메뉴 수정 요청 정보가 담긴 DTO
      * @return 메뉴 수정 결과 메시지
      */
-    public String updateMenu(String id, MenuUpdateRequestDto request) {
+    public String updateMenu(String id, MenuUpdateRequestDto request, MultipartFile image) {
+        // 메뉴 이이디로 조회
         Menu menu = menuRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다.")); // 메뉴 이이디로 찾기
-        menu.edit(request); // 편의 메서드로 메뉴 정보 수정
+                .orElseThrow(() -> new NoSuchElementException("해당 메뉴를 찾을 수 없습니다."));
+
+        // 인증정보에서 사업자 이메일 꺼내기
+        String email = getAuthenticatedEmail();
+
+        // 이미지 URL 기본값
+        String imageUrl = "";
+
+        // 새로운 이미지로 수정했을 경우, 새로운 메뉴 이미지를 S3에 넣고 URL 최신화
+        if(image != null){
+            String route = "shop" + "/" + email + "/" + "menuImage" + "/";
+            imageUrl = fileUploadService.uploadFile(image, route);
+        }
+
+        menu.edit(request, imageUrl); // 편의 메서드로 메뉴 정보 수정
         
         return "성공적으로 메뉴가 수정되었습니다."; // 성공 구문 반환
     }
