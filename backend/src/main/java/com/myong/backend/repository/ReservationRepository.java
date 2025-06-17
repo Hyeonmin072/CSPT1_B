@@ -56,4 +56,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     @Modifying
     @Query("update Reservation r set r.menu = null where r.menu in :menus")
     void nullifyMenuInReservations(@Param("menus") List<Menu> menus);
+
+    List<Reservation> findByShopAndServiceDate(Shop shop, LocalDateTime serviceDate);
 }

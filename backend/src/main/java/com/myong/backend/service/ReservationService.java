@@ -78,6 +78,7 @@ public class ReservationService {
         // 인증정보에서 유저 이메일 꺼내기
         String userEmail = getAuthenticatedEmail();
 
+
         // 유저 조회
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 유저가 없습니다."));
@@ -93,6 +94,13 @@ public class ReservationService {
         // 사업자 조회
         Shop shop = shopRepository.findByEmail(request.getShopEmail())
                 .orElseThrow(() -> new RuntimeException("해당 가게를 찾을 수 없습니다"));
+
+        // 예약 중복 검사(중복일 경우 예외 던짐)
+        List<Reservation> duplicateResult = reservationRepository.findByShopAndServiceDate(shop, request.getServiceDate());
+
+        if (!duplicateResult.isEmpty()) {
+            throw new IllegalStateException("해당 시간에 이미 예약이 존재합니다.");
+        }
 
         // 쿠폰 조회, 쿠폰이 요청에 존재하는 경우 할인타입에 따라 금액에 로직 적용하고, 없으면 금액에 로직 적용 X
         Long price = null;
