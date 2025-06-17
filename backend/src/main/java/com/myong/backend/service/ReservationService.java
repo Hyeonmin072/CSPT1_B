@@ -2,6 +2,7 @@ package com.myong.backend.service;
 
 
 import com.myong.backend.configuration.TossPaymentConfig;
+import com.myong.backend.domain.dto.NotificationDto;
 import com.myong.backend.domain.dto.payment.*;
 import com.myong.backend.domain.dto.reservation.MenuListData;
 import com.myong.backend.domain.dto.reservation.response.*;
@@ -26,6 +27,7 @@ import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -246,7 +248,7 @@ public class ReservationService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일 HH시 mm분");
         String formattedDate = reservation.getServiceDate().format(formatter);
 
-        String notificationContent = "[예약 알림] " + user.getName() + " 고객님이 디자이너 " + designer.getName() + " 님에게 " + menu.getName() +" 을 예약했어요. [ 시술일자 : " + formattedDate + " ]";
+        String notificationContent = user.getName() + " 고객님이 디자이너 " + designer.getName() + " 님에게 " + menu.getName() +" 을 예약했어요. [ 시술일자 : " + formattedDate + " ]";
         Notification notification = Notification.builder()
                 .content(notificationContent)
                 .notificationType(NotificationType.SHOP)
@@ -254,8 +256,10 @@ public class ReservationService {
                 .build();
         Notification savedNotification = notificationRepository.save(notification);
 
+        NotificationDto sendNotification = new NotificationDto("예약 알림", notificationContent, LocalDateTime.now(), shop.getEmail());
+
         // SSE를 통해 알람을 클라이언트에게 전송
-        notificationService.send(savedNotification);
+        notificationService.send(sendNotification);
 
 
         // 성공한 결제 및 예약 관련 정보를 반환

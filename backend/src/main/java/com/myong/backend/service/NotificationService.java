@@ -1,5 +1,6 @@
 package com.myong.backend.service;
 
+import com.myong.backend.domain.dto.NotificationDto;
 import com.myong.backend.domain.entity.Notification;
 import com.myong.backend.repository.EmitterRepository;
 import jakarta.transaction.Transactional;
@@ -70,7 +71,7 @@ public class NotificationService {
      * 다른 서비스 클래스에서 이벤트 발생 시, 이 메서드를 호출하여 SSE 연결을 통해 보낼 알람을 준비한다.
      * @param notification 알람 객체(이 객체를 DB에 저장한 후 넘어올 것으로 기대)
      */
-    public void send(Notification notification) {
+    public void send(NotificationDto notification) {
         String eventId = notification.getReceiverEmail() + "_" + System.currentTimeMillis();
 
         // 한 사용자가 여러 클라이언트(브라우저 탭, 모바일 앱 등)에서 접속할 수 있으므로, 사용자의 모든 SSE 연결(emitter)을 가져온다.
@@ -81,7 +82,7 @@ public class NotificationService {
                         // 전송 전 알림 데이터를 캐시에 저장하여 네트워크 장애 등으로 인한 이벤트 유실을 방지한다.
                         // 전송 시점에서 실패하여 현재 emitter가 삭제되어도, 클라이언트가 재접속할 때 Last-Event-ID를 이용해 캐시에서 못 받은 알림들을 다시 보낼 수 있다.
                         emitterRepository.saveEventCache(key, notification);
-                        sendToClient(eventId, (SseEmitter) emitter, notification.getContent());
+                        sendToClient(eventId, (SseEmitter) emitter, notification);
                     } catch (Exception e) {
                         emitterRepository.deleteById(key); // 전송 중 오류 발생 시 해당 emitter는 삭제 -> 서버는 더 이상 그 연결을 통해 이벤트를 보내지 않는다
                         log.error("알람 전송 실패", e);
@@ -99,12 +100,20 @@ public class NotificationService {
      */
     private void sendToClient(String eventId, SseEmitter emitter, Object object) {
         try {
+
+
             // SseEmitter의 send() 메서드를 통해 클라이언트에 이벤트 전송, 이름은 "connect"로 지정
             // 이벤트 ID와 데이터를 함께 전송하여 클라이언트가 수신 이벤트를 추적할 수 있게 한다.
             // 맨 처음 테스트 더미 데이터의 경우 name = test로 보내어 클라이언트 측에서 별도로 처리할 수 있게한다.
             if(object.toString().startsWith("알림 서버 연결 성공")) emitter.send(SseEmitter.event().name("test").id(eventId).data(object));
             else emitter.send(SseEmitter.event().name("connect").id(eventId).data(object));
-        } catch (IOException e) {
+
+
+        }
+
+
+
+        catch (IOException e) {
             emitterRepository.deleteById(eventId); // 예외 발생 시, 해당 emitter를 삭제하여 더 이상 이벤트를 보내지 않도록 한다
             throw new RuntimeException("알림 서버 연결 오류");
         }
