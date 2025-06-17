@@ -145,8 +145,7 @@ public class DesignerController {
     public ResponseEntity<Designer> updateProfile(
             @Valid @RequestPart(name = "request") UpdateProfileRequestDto request,
             @RequestParam(name = "updateImage", required = false) MultipartFile updateImage,
-            @RequestParam(name = "updateBackgroundImage", required = falsed .
-            ) MultipartFile updateBackgroundImage
+            @RequestParam(name = "updateBackgroundImage", required = false) MultipartFile updateBackgroundImage
             ){
             log.info("update profile: {}", request);
 
