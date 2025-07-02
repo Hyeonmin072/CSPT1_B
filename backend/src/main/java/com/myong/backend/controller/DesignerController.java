@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -256,14 +258,15 @@ public class DesignerController {
     }
 
 
+
     //디자이너 예약일 가져오기
-//    @GetMapping("/reservation")
-//    public List<DesignerReservationResponseDto> getReservation(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
-//        Authentication authentication =
-//                SecurityContextHolder.getContext().getAuthentication();
-//
-//        String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
-//
-//        return designerService.getReservations(designerEmail, date);
-//    }
+    @GetMapping("/reservation")
+    public List<DesignerReservationResponseDto> getReservation(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date){
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String designerEmail = authentication.getName(); //토큰에서 디자이너 이메일을 추출
+
+        return designerService.getReservations(designerEmail, date);
+    }
 }
