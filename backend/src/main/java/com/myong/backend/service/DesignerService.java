@@ -37,6 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -227,32 +228,33 @@ public class DesignerService {
         return designerRepository.save(designer);
     }
 
-//    @Transactional
-//    public List<DesignerReservationResponseDto> getReservations(String email, LocalDate date) {
-//        Designer designer = designerRepository
-//                .findByEmail(email)
-//                .orElseThrow(()->new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
-//
-//        // 입력받은 날짜의 시작 월요일과 끝나는 일요일 찾기
-//        LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
-//        LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);
-//
-//
-//        return designer.getReservations().stream()
-//                .filter(reservation -> {
-//                    LocalDateTime serviceDate = reservation.getServiceDate();
-//                    return  reservation.getStatus() == ReservationStatus.SUCCESS &&
-//                            !serviceDate.toLocalDate().isBefore(startOfWeek)//시작요일보다 빠른거 제외
-//                            && !serviceDate.toLocalDate().isAfter(endOfWeek);//끝요일보다 늦은거 제외
-//                })
-//                .map(reservation -> DesignerReservationResponseDto.builder()
-//                        .userName(reservation.getUser().getName())
-//                        .menu(reservation.getMenu())
-//                        .serviceDate(reservation.getServiceDate())
-//                        .dayOfWeek(reservation.getServiceDate().getDayOfWeek())
-//                        .build()
-//                ).collect(Collectors.toList());
-//    }
+    // 예약
+    @Transactional
+    public List<DesignerReservationResponseDto> getReservations(String email, LocalDate date) {
+        Designer designer = designerRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
+
+        LocalDate startOfWeek = date.with(DayOfWeek.MONDAY);
+        LocalDate endOfWeek = date.with(DayOfWeek.SUNDAY);
+
+        return designer.getReservations().stream()
+                .filter(reservation -> {
+                    LocalDate resDate = reservation.getServiceDate().toLocalDate();
+                    return !resDate.isBefore(startOfWeek) && !resDate.isAfter(endOfWeek);
+                })
+                .map(reservation -> DesignerReservationResponseDto.builder()
+                        .reservationId(reservation.getId())
+                        .userName(reservation.getUser().getName())
+                        .menuName(reservation.getMenu().getName())
+                        .menuPrice(reservation.getMenu().getPrice())
+                        .serviceDate(LocalDateTime.parse(reservation.getServiceDate().toString()))
+                        .dayOfWeek(reservation.getServiceDate().getDayOfWeek())
+                        .reservationStatus(reservation.getStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 
     //디자이너 헤더 로딩
     public DesignerLoadHeaderResponseDto loadHeader(){

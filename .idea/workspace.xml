@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d6dbc241-2e84-412e-990b-bec39ef132fd" name="Changes" comment="" />
+    <list default="true" id="d6dbc241-2e84-412e-990b-bec39ef132fd" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/DesignerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/DesignerController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/designer/DesignerReservationResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/designer/DesignerReservationResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/DesignerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/DesignerService.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,8 +48,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
+        <option value="Enum" />
       </list>
     </option>
   </component>
@@ -72,6 +78,7 @@
   &quot;keyToString&quot;: {
     &quot;Gradle.BackendApplicationTests.executor&quot;: &quot;Run&quot;,
     &quot;Gradle.Build backend.executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.Download Sources.executor&quot;: &quot;Run&quot;,
     &quot;Gradle.backend [build].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.backend [clean].executor&quot;: &quot;Run&quot;,
     &quot;JUnit.BackendApplicationTests.executor&quot;: &quot;Run&quot;,
@@ -83,7 +90,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Spring Boot.BackendApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Merging develop&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;clientcheck&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/github/CSPT1_B/backend/build.gradle&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -220,6 +227,12 @@
       <workItem from="1749007013701" duration="5000" />
       <workItem from="1749544894282" duration="667000" />
       <workItem from="1750137222558" duration="389000" />
+      <workItem from="1750138721880" duration="343000" />
+      <workItem from="1750235231798" duration="1196000" />
+      <workItem from="1750310613394" duration="328000" />
+      <workItem from="1751244960335" duration="4442000" />
+      <workItem from="1751331630716" duration="5723000" />
+      <workItem from="1751418359756" duration="6971000" />
     </task>
     <servers />
   </component>
