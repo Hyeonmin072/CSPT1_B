@@ -248,7 +248,7 @@ public class DesignerService {
                         .userName(reservation.getUser().getName())
                         .menuName(reservation.getMenu().getName())
                         .menuPrice(reservation.getMenu().getPrice())
-                        .serviceDate(LocalDateTime.parse(reservation.getServiceDate().toString()))
+                        .serviceDate(reservation.getServiceDate())
                         .dayOfWeek(reservation.getServiceDate().getDayOfWeek())
                         .reservationStatus(reservation.getStatus())
                         .build())
