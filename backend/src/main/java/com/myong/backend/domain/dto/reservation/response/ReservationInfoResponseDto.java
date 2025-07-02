@@ -28,11 +28,11 @@ public class ReservationInfoResponseDto {
         return ReservationInfoResponseDto.builder()
                 .reservationId(reservation.getId())
                 .serviceDate(reservation.getServiceDate())
-                .menu(reservation.getMenu().getName())
-                .shop(reservation.getShop().getName())
-                .designer(reservation.getDesigner().getName())
+                .menu(reservation.getMenu() == null ? "" : reservation.getMenu().getName())
+                .shop(reservation.getShop() == null ? "" : reservation.getShop().getName())
+                .designer(reservation.getDesigner() == null ? "" : reservation.getDesigner().getName())
                 .price(reservation.getPrice())
-                .menuImage(reservation.getMenu().getImage())
+                .menuImage(reservation.getMenu() == null ? "" :  reservation.getMenu().getImage())
                 .build();
     }
 }
