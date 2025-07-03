@@ -48,28 +48,20 @@ public class ReviewService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        Optional<Shop> findShop = shopRepository.findByEmail(request.getShopEmail());
         Optional<User> findUser = userRepository.findByEmail(userEmail);
-        Optional<Designer> findDesigner = designerRepository.findByEmail(request.getDesignerEmail());
         Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
 
-        if(!findShop.isPresent()){
-            throw new ResourceNotFoundException("해당 가게를 찾지 못했습니다.");
-        }
         if(!findUser.isPresent()){
             throw new ResourceNotFoundException("해당 유저를 찾지 못했습니다.");
-        }
-        if(!findDesigner.isPresent()){
-            throw new ResourceNotFoundException("해당 디자이너를 찾지 못했습니다.");
         }
         if(!findReservation.isPresent()){
             throw new ResourceNotFoundException("해당 예약을 찾지 못했습니다.");
         }
 
-        Shop shop = findShop.get();
-        User user = findUser.get();
-        Designer designer = findDesigner.get();
         Reservation reservation = findReservation.get();
+        User user = findUser.get();
+        Shop shop = reservation.getShop();
+        Designer designer = reservation.getDesigner();
 
         Review review = new Review(
                 request.getReviewContent(),
@@ -82,8 +74,8 @@ public class ReviewService {
         );
 
         reviewRepository.save(review);
+        updateGlobalAverageRating();
 
-        System.out.println("리뷰 카운터"+shop.getReviewCount());
         //리뷰 등록시 해당 가게 평점 등록
         double totalRating = shop.getTotalRating()+request.getReviewRating();   // 토탈 평점 점수
         int reviewCount = shop.getReviewCount()+1;                              // 리뷰 카운터
@@ -110,6 +102,7 @@ public class ReviewService {
         Shop shop = review.getShop();
         Designer designer = review.getDesigner();
 
+        updateGlobalAverageRating();
         // 가게 평점 업데이트
         double totalRating = shop.getTotalRating()-review.getRating();
         int reviewCount = shop.getReviewCount()-1;
@@ -129,13 +122,13 @@ public class ReviewService {
         return ResponseEntity.ok("리뷰가 성공적으로 삭제되었습니다.");
     }
 
-    public double getReviewRating(double totalRating, int count){
-        System.out.println(count);
+    public double getReviewRating(double totalRating, int count){;
         return totalRating/count;
     }
     // 베이지안 평균 값 적용을 위한 가게 총 평점 평균 레이팅 계산
     @Scheduled(cron = "0 0 3 * * ?") // 매일 새벽 3시
     public void updateGlobalAverageRating() {
+        if(redisTemplate.hasKey("global_avg_rating")){return;}
         Double average = shopRepository.calculateAvgRating();
         System.out.println("총 가게 평점 평균 점수:"+average);
         redisTemplate.opsForValue().set("global_avg_rating", average);
