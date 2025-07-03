@@ -560,12 +560,10 @@ public class UserService {
 
         List<UserCoupon> userCoupons = userCouponRepository.findAllByUser(user);
 
-        if(userCoupons.size() < 1){
-            throw new ResourceNotFoundException("쿠폰이 존재하지 않아요");
-        }
 
         List<UserGetAllCouponsResponseDto> userGetAllCouponsResponseDtos =
                 userCoupons.stream()
+                        .filter(userCoupon -> userCoupon.getCoupon() != null)
                         .filter(userCoupon -> userCoupon.getCoupon().getStatus() != CouponStatus.USED)
                         .map(
                         userCoupon -> UserGetAllCouponsResponseDto.builder()
