@@ -2,8 +2,11 @@ package com.myong.backend.repository;
 
 import com.myong.backend.domain.dto.designer.data.ReviewData;
 import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
+import com.myong.backend.domain.dto.user.response.UserReviewPageResponseDto;
 import com.myong.backend.domain.entity.designer.Designer;
+import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -50,6 +53,13 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             "From Review r Join r.reservation res " +
             "Where r.designer.email = :designerEmail")
     List<ReviewData> findAllByDesignerEmail(@Param("designerEmail") String email);
+
+    @Query("select new com.myong.backend.domain.dto.user.response.UserReviewPageResponseDto(" +
+            "r.rating, r.content, r.image, s.email, s.name, d.name, d.email) " +
+            "from Review r join r.shop s join r.designer d " +
+            "where r.user = :user " +
+            "order by r.createDate Desc")
+    List<UserReviewPageResponseDto> findByUserOrderByCreateDateDesc(@Param("user") User user, Pageable pageable);
 
 
     @Query("select r.designer , count(r.id)" +
