@@ -56,7 +56,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
     @Query("select new com.myong.backend.domain.dto.user.response.UserReviewPageResponseDto(" +
             "r.rating, r.content, r.image, s.email, s.name, d.name, d.email, re.menu.name, r.createDate, ra.content, re.menu.category) " +
-            "from Review r join r.shop s join r.designer d join r.reservation re join r.reviewAnswer ra " +
+            "from Review r join r.shop s join r.designer d join r.reservation re left join r.reviewAnswer ra " +
             "where r.user = :user " +
             "order by r.createDate Desc")
     List<UserReviewPageResponseDto> findByUserOrderByCreateDateDesc(@Param("user") User user, Pageable pageable);
