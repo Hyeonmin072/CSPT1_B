@@ -259,15 +259,29 @@ public class UserController {
 
     // 리뷰 ==============================================================
 
+    /**
+     * 리뷰 등록
+     */
     @PostMapping("/review/register")
     public ResponseEntity<String> registerReview(@RequestBody ShopRegisterReviewRequestDto request){
         return ResponseEntity.ok(reviewService.registerReview(request));
     }
 
+    /**
+     * 리뷰 삭제
+     */
     @PostMapping("/review/remove")
     public ResponseEntity<String> removeReview(@RequestBody ReviewRemoveRequestDto request){
         return reviewService.reviewRemove(request);
 
+    }
+
+    /**
+     * 리뷰 페이지 로드
+     */
+    @GetMapping("/review")
+    public ResponseEntity<List<UserReviewPageResponseDto>> getReviewPage(@AuthenticationPrincipal UserDetailsDto requestUser){
+        return ResponseEntity.ok(reviewService.getReviewPage(requestUser));
     }
 
     // 쿠폰함 =============================================================

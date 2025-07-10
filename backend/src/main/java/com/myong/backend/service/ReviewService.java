@@ -2,16 +2,20 @@ package com.myong.backend.service;
 
 import com.myong.backend.domain.dto.review.ReviewRemoveRequestDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
+import com.myong.backend.domain.dto.user.response.UserReviewPageResponseDto;
 import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.shop.Shop;
 import com.myong.backend.domain.entity.user.User;
 import com.myong.backend.domain.entity.usershop.Review;
 import com.myong.backend.exception.ResourceNotFoundException;
+import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
@@ -19,7 +23,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -120,6 +126,17 @@ public class ReviewService {
         reviewRepository.deleteById(UUID.fromString(request.getReviewId()));
 
         return ResponseEntity.ok("리뷰가 성공적으로 삭제되었습니다.");
+    }
+
+    /**
+     * 리뷰 페이지 로딩,
+     * 최근 5개만
+     * @param requestUser
+     * @return 리뷰평점,리뷰내용,리뷰이미지,가게이메일,가게이름,디자이너이름,디자이너이메일
+     */
+    public List<UserReviewPageResponseDto> getReviewPage(UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 유저를 찾을 수 없습니다."));
+        return reviewRepository.findByUserOrderByCreateDateDesc(user,PageRequest.of(0,5));
     }
 
     public double getReviewRating(double totalRating, int count){;
