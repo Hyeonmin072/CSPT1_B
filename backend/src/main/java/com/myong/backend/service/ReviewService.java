@@ -153,8 +153,8 @@ public class ReviewService {
 
     // 베이지안 평균 계산
     public double calculateBayesianAvg(double rating, int reviewCount){
-        Object avg = redisTemplate.opsForValue().get("global_avg_rating");
-        double c = avg != null ? Double.parseDouble((String)avg) : 3.5;
+        Double avg = (Double) redisTemplate.opsForValue().get("global_avg_rating");
+        double c = avg != null ? avg : 3.5;
         double v = reviewCount;
         return (v / (v + 30)) * rating + (30 / (v + 30)) * c;
 
