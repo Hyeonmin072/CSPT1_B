@@ -37,7 +37,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             @Param("userGender") String userGender
     );
 
-
+    boolean existsByReservationId(UUID reservationId);
 
     // 리뷰 이미지 가져오기
     @Query("select new com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto(" +

@@ -23,8 +23,9 @@ public class ReservationInfoResponseDto {
     private String designer;
     private Integer price;
     private String menuImage;
+    private String status;
 
-    public static ReservationInfoResponseDto from (Reservation reservation) {
+    public static ReservationInfoResponseDto from (Reservation reservation, String status) {
         return ReservationInfoResponseDto.builder()
                 .reservationId(reservation.getId())
                 .serviceDate(reservation.getServiceDate())
@@ -33,6 +34,7 @@ public class ReservationInfoResponseDto {
                 .designer(reservation.getDesigner() == null ? "" : reservation.getDesigner().getName())
                 .price(reservation.getPrice())
                 .menuImage(reservation.getMenu() == null ? "" :  reservation.getMenu().getImage())
+                .status(status)
                 .build();
     }
 }

@@ -70,6 +70,7 @@ public class ReservationService {
     private static final Duration TTL = Duration.ofMinutes(10); // Redis에 저장할 TTL
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final ReviewRepository reviewRepository;
 
     /**
      * 결제하기 버튼 -> 임시 예약 데이터 및 결제 객체 생성
@@ -463,7 +464,11 @@ public class ReservationService {
         List<Reservation> reservationList = reservationRepository.findAllByUser(user);
 
         return reservationList.stream()
-                .map(ReservationInfoResponseDto::from)
+                .map(reservation -> {
+                    boolean reviewed = reviewRepository.existsByReservationId(reservation.getId());
+                    String status = reviewed ? "REVIEWED" : "NEEDED_REVIEW";
+                    return ReservationInfoResponseDto.from(reservation, status);
+                })
                 .collect(Collectors.toList());
 
     }
