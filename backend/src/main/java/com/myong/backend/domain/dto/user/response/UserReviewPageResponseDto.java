@@ -9,10 +9,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 public class UserReviewPageResponseDto {
+    private UUID reviewId;
     private Double reviewRating;
     private String reviewContent;
     private String reviewImg;

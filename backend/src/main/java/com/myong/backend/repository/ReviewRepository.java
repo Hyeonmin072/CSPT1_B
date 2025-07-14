@@ -37,7 +37,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             @Param("userGender") String userGender
     );
 
-
+    boolean existsByReservationId(UUID reservationId);
 
     // 리뷰 이미지 가져오기
     @Query("select new com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto(" +
@@ -55,7 +55,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
     List<ReviewData> findAllByDesignerEmail(@Param("designerEmail") String email);
 
     @Query("select new com.myong.backend.domain.dto.user.response.UserReviewPageResponseDto(" +
-            "r.rating, r.content, r.image, s.email, s.name, d.name, d.email, re.menu.name, r.createDate, ra.content, re.menu.category) " +
+            "r.id, r.rating, r.content, r.image, s.email, s.name, d.name, d.email, re.menu.name, r.createDate, ra.content, re.menu.category) " +
             "from Review r join r.shop s join r.designer d join r.reservation re left join r.reviewAnswer ra " +
             "where r.user = :user " +
             "order by r.createDate Desc")
