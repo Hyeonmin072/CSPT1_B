@@ -58,4 +58,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     void nullifyMenuInReservations(@Param("menus") List<Menu> menus);
 
     List<Reservation> findByShopAndServiceDate(Shop shop, LocalDateTime serviceDate);
+
+    Long countByUser(User user);
 }

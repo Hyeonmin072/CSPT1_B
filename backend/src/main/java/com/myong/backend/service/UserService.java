@@ -64,6 +64,8 @@ public class UserService {
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
     private final ChattingOnlineService chattingOnlineService;
+    private final ReservationRepository reservationRepository;
+
 
 
     /**
@@ -534,7 +536,9 @@ public class UserService {
         System.out.println("현재 authentication : "+authentication);
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("해당 유저를 찾지 못했습니다."));
-
+        Long reservationCnt = reservationRepository.countByUser(user);
+        Long reviewedCnt = reviewRepository.countByUser(user);
+        Long likedDesignerCnt = userDesignerLikeRepository.countByUser(user);
 
         return UserProfileResponseDto.builder()
                 .userName(user.getName())
@@ -542,6 +546,9 @@ public class UserService {
                 .userAdress(user.getAddress())
                 .userTel(user.getTel())
                 .userGrade(user.getMemberShip().getGrade())
+                .reservationCnt(reservationCnt)
+                .reviewedCnt(reviewedCnt)
+                .likedDesignerCnt(likedDesignerCnt)
                 .build();
     }
 
