@@ -22,4 +22,6 @@ public interface UserDesignerLikeRepository extends JpaRepository<UserDesignerLi
             "(d.email, d.nickName, d.desc, d.shop.name, d.image ) " +
             "from UserDesignerLike udl JOIN udl.designer d where udl.user.email = :email")
     List<LikeDesignerPageResponseDto> findLikedDesignersByEmail(@Param("email")String email);
+
+    Long countByUser(User user);
 }

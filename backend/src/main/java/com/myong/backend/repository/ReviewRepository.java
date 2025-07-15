@@ -68,4 +68,6 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
             "group by r.designer.id " +
             "order by count(r.id) desc")
     List<Object[]> findDesignerWithReviewCountBetweenDates(@Param("startDate")LocalDateTime startDate, @Param("endDate")LocalDateTime endDate, Pageable pageable);
+
+    Long countByUser(User user);
 }
