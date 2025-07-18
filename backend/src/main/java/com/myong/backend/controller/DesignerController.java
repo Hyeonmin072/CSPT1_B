@@ -7,6 +7,7 @@ import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.email.EmailCheckDto;
 import com.myong.backend.domain.dto.email.EmailRequestDto;
+import com.myong.backend.domain.entity.Period;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
@@ -193,6 +194,16 @@ public class DesignerController {
 
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    // 디자이너 매출
+    @GetMapping("/sales")
+    public ResponseEntity<DesignerSaleResponseDto> getDesignerSales(
+            @RequestParam String email,
+            @RequestParam Period period
+    ) {
+        DesignerSaleResponseDto response = designerService.getDesignerSales(email, period);
+        return ResponseEntity.ok(response);
     }
 
     //구인포스트 가져오기

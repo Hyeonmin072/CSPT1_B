@@ -7,7 +7,10 @@ import com.myong.backend.domain.dto.designer.*;
 import com.myong.backend.domain.dto.designer.SignUpRequestDto;
 import com.myong.backend.domain.dto.designer.UpdateProfileRequestDto;
 import com.myong.backend.domain.dto.designer.data.ReviewData;
+import com.myong.backend.domain.dto.payment.DesignerSalesResponseDto;
 import com.myong.backend.domain.dto.user.response.DesignerReviewImageResponseDto;
+import com.myong.backend.domain.entity.Period;
+import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.chatting.ChatRoom;
 import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.chatting.SenderType;
@@ -43,7 +46,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -319,6 +324,63 @@ public class DesignerService {
                 .leaveTime(jobPost.getLeaveTime())
                 .file(jobPost.getFile())
                 .address(jobPost.getShop().getAddress())
+                .build();
+    }
+
+
+    public DesignerSaleResponseDto getDesignerSales(String email, Period period) {
+        // 디자이너 조회
+        Designer designer = designerRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
+        // 디자이너의 예약 데이터 가져오기
+        List<Reservation> reservations = designer.getReservations();
+        // 기본값 설정
+        long totalAmount = 0L;
+        Map<String, Long> graph = Map.of();
+        LocalDate now = LocalDate.now();
+
+        if (period.equals(Period.ONE_WEEK)) {
+            LocalDate startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+            // 1주일 동안의 매출 계산
+            totalAmount = reservations.stream()
+                    .filter(r -> r.getServiceDate().toLocalDate().isEqual(startOfWeek) || r.getServiceDate().toLocalDate().isAfter(startOfWeek))
+                    .mapToLong(Reservation::getPrice) .sum();
+            // 요일별 매출 계산
+            graph = reservations.stream()
+                    .filter(r -> r.getServiceDate().toLocalDate().isEqual(startOfWeek) || r.getServiceDate().toLocalDate().isAfter(startOfWeek))
+                    .collect(Collectors.groupingBy( r -> r.getServiceDate().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.KOREAN), Collectors.summingLong(Reservation::getPrice) ));
+        } else if (period.equals(Period.ONE_MONTH)) {
+            LocalDate startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
+
+            // 한달 동안의 매출 계산
+            totalAmount = reservations.stream()
+                    .filter(r -> r.getServiceDate().toLocalDate().isAfter(startOfMonth.minusDays(1))) .mapToLong(Reservation::getPrice) .sum();
+            // 날짜별 매출 계산
+            graph = reservations.stream()
+                    .filter(r -> r.getServiceDate().toLocalDate().isAfter(startOfMonth.minusDays(1)))
+                    .collect(Collectors.groupingBy( r -> String.valueOf(r.getServiceDate().getDayOfMonth()) + "일", Collectors.summingLong(Reservation::getPrice) // 가격 합산
+                    ));
+        } else if (period.equals(Period.ONE_YEAR)) {
+            LocalDate startOfYear = now.with(TemporalAdjusters.firstDayOfYear());
+            // 1년 동안의 매출 계산
+            totalAmount = reservations.stream()
+                    .filter(r -> r.getServiceDate().toLocalDate().isEqual(startOfYear) || r.getServiceDate().toLocalDate().isAfter(startOfYear))
+                    .mapToLong(Reservation::getPrice) .sum();
+            // 월별 매출 계산
+            graph = reservations.stream() .
+                    filter(r -> r.getServiceDate().toLocalDate().isEqual(startOfYear) || r.getServiceDate().toLocalDate().isAfter(startOfYear))
+                    .collect(Collectors.groupingBy( r -> r.getServiceDate().getMonth().getDisplayName(TextStyle.FULL, Locale.KOREAN), Collectors.summingLong(Reservation::getPrice) )); }
+        // 오늘 매출 계산
+        long todayAmount = reservations.stream()
+                .filter(r -> r.getServiceDate().toLocalDate().isEqual(LocalDate.now()))
+                .mapToLong(Reservation::getPrice) .sum();
+        // DTO 반환
+        return DesignerSaleResponseDto.builder()
+                .totalAmount(totalAmount)
+                .todayAmount(todayAmount)
+                .graph(graph)
                 .build();
     }
 
