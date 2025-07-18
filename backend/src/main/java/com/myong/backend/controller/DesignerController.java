@@ -202,6 +202,7 @@ public class DesignerController {
             @RequestParam String email,
             @RequestParam Period period
     ) {
+        //if 테스트 테스트
         DesignerSaleResponseDto response = designerService.getDesignerSales(email, period);
         return ResponseEntity.ok(response);
     }
