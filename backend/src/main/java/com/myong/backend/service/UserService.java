@@ -383,7 +383,7 @@ public class UserService {
         // 리뷰 별 이미지 데이터 가져오기
         List<String> reviewImageUrls = new ArrayList<>();
         for(Review review : reviews){
-            if(review.getImage().equals("")){continue;}
+            if(review.getImage() == null ||  review.getImage().equals("")){continue;}
             reviewImageUrls.add(review.getImage());
         }
 
