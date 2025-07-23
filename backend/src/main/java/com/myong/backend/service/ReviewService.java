@@ -72,7 +72,7 @@ public class ReviewService {
         Review review = new Review(
                 request.getReviewContent(),
                 request.getReviewRating(),
-                request.getReviewImg(),
+                request.getReviewImg() != null ? request.getReviewImg() : "",
                 reservation,
                 shop,
                 designer,
