@@ -203,6 +203,7 @@ public class DesignerController {
             @RequestParam Period period
     ) {
         //if 테스트 테스트
+        //develop으로 git merge를 해도 보내지지가 않아 왜?
         DesignerSaleResponseDto response = designerService.getDesignerSales(email, period);
         return ResponseEntity.ok(response);
     }
