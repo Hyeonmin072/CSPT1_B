@@ -23,6 +23,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -42,37 +44,32 @@ public class ReviewService {
     private final ReservationRepository reservationRepository;
     private final ReviewRepository reviewRepository;
     private final RedisTemplate<String,Object> redisTemplate;
-
+    private final FileUploadService fileUploadService;
 
 
     /*
     *  리뷰 생성
     */
     @Transactional
-    public String registerReview(ShopRegisterReviewRequestDto request){
+    public String registerReview(ShopRegisterReviewRequestDto request, MultipartFile reviewImg){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
 
-        Optional<User> findUser = userRepository.findByEmail(userEmail);
-        Optional<Reservation> findReservation = reservationRepository.findById(request.getReservationId());
-
-        if(!findUser.isPresent()){
-            throw new ResourceNotFoundException("해당 유저를 찾지 못했습니다.");
-        }
-        if(!findReservation.isPresent()){
-            throw new ResourceNotFoundException("해당 예약을 찾지 못했습니다.");
-        }
-
-        Reservation reservation = findReservation.get();
-        User user = findUser.get();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Reservation reservation = reservationRepository.findById(request.getReservationId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Shop shop = reservation.getShop();
         Designer designer = reservation.getDesigner();
+        String url = "";
+        if(reviewImg != null){
+            String route = "shop" + "/" + shop.getEmail() + "/" + "review" + "/" + request.getReservationId() + "/";
+            url = fileUploadService.uploadFile(reviewImg,route);
+        }
 
         Review review = new Review(
                 request.getReviewContent(),
                 request.getReviewRating(),
-                request.getReviewImg() != null ? request.getReviewImg() : "",
+                url.equals("") ? "" : url,
                 reservation,
                 shop,
                 designer,

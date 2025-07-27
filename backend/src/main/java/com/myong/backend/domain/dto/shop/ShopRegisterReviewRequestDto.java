@@ -9,7 +9,6 @@ public class ShopRegisterReviewRequestDto {
 
     private Double reviewRating;
     private String reviewContent;
-    private String reviewImg;
     private UUID reservationId;
 
 

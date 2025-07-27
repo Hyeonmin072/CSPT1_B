@@ -33,6 +33,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -127,6 +128,8 @@ public class UserController {
     public ResponseEntity<UserProfileResponseDto> loadUserProfilePage(){
         return ResponseEntity.ok(userService.loadUserProfilePage());
     }
+
+
 
     // 프로필 끝 =============================================================
 
@@ -263,8 +266,9 @@ public class UserController {
      * 리뷰 등록
      */
     @PostMapping("/review/register")
-    public ResponseEntity<String> registerReview(@RequestBody ShopRegisterReviewRequestDto request){
-        return ResponseEntity.ok(reviewService.registerReview(request));
+    public ResponseEntity<String> registerReview(@RequestBody ShopRegisterReviewRequestDto request,
+                                                 @RequestPart(required = false) MultipartFile reviewImg){
+        return ResponseEntity.ok(reviewService.registerReview(request,reviewImg));
     }
 
     /**
