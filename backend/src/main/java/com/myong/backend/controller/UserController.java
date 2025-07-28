@@ -266,9 +266,17 @@ public class UserController {
      * 리뷰 등록
      */
     @PostMapping("/review/register")
-    public ResponseEntity<String> registerReview(@RequestBody ShopRegisterReviewRequestDto request,
-                                                 @RequestPart(required = false) MultipartFile reviewImg){
-        return ResponseEntity.ok(reviewService.registerReview(request,reviewImg));
+    public ResponseEntity<String> registerReview(
+            @RequestParam("reviewRating") Double reviewRating,
+            @RequestParam("reviewContent") String reviewContent,
+            @RequestParam("reservationId") UUID reservationId,
+            @RequestPart(value = "reviewImg", required = false) MultipartFile reviewImg
+    ) {
+        ShopRegisterReviewRequestDto request = new ShopRegisterReviewRequestDto();
+        request.setReviewRating(reviewRating);
+        request.setReviewContent(reviewContent);
+        request.setReservationId(reservationId);
+        return ResponseEntity.ok(reviewService.registerReview(request, reviewImg));
     }
 
     /**
