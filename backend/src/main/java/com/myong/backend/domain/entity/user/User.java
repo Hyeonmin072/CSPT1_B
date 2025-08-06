@@ -1,7 +1,7 @@
 package com.myong.backend.domain.entity.user;
 
+import com.myong.backend.domain.dto.user.request.UserProfileUpdateRequestDto;
 import com.myong.backend.domain.entity.Gender;
-import com.myong.backend.domain.entity.chatting.Message;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
 import com.myong.backend.domain.entity.usershop.UserShop;
 import jakarta.persistence.*;
@@ -91,6 +91,10 @@ public class User {
         this.longitude = longitude;
         this.latitude = latitude;
         this.location = location;
+    }
+
+    public void profileUpdate(UserProfileUpdateRequestDto request){
+        this.address = !this.address.equals(request.getAddress()) ? request.getAddress() : this.address;
     }
 
 
