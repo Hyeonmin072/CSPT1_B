@@ -16,6 +16,7 @@ import com.myong.backend.domain.dto.shop.PaymentResponseDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.data.ShopListData;
 import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
+import com.myong.backend.domain.dto.user.request.UserProfileUpdateRequestDto;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserSignUpDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
@@ -30,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -127,6 +127,12 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponseDto> loadUserProfilePage(){
         return ResponseEntity.ok(userService.loadUserProfilePage());
+    }
+
+    @PostMapping("/profile/update")
+    public ResponseEntity<Void> updateProfile(@Valid @RequestBody UserProfileUpdateRequestDto request, @AuthenticationPrincipal UserDetailsDto requestUser){
+        userService.updateProfile(request,requestUser);
+        return ResponseEntity.ok().build();
     }
 
 

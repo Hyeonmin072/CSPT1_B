@@ -7,6 +7,7 @@ import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
+import com.myong.backend.domain.dto.user.request.UserProfileUpdateRequestDto;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
@@ -32,12 +33,14 @@ import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.time.LocalDateTime;
@@ -550,6 +553,18 @@ public class UserService {
                 .reviewedCnt(reviewedCnt)
                 .likedDesignerCnt(likedDesignerCnt)
                 .build();
+    }
+
+    /**
+     * 프로필 업데이트
+     *
+     * @param request
+     */
+    @Transactional
+    public void updateProfile(UserProfileUpdateRequestDto request, UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 유저를 찾지 못했습니다."));
+        user.profileUpdate(request);
+        userRepository.save(user);
     }
 
     /**
