@@ -15,11 +15,8 @@ import com.myong.backend.domain.dto.shop.PaymentRequestDto;
 import com.myong.backend.domain.dto.shop.PaymentResponseDto;
 import com.myong.backend.domain.dto.shop.ShopRegisterReviewRequestDto;
 import com.myong.backend.domain.dto.user.data.ShopListData;
-import com.myong.backend.domain.dto.user.request.DesignerLikeRequestDto;
-import com.myong.backend.domain.dto.user.request.UserProfileUpdateRequestDto;
+import com.myong.backend.domain.dto.user.request.*;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
-import com.myong.backend.domain.dto.user.request.UserSignUpDto;
-import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
 import com.myong.backend.domain.dto.user.response.*;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.service.*;
@@ -124,18 +121,31 @@ public class UserController {
 
     // 프로필 시작 =============================================================
 
+    /**
+     * 프로필 조회
+     */
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponseDto> loadUserProfilePage(){
         return ResponseEntity.ok(userService.loadUserProfilePage());
     }
 
+    /**
+     * 프로필 업데이트
+     */
     @PostMapping("/profile/update")
     public ResponseEntity<Void> updateProfile(@Valid @RequestBody UserProfileUpdateRequestDto request, @AuthenticationPrincipal UserDetailsDto requestUser){
         userService.updateProfile(request,requestUser);
         return ResponseEntity.ok().build();
     }
 
-
+    /**
+     * 비밀번호 업데이트
+     */
+    @PostMapping("/password/update")
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody UserPasswordUpdateRequestDto request, @AuthenticationPrincipal UserDetailsDto requestUser){
+        userService.updatePassword(request, requestUser);
+        return ResponseEntity.ok().build();
+    }
 
     // 프로필 끝 =============================================================
 

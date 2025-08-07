@@ -7,6 +7,7 @@ import com.myong.backend.domain.dto.chatting.response.ChatRoomResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChatUserInfoResponseDto;
 import com.myong.backend.domain.dto.chatting.response.ChattingResponseDto;
 import com.myong.backend.domain.dto.user.data.*;
+import com.myong.backend.domain.dto.user.request.UserPasswordUpdateRequestDto;
 import com.myong.backend.domain.dto.user.request.UserProfileUpdateRequestDto;
 import com.myong.backend.domain.dto.user.response.ShopDetailsResponseDto;
 import com.myong.backend.domain.dto.user.request.UserUpdateLocationRequestDto;
@@ -559,11 +560,30 @@ public class UserService {
      * 프로필 업데이트
      *
      * @param request
+     * @param requestUser
      */
     @Transactional
     public void updateProfile(UserProfileUpdateRequestDto request, UserDetailsDto requestUser){
         User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 유저를 찾지 못했습니다."));
         user.profileUpdate(request);
+        userRepository.save(user);
+    }
+
+
+    /**
+     * 비밀번호 수정
+     *
+     * @param request
+     * @param requestUser
+     */
+    @Transactional
+    public void updatePassword(UserPasswordUpdateRequestDto request, UserDetailsDto requestUser){
+        User user = userRepository.findByEmail(requestUser.getUsername()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"해당 유저를 찾지 못했습니다."));
+        if(!passwordEncoder.matches(request.getCurPassword(),user.getPwd())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"현재 비밀번호랑 일치하지 않습니다.");
+        }
+        String newPassword = passwordEncoder.encode(request.newPassword);
+        user.passwordUpdate(newPassword);
         userRepository.save(user);
     }
 
