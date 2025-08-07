@@ -13,9 +13,9 @@ public class UserPasswordUpdateRequestDto {
 
     public String curPassword;
 
-    @Length(min = 7, message = "비밀번호는 최소 8자 이상이여야 합니다.")
+    @Length(min = 8, message = "비밀번호는 최소 8자 이상이여야 합니다.")
     public String newPassword;
 
-    @Length(min = 7, message = "비밀번호는 최소 8자 이상이여야 합니다.")
+    @Length(min = 8, message = "비밀번호는 최소 8자 이상이여야 합니다.")
     public String newPasswordConfirm;
 }
