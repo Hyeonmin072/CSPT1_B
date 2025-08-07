@@ -1,5 +1,6 @@
 package com.myong.backend.domain.entity.user;
 
+import com.myong.backend.domain.dto.user.request.UserPasswordUpdateRequestDto;
 import com.myong.backend.domain.dto.user.request.UserProfileUpdateRequestDto;
 import com.myong.backend.domain.entity.Gender;
 import com.myong.backend.domain.entity.userdesigner.UserDesignerLike;
@@ -95,6 +96,10 @@ public class User {
 
     public void profileUpdate(UserProfileUpdateRequestDto request){
         this.address = !this.address.equals(request.getAddress()) ? request.getAddress() : this.address;
+    }
+
+    public void passwordUpdate(String newPassword){
+        this.pwd = newPassword;
     }
 
 
