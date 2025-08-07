@@ -6,6 +6,7 @@ import com.myong.backend.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.DayOfWeek;
@@ -52,7 +53,7 @@ public class ResumeService {
 
     @Transactional
     //이력서 수정
-    public Resume updateResume(String email, ResumeRequestDto resumeDto) {
+    public Resume updateResume(String email, ResumeRequestDto resumeDto, MultipartFile image) {
         Designer designer = FindDesignerByEmail(email);
         Resume resume = FindResumeByEmail(email);
 
@@ -70,7 +71,7 @@ public class ResumeService {
         }
 
         //이미지 변경
-        if(!Objects.equals(resumeDto.getImage(), resume.getImage())) {
+        if(image != null && !image.isEmpty()) {
             resume.updateImage(resumeDto.getImage());
             isUpdate = true;
         }

@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -164,19 +165,19 @@ public class DesignerController {
 
 
     //디자이너 이력서 수정
-    @PostMapping("/resume/update")
+    @PostMapping(value = "/resume/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Resume> updateResume(
-            @Valid  @RequestBody ResumeRequestDto resumeDto ){
+            @RequestPart("data") ResumeRequestDto resumeDto,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
 
-            Authentication authentication =
-                    SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String designerEmail = authentication.getName();
 
-            String designerEmail = authentication.getName();//토큰에서 디자이너 이메일을 추출
-            log.info("update resume: {}", resumeDto);
-
-        Resume resume = resumeService.updateResume(designerEmail, resumeDto);
+        Resume resume = resumeService.updateResume(designerEmail, resumeDto, image);
         return ResponseEntity.ok(resume);
     }
+
+
 
 
 
