@@ -5,6 +5,7 @@ import com.myong.backend.domain.dto.coupon.CouponRequestDto;
 import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.event.EventRequestDto;
 import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.job.ApplicationResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
@@ -28,6 +29,7 @@ import com.myong.backend.domain.entity.business.Reservation;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerHoliday;
 import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
+import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.domain.entity.shop.*;
 import com.myong.backend.domain.entity.user.Coupon;
 import com.myong.backend.domain.entity.user.DiscountType;
@@ -79,6 +81,8 @@ import java.util.stream.Collectors;
 public class ShopService {
     private final ShopBannerRepository shopBannerRepository;
 
+    private final ResumeRepository resumeRepository;
+    private final ApplicationRepository applicationRepository;
     private final ShopRepository shopRepository;
     private final DefaultMessageService messageService;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -737,6 +741,7 @@ public class ShopService {
                 .work(jobPost.getWork())
                 .workTime(jobPost.getWorkTime())
                 .leaveTime(jobPost.getLeaveTime())
+                .content(jobPost.getContent())
                 .build();
     }
 
@@ -1574,5 +1579,34 @@ public class ShopService {
      */
     public String loadHeader() {
         return getShop(getAuthenticatedEmail()).getName(); // 시큐리티 인증정보에서 꺼낸 이메일 조회 -> 가게 조회 -> 가게 이름 조회
+    }
+
+    public List<ApplicationResponseDto> getJobApplications(String id) {
+        // 로그인 인증 정보에서 이메일 가져오기
+        String email = getAuthenticatedEmail();
+
+        Shop shop = getShop(email);
+        JobPost jobpost = jobPostRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("찾고자 하는 구인글이 없습니다."));
+
+        List<Application> applications = applicationRepository.findByJobPost(jobpost);
+
+        List<ApplicationResponseDto> response = new ArrayList<>();
+        for (Application application : applications) {
+            Resume resume = resumeRepository.findById(application.getResume().getId())
+                    .orElseThrow(() -> new RuntimeException("찾고자 하는 지원서가 없습니다."));
+
+            Designer designer = resume.getDesigner();
+            ApplicationResponseDto applicationResponseDto = ApplicationResponseDto.builder().
+                    designerEmail(designer.getEmail()).
+                    designerImage(designer.getImage()).
+                    designerDesc(designer.getDesc()).
+                    designerGender(designer.getGender().name()).
+                    designerName(designer.getName()).
+                    designerLike(designer.getLike()).
+                    build();
+            response.add(applicationResponseDto); // 구인글 목록 dto 반환
+        }
+        return response;
     }
 }

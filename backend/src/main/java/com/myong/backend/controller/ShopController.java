@@ -4,6 +4,7 @@ import com.myong.backend.domain.dto.coupon.CouponRequestDto;
 import com.myong.backend.domain.dto.coupon.CouponResponseDto;
 import com.myong.backend.domain.dto.event.EventRequestDto;
 import com.myong.backend.domain.dto.event.EventResponseDto;
+import com.myong.backend.domain.dto.job.ApplicationResponseDto;
 import com.myong.backend.domain.dto.job.JobPostDetailResponseDto;
 import com.myong.backend.domain.dto.job.JobPostRequestDto;
 import com.myong.backend.domain.dto.job.JobPostResponseDto;
@@ -253,6 +254,14 @@ public class ShopController {
     @DeleteMapping("/jobposts/{jobpostId}")
     public ResponseEntity<String> deleteJobPost(@PathVariable("jobpostId") String id) {
         return ResponseEntity.ok(shopService.deleteJobPost(id));
+    }
+
+    /**
+     * 사업자 구인지원글 조회
+     */
+    @GetMapping("/jobposts/{jobpostId}/applications")
+    public ResponseEntity<List<ApplicationResponseDto>> getJobApplications(@PathVariable("jobpostId") String id) {
+        return ResponseEntity.ok(shopService.getJobApplications(id));
     }
 
     /**
