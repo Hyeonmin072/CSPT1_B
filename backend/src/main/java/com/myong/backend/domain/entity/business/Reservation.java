@@ -39,7 +39,7 @@ public class Reservation {
 
     @Column(name = "r_status")
     @Enumerated(EnumType.STRING)
-    private ReservationStatus status = ReservationStatus.INCOMPLETE;   // 서비스 완료, 미완료 상태
+    private ReservationStatus status = ReservationStatus.INCOMPLETE;   // 서비스 완료, 미완료, 거절
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "m_id")
@@ -98,5 +98,9 @@ public class Reservation {
 
     public void deleteMenu() {
         this.menu = null;
+    }
+
+    public void updateStatus(ReservationStatus status) {
+        this.status = status;
     }
 }

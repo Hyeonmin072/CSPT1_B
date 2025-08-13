@@ -392,10 +392,10 @@ public class ShopController {
     /**
      * 사업자 예약 거절
      */
-    @PostMapping("/reservation/refuse")
-    public ResponseEntity<Map> refuseReservation(@RequestParam String paymentKey,
+    @DeleteMapping("/reservations/{reservationId}")
+    public ResponseEntity<Map> refuseReservation(@PathVariable UUID reservationId,
                                                  @RequestParam String cancelReason) {
-        return ResponseEntity.ok().body(reservationService.refuseReservation(paymentKey, cancelReason));
+        return ResponseEntity.ok().body(reservationService.refuseReservation(reservationId, cancelReason));
     }
 
     /**

@@ -12,6 +12,7 @@ import com.myong.backend.domain.entity.Notification;
 import com.myong.backend.domain.entity.NotificationType;
 import com.myong.backend.domain.entity.business.Payment;
 import com.myong.backend.domain.entity.business.Reservation;
+import com.myong.backend.domain.entity.business.ReservationStatus;
 import com.myong.backend.domain.entity.designer.Designer;
 import com.myong.backend.domain.entity.designer.DesignerHoliday;
 import com.myong.backend.domain.entity.designer.DesignerRegularHoliday;
@@ -27,7 +28,6 @@ import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -390,9 +390,9 @@ public class ReservationService {
      * @param cancelReason 취소 이유
      * @return 결제 취소 결과를 담은 Map 객체
      */
-    public Map refuseReservation(String reservationId, String cancelReason) {
+    public Map refuseReservation(UUID reservationId, String cancelReason) {
         // 결제 검색
-        Reservation reservation = reservationRepository.findById(UUID.fromString(reservationId))
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("해당 예약을 찾을 수 없습니다."));
 
         // 결제 검색
@@ -402,9 +402,9 @@ public class ReservationService {
         // 결제 취소 요청 메서드 호출 -> Map<String,String>을 반환
         Map map = requestTossPaymentCancel(payment.getPaymentKey(), cancelReason);
 
-        // 결제 취소 성공 후, 만약 삭제할 예약에 쿠폰이 사용되었다면 -> 쿠폰의 만료 날짜가 아직 현재 날짜 이전인 경우, 새로운 미사용 상태 쿠폰을 만들어 다시 유저에게 돌려준 후 기존 쿠폰 객체 삭제
+        // 결제 취소 성공 후, 만약 삭제할 예약에 쿠폰이 사용되었고 쿠폰의 만료 날짜가 아직 현재 날짜 이전인 경우, 새로운 미사용 상태 쿠폰을 만들어 다시 유저에게 돌려준 후 기존 쿠폰 객체 삭제
         Coupon coupon = reservation.getCoupon();
-        if (coupon.getExpireDate().isBefore(LocalDate.now())) {
+        if (coupon != null && coupon.getExpireDate().isBefore(LocalDate.now())) {
             Coupon newCoupon = coupon.toBuilder()
                     .status(CouponStatus.UNUSED)
                     .build();
@@ -412,8 +412,8 @@ public class ReservationService {
             couponRepository.deleteById(coupon.getId());
         }
 
-        // 예약 삭제
-        reservationRepository.deleteById(reservation.getId());
+        // 예약 객체의 상태를 업데이트
+        reservation.updateStatus(ReservationStatus.REFUSE);
 
         // 결제 객체의 상태를 업데이트
         payment.cancelUpdate(cancelReason);
