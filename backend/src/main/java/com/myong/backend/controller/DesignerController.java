@@ -13,6 +13,7 @@ import com.myong.backend.domain.entity.designer.Resume;
 import com.myong.backend.jwttoken.dto.UserDetailsDto;
 import com.myong.backend.service.DesignerService;
 import com.myong.backend.service.EmailSendService;
+import com.myong.backend.service.FileUploadService;
 import com.myong.backend.service.ResumeService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -45,6 +46,7 @@ public class DesignerController {
 
     private final DesignerService designerService;
     private final ResumeService resumeService;
+    private final FileUploadService fileUploadService;
 
 
     @PostMapping("/signup")
@@ -164,19 +166,29 @@ public class DesignerController {
 
 
 
-    //디자이너 이력서 수정
-    @PostMapping(value = "/resume/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/resume/update")
     public ResponseEntity<Resume> updateResume(
-            @RequestPart("data") ResumeRequestDto resumeDto,
+            @RequestPart("resumeDto") ResumeRequestDto resumeDto,
             @RequestPart(value = "image", required = false) MultipartFile image) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String designerEmail = authentication.getName();
 
-        Resume resume = resumeService.updateResume(designerEmail, resumeDto, image);
+        // 기존 이미지 삭제
+        if (image != null && !image.isEmpty()) {
+            String oldImageUrl = resumeDto.getImage(); // 기존 이미지 URL
+            if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                fileUploadService.deleteFile(oldImageUrl); // 기존 이미지 삭제
+            }
+
+            // 새 이미지 업로드
+            String newImageUrl = fileUploadService.uploadFile(image, "resume-images/");
+            resumeDto.setImage(newImageUrl);
+        }
+
+        Resume resume = resumeService.updateResume(designerEmail, resumeDto);
         return ResponseEntity.ok(resume);
     }
-
 
 
 

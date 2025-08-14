@@ -7,6 +7,9 @@
     <list default="true" id="d6dbc241-2e84-412e-990b-bec39ef132fd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/DesignerController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/controller/DesignerController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/designer/CertificationRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/designer/CertificationRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/designer/ResumeRequestDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/dto/designer/ResumeRequestDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/business/ReservationStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/domain/entity/business/ReservationStatus.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ResumeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/myong/backend/service/ResumeService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -242,7 +245,11 @@
       <workItem from="1753418059139" duration="6237000" />
       <workItem from="1753937194957" duration="5000" />
       <workItem from="1754555326066" duration="1070000" />
-      <workItem from="1754601187296" duration="3587000" />
+      <workItem from="1754601187296" duration="3976000" />
+      <workItem from="1755007750304" duration="61000" />
+      <workItem from="1755069703374" duration="406000" />
+      <workItem from="1755093318151" duration="13508000" />
+      <workItem from="1755118573558" duration="7505000" />
     </task>
     <servers />
   </component>

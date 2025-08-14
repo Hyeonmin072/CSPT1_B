@@ -53,11 +53,11 @@ public class ResumeService {
 
     @Transactional
     //이력서 수정
-    public Resume updateResume(String email, ResumeRequestDto resumeDto, MultipartFile image) {
+    public Resume updateResume(String email, ResumeRequestDto resumeDto) {
         Designer designer = FindDesignerByEmail(email);
         Resume resume = FindResumeByEmail(email);
-
         boolean isUpdate = false;
+
         //소개 변경
         if(!Objects.equals(resumeDto.getContent(), resume.getContent())) {
             resume.updateContent(resumeDto.getContent());
@@ -71,16 +71,14 @@ public class ResumeService {
         }
 
         //이미지 변경
-        if(image != null && !image.isEmpty()) {
+        if(!Objects.equals(resumeDto.getImage(), resume.getImage())) {
             resume.updateImage(resumeDto.getImage());
-            isUpdate = true;
-        }
+            isUpdate = true; }
 
         //포토폴리오 변경
         if(!Objects.equals(resumeDto.getPortfolio(), resume.getPortfolio())) {
             resume.updatePortfolio(resumeDto.getPortfolio());
-            isUpdate = true;
-        }
+            isUpdate = true; }
 
         //희망근무요일 변경
         if(!Objects.equals(resumeDto.getWantedDays(), resume.getWantedDays())) {
@@ -93,21 +91,16 @@ public class ResumeService {
         //경력 추가
         if(!Objects.equals(resumeDto.getCareers(), resume.getCareers())) {
             updateCareer(resume,resumeDto);
-            isUpdate = true;
-        }
-
+            isUpdate = true; }
 
         //자격증 추가
-        if(!Objects.equals(resumeDto.getCertificates(), resume.getCertifications())){
+        if(!Objects.equals(resumeDto.getCertifications(), resume.getCertifications())){
             updateCertificates(resume,resumeDto);
             isUpdate = true;
         }
+        if(isUpdate == true){ resumeRepository.save(resume); }
 
-        if(isUpdate == true){
-            resumeRepository.save(resume);
-        }
-        return resume;
-    }
+        return resume; }
 
     //이력서 불러오기
     public ResumeResponseDto getResume(String email) {
@@ -188,11 +181,11 @@ public class ResumeService {
 
     //자격증 추가
     public void updateCertificates(Resume resume, ResumeRequestDto resumeDto) {
-        if(resumeDto.getCertificates() != null){
+        if(resumeDto.getCertifications() != null){
 
             certificationRepository.deleteAll(certificationRepository.findByResume(resume));
 
-            for(CertificationRequestDto request : resumeDto.getCertificates()){
+            for(CertificationRequestDto request : resumeDto.getCertifications()){
                 Certification certification = new Certification();
                 certification.updateName(request.getName());
                 certification.updateResume(resume);
@@ -204,19 +197,19 @@ public class ResumeService {
     //디자이너 근무희망요일 DayOfWeek 형으로 형변화하는 매서드
     private DayOfWeek DayFormatting(String day) {
         switch (day) {
-            case "MON":
+            case "MONDAY":
                 return DayOfWeek.MONDAY;
-            case "TUE":
+            case "TUESDAY":
                 return DayOfWeek.TUESDAY;
-            case "WED":
+            case "WEDNESDAY":
                 return DayOfWeek.WEDNESDAY;
-            case "THU":
+            case "THURSDAY":
                 return DayOfWeek.THURSDAY;
-            case "FRI":
+            case "FRIDAY":
                 return DayOfWeek.FRIDAY;
-            case "SAT":
+            case "SATURDAY":
                 return DayOfWeek.SATURDAY;
-            case "SUN":
+            case "SUNDAY":
                 return DayOfWeek.SUNDAY;
             default:
                 throw new IllegalArgumentException("유효하지 않은 요일: " + day);

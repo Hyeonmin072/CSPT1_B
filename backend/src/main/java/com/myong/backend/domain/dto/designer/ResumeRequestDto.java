@@ -24,7 +24,10 @@ public class ResumeRequestDto {
 
     private List<CareerRequestDto> careers = new ArrayList<>();
 
-    private List<CertificationRequestDto> certificates = new ArrayList<>();
+    private List<CertificationRequestDto> certifications = new ArrayList<>();
 
     private List<DesignerWantedDayRequestDto> wantedDays = new ArrayList<>();
+
+    public void setImage(String newImageUrl) {
+    }
 }
