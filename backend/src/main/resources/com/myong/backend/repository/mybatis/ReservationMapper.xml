@@ -16,6 +16,7 @@
         join designer d on r.d_id = d.d_id
         join menu m on r.m_id = m.m_id
         <where>
+            r.r_status != 'REFUSE'
             <!-- 가게 이메일(필수) -->
             <if test="shopEmail != null">
                and s.s_email = #{shopEmail}
@@ -25,13 +26,13 @@
                 <when test="request.latest != null">
                     <choose>
                         <when test="request.latest.name() == 'ONE_WEEK'">
-                            and r.r_service_date between #{request.date} - interval 1 week and #{request.date} + interval 1 day
+                            and r.r_service_date between #{request.date} - interval 1 week and #{request.date} + interval 1 week
                         </when>
                         <when test="request.latest.name() == 'ONE_MONTH'">
-                            and r.r_service_date between #{request.date} - interval 1 month and #{request.date} + interval 1 day
+                            and r.r_service_date between #{request.date} - interval 1 month and #{request.date} + interval 1 month
                         </when>
                         <when test="request.latest.name() == 'ONE_YEAR'">
-                            and r.r_service_date between #{request.date} - interval 1 year and #{request.date} + interval 1 day
+                            and r.r_service_date between #{request.date} - interval 1 year and #{request.date} + interval 1 year
                         </when>
                     </choose>
                 </when>
