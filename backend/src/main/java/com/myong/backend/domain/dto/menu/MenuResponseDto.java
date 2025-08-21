@@ -21,4 +21,8 @@ public class MenuResponseDto {
     MenuCategory category;
 
     String image;
+
+    String description;
+
+    String duration;
 }

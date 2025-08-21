@@ -579,6 +579,8 @@ public class ShopService {
                         .price(m.getPrice())
                         .category(m.getCategory())
                         .image(m.getImage())
+                        .description(m.getDesc())
+                        .duration(m.getEstimatedTime())
                         .build())
                 .toList();
     }
