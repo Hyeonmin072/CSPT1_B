@@ -186,7 +186,14 @@ public class DesignerController {
             resumeDto.setImage(newImageUrl);
         }
 
-        Resume resume = resumeService.updateResume(designerEmail, resumeDto);
+        if (image != null) {
+            System.out.println("이미지 파일 이름: " + image.getOriginalFilename());
+        } else {
+            System.out.println("이미지가 null입니다.");
+        }
+
+
+        Resume resume = resumeService.updateResume(designerEmail, resumeDto, image);
         return ResponseEntity.ok(resume);
     }
 

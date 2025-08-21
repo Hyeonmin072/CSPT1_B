@@ -25,16 +25,18 @@ public class ResumeService {
     private final CareerRepository careerRepository;
     private final CertificationRepository certificationRepository;
     private final DesignerWantedDayRepository designerWantedDayRepository;
+    private final FileUploadService fileUploadService;
 
 
 
 
-    public ResumeService(ResumeRepository resumeRepository, DesignerRepository designerRepository, CareerRepository careerRepository, CertificationRepository certificationRepository, DesignerWantedDayRepository designerWantedDayRepository) {
+    public ResumeService(ResumeRepository resumeRepository, DesignerRepository designerRepository, CareerRepository careerRepository, CertificationRepository certificationRepository, DesignerWantedDayRepository designerWantedDayRepository, FileUploadService fileUploadService) {
         this.resumeRepository = resumeRepository;
         this.designerRepository = designerRepository;
         this.careerRepository = careerRepository;
         this.certificationRepository = certificationRepository;
         this.designerWantedDayRepository = designerWantedDayRepository;
+        this.fileUploadService = fileUploadService;
     }
 
 
@@ -53,7 +55,7 @@ public class ResumeService {
 
     @Transactional
     //이력서 수정
-    public Resume updateResume(String email, ResumeRequestDto resumeDto) {
+    public Resume updateResume(String email, ResumeRequestDto resumeDto, MultipartFile image) {
         Designer designer = FindDesignerByEmail(email);
         Resume resume = FindResumeByEmail(email);
         boolean isUpdate = false;
@@ -71,9 +73,14 @@ public class ResumeService {
         }
 
         //이미지 변경
-        if(!Objects.equals(resumeDto.getImage(), resume.getImage())) {
-            resume.updateImage(resumeDto.getImage());
-            isUpdate = true; }
+        if (image != null) {
+            String route = "resume-images/";
+            FileUploadService updateImage = null;
+            String url = fileUploadService.uploadFile(image, route);
+
+            resume.setImage(url); // 이미지 URL 저장
+            isUpdate = true;
+        }
 
         //포토폴리오 변경
         if(!Objects.equals(resumeDto.getPortfolio(), resume.getPortfolio())) {
@@ -100,7 +107,8 @@ public class ResumeService {
         }
         if(isUpdate == true){ resumeRepository.save(resume); }
 
-        return resume; }
+        return resume;
+    }
 
     //이력서 불러오기
     public ResumeResponseDto getResume(String email) {
@@ -110,7 +118,7 @@ public class ResumeService {
         Designer designer = designerRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("디자이너를 찾을 수 없습니다."));
 
-        int currentYear = java.time.LocalDate.now().getYear();
+        int currentYear = LocalDate.now().getYear();
         int birth = Integer.parseInt(designer.getBirth().toString().substring(0,4));
         int age = currentYear - birth;
 

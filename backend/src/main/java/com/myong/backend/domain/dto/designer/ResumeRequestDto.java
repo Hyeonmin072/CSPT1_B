@@ -29,5 +29,6 @@ public class ResumeRequestDto {
     private List<DesignerWantedDayRequestDto> wantedDays = new ArrayList<>();
 
     public void setImage(String newImageUrl) {
+        
     }
 }
