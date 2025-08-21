@@ -119,4 +119,8 @@ public class Resume {
             this.wantedDays.add(designerWantedDay);
         }
     }
+
+    public void setImage(String url) {
+        this.image = url;
+    }
 }
